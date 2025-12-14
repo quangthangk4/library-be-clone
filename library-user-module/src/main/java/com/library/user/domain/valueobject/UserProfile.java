@@ -1,21 +1,22 @@
 package com.library.user.domain.valueobject;
 
-import lombok.Getter;
+import lombok.Value;
+import lombok.With;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 /**
  * UserProfile value object
  * Encapsulates user personal information
  */
-@Getter
+@Value
+@With
 public class UserProfile {
-    private final String fullName;
-    private final LocalDate dateOfBirth;
-    private final String phoneNumber;
-    private final String address;
-    private final String profilePictureUrl;
+    String fullName;
+    LocalDate dateOfBirth;
+    String phoneNumber;
+    String address;
+    String profilePictureUrl;
 
     public UserProfile(String fullName,
                       LocalDate dateOfBirth,
@@ -24,6 +25,9 @@ public class UserProfile {
                       String profilePictureUrl) {
         if (fullName == null || fullName.trim().isEmpty()) {
             throw new IllegalArgumentException("Full name cannot be null or empty");
+        }
+        if (dateOfBirth != null && dateOfBirth.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date of birth must be in the past");
         }
         this.fullName = fullName.trim();
         this.dateOfBirth = dateOfBirth;
@@ -38,48 +42,5 @@ public class UserProfile {
 
     public static UserProfile create(String fullName, LocalDate dateOfBirth, String phoneNumber, String address) {
         return new UserProfile(fullName, dateOfBirth, phoneNumber, address, null);
-    }
-
-    public UserProfile withProfilePicture(String profilePictureUrl) {
-        return new UserProfile(this.fullName, this.dateOfBirth, this.phoneNumber,
-                             this.address, profilePictureUrl);
-    }
-
-    public UserProfile withPhoneNumber(String phoneNumber) {
-        return new UserProfile(this.fullName, this.dateOfBirth, phoneNumber,
-                             this.address, this.profilePictureUrl);
-    }
-
-    public UserProfile withAddress(String address) {
-        return new UserProfile(this.fullName, this.dateOfBirth, this.phoneNumber,
-                             address, this.profilePictureUrl);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserProfile that = (UserProfile) o;
-        return Objects.equals(fullName, that.fullName) &&
-               Objects.equals(dateOfBirth, that.dateOfBirth) &&
-               Objects.equals(phoneNumber, that.phoneNumber) &&
-               Objects.equals(address, that.address) &&
-               Objects.equals(profilePictureUrl, that.profilePictureUrl);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fullName, dateOfBirth, phoneNumber, address, profilePictureUrl);
-    }
-
-    @Override
-    public String toString() {
-        return "UserProfile{" +
-               "fullName='" + fullName + '\'' +
-               ", dateOfBirth=" + dateOfBirth +
-               ", phoneNumber='" + phoneNumber + '\'' +
-               ", address='" + address + '\'' +
-               ", profilePictureUrl='" + profilePictureUrl + '\'' +
-               '}';
     }
 }

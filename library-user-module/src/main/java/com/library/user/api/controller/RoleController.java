@@ -1,11 +1,21 @@
 package com.library.user.api.controller;
 
 import com.library.shared.dto.ApiResponseApp;
+import com.library.user.application.dto.request.CreateRoleRequest;
 import com.library.user.application.dto.response.RoleResponse;
+import com.library.user.application.usecase.role.CreateRoleUseCase;
+import com.library.user.application.usecase.role.GetAllRoleUseCase;
+import com.library.user.application.usecase.role.GetRoleByIdUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -18,7 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoleController {
 
-    // TODO: Inject Role-related use cases when implemented
+    private final GetRoleByIdUseCase getRoleByIdUseCase;
+    private final GetAllRoleUseCase getAllRoleUseCase;
+    private final CreateRoleUseCase createRoleUseCase;
 
     /**
      * Get all roles
@@ -27,12 +39,8 @@ public class RoleController {
     @GetMapping
     public ApiResponseApp<List<RoleResponse>> getAllRoles() {
         log.info("REST request to get all roles");
-        // TODO: Implement GetAllRolesUseCase
-        return ApiResponseApp.<List<RoleResponse>>builder()
-            .code(HttpStatus.OK.value())
-            .message("Roles retrieved successfully")
-            .data(List.of())
-            .build();
+        List<RoleResponse> responses = getAllRoleUseCase.execute();
+        return ApiResponseApp.success(responses);
     }
 
     /**
@@ -42,11 +50,8 @@ public class RoleController {
     @GetMapping("/{id}")
     public ApiResponseApp<RoleResponse> getRoleById(@PathVariable Long id) {
         log.info("REST request to get role by ID: {}", id);
-        // TODO: Implement GetRoleByIdUseCase
-        return ApiResponseApp.<RoleResponse>builder()
-            .code(HttpStatus.OK.value())
-            .message("Role retrieved successfully")
-            .build();
+        RoleResponse response = getRoleByIdUseCase.execute(id);
+        return ApiResponseApp.success(response);
     }
 
     /**
@@ -55,44 +60,9 @@ public class RoleController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponseApp<RoleResponse> createRole(@RequestBody Object request) {
+    public ApiResponseApp<RoleResponse> createRole(@RequestBody CreateRoleRequest request) {
         log.info("REST request to create role");
-        // TODO: Implement CreateRoleUseCase
-        return ApiResponseApp.<RoleResponse>builder()
-            .code(HttpStatus.CREATED.value())
-            .message("Role created successfully")
-            .build();
-    }
-
-    /**
-     * Add permission to role
-     * POST /api/v1/roles/{roleId}/permissions/{permissionId}
-     */
-    @PostMapping("/{roleId}/permissions/{permissionId}")
-    public ApiResponseApp<RoleResponse> addPermissionToRole(
-            @PathVariable Long roleId,
-            @PathVariable Long permissionId) {
-        log.info("REST request to add permission {} to role {}", permissionId, roleId);
-        // TODO: Implement AddPermissionToRoleUseCase
-        return ApiResponseApp.<RoleResponse>builder()
-            .code(HttpStatus.OK.value())
-            .message("Permission added to role successfully")
-            .build();
-    }
-
-    /**
-     * Remove permission from role
-     * DELETE /api/v1/roles/{roleId}/permissions/{permissionId}
-     */
-    @DeleteMapping("/{roleId}/permissions/{permissionId}")
-    public ApiResponseApp<RoleResponse> removePermissionFromRole(
-            @PathVariable Long roleId,
-            @PathVariable Long permissionId) {
-        log.info("REST request to remove permission {} from role {}", permissionId, roleId);
-        // TODO: Implement RemovePermissionFromRoleUseCase
-        return ApiResponseApp.<RoleResponse>builder()
-            .code(HttpStatus.OK.value())
-            .message("Permission removed from role successfully")
-            .build();
+        RoleResponse response = createRoleUseCase.execute(request);
+        return ApiResponseApp.created("create role successfully",response);
     }
 }

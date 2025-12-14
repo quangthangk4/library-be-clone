@@ -1,6 +1,6 @@
 package com.library.user.domain.event;
 
-import com.library.user.domain.model.UserStatus;
+import com.library.user.domain.entities.UserStatus;
 import com.library.user.domain.valueobject.UserId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

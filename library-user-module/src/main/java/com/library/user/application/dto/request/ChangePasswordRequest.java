@@ -2,27 +2,19 @@ package com.library.user.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * DTO for changing user password
+ * DTO for changing the user password
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ChangePasswordRequest {
 
-    @NotBlank(message = "Current password is required")
-    private String currentPassword;
+public record ChangePasswordRequest(
+        @NotBlank(message = "Current password is required")
+        String currentPassword,
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    private String newPassword;
+        @NotBlank(message = "New password is required")
+        @Size(min = 8, message = "Password must be at least 8 characters")
+        String newPassword,
 
-    @NotBlank(message = "Confirm password is required")
-    private String confirmPassword;
-}
+        @NotBlank(message = "Confirm password is required")
+        String confirmPassword
+) {}

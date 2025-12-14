@@ -1,20 +1,29 @@
 package com.library.user.api.controller;
 
 import com.library.shared.dto.ApiResponseApp;
-import com.library.user.application.dto.request.AssignRoleRequest;
 import com.library.user.application.dto.request.CreateUserRequest;
 import com.library.user.application.dto.request.UpdateUserProfileRequest;
 import com.library.user.application.dto.response.UserResponse;
-import com.library.user.application.usecase.*;
+import com.library.user.application.usecase.user.AssignRoleToUserUseCase;
+import com.library.user.application.usecase.user.CreateUserUseCase;
+import com.library.user.application.usecase.user.GetUserByIdUseCase;
+import com.library.user.application.usecase.user.UpdateUserProfileUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST Controller for User management
- * Follows RESTful API design principles
+ * Follows RESTFUL API design principles
  */
 @Slf4j
 @RestController
@@ -34,13 +43,9 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponseApp<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        log.info("REST request to create user: {}", request.getUsername());
+        log.info("REST request to create user: {}", request.email());
         UserResponse response = createUserUseCase.execute(request);
-        return ApiResponseApp.<UserResponse>builder()
-            .code(HttpStatus.CREATED.value())
-            .message("User created successfully")
-            .data(response)
-            .build();
+        return ApiResponseApp.created("create user successfully", response);
     }
 
     /**
@@ -48,14 +53,11 @@ public class UserController {
      * GET /api/v1/users/{id}
      */
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<UserResponse> getUserById(@PathVariable Long id) {
         log.info("REST request to get user by ID: {}", id);
         UserResponse response = getUserByIdUseCase.execute(id);
-        return ApiResponseApp.<UserResponse>builder()
-            .code(HttpStatus.OK.value())
-            .message("User retrieved successfully")
-            .data(response)
-            .build();
+        return ApiResponseApp.success(response);
     }
 
     /**
@@ -63,20 +65,17 @@ public class UserController {
      * PUT /api/v1/users/{id}/profile
      */
     @PutMapping("/{id}/profile")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<UserResponse> updateUserProfile(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserProfileRequest request) {
         log.info("REST request to update profile for user ID: {}", id);
         UserResponse response = updateUserProfileUseCase.execute(id, request);
-        return ApiResponseApp.<UserResponse>builder()
-            .code(HttpStatus.OK.value())
-            .message("User profile updated successfully")
-            .data(response)
-            .build();
+        return ApiResponseApp.success(response);
     }
 
     /**
-     * Assign role to user
+     * Assign a role to user
      * POST /api/v1/users/{userId}/roles/{roleId}
      */
     @PostMapping("/{userId}/roles/{roleId}")
@@ -85,55 +84,6 @@ public class UserController {
             @PathVariable Long roleId) {
         log.info("REST request to assign role {} to user {}", roleId, userId);
         UserResponse response = assignRoleToUserUseCase.execute(userId, roleId);
-        return ApiResponseApp.<UserResponse>builder()
-            .code(HttpStatus.OK.value())
-            .message("Role assigned successfully")
-            .data(response)
-            .build();
-    }
-
-    /**
-     * Activate user account
-     * POST /api/v1/users/{id}/activate
-     */
-    @PostMapping("/{id}/activate")
-    public ApiResponseApp<String> activateUser(@PathVariable Long id) {
-        log.info("REST request to activate user ID: {}", id);
-        // TODO: Implement ActivateUserUseCase
-        return ApiResponseApp.<String>builder()
-            .code(HttpStatus.OK.value())
-            .message("User activated successfully")
-            .data("User account has been activated")
-            .build();
-    }
-
-    /**
-     * Suspend user account
-     * POST /api/v1/users/{id}/suspend
-     */
-    @PostMapping("/{id}/suspend")
-    public ApiResponseApp<String> suspendUser(@PathVariable Long id) {
-        log.info("REST request to suspend user ID: {}", id);
-        // TODO: Implement SuspendUserUseCase
-        return ApiResponseApp.<String>builder()
-            .code(HttpStatus.OK.value())
-            .message("User suspended successfully")
-            .data("User account has been suspended")
-            .build();
-    }
-
-    /**
-     * Deactivate user account
-     * POST /api/v1/users/{id}/deactivate
-     */
-    @PostMapping("/{id}/deactivate")
-    public ApiResponseApp<String> deactivateUser(@PathVariable Long id) {
-        log.info("REST request to deactivate user ID: {}", id);
-        // TODO: Implement DeactivateUserUseCase
-        return ApiResponseApp.<String>builder()
-            .code(HttpStatus.OK.value())
-            .message("User deactivated successfully")
-            .data("User account has been deactivated")
-            .build();
+        return ApiResponseApp.success(response);
     }
 }

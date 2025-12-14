@@ -13,15 +13,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserCreatedEvent {
     private final UserId userId;
-    private final String username;
     private final String email;
     private final LocalDateTime occurredOn;
 
-    public UserCreatedEvent(UserId userId, String username, String email) {
+    public UserCreatedEvent(UserId userId, String email) {
         this.userId = userId;
-        this.username = username;
         this.email = email;
         this.occurredOn = LocalDateTime.now();
     }
-
 }

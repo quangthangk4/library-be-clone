@@ -1,6 +1,6 @@
 package com.library.user.domain.repository;
 
-import com.library.user.domain.model.User;
+import com.library.user.domain.entities.User;
 import com.library.user.domain.valueobject.Email;
 import com.library.user.domain.valueobject.UserId;
 
@@ -8,25 +8,20 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * User repository interface (Port)
- * This is part of domain layer, implementation will be in infrastructure layer
+ * Repository interface for User Aggregate Root
+ * Follows Repository pattern from DDD
  */
 public interface UserRepository {
 
     /**
-     * Save a user
+     * Save a user (insert or update)
      */
     User save(User user);
 
     /**
      * Find user by ID
      */
-    Optional<User> findById(UserId id);
-
-    /**
-     * Find user by username
-     */
-    Optional<User> findByUsername(String username);
+    Optional<User> findById(UserId userId);
 
     /**
      * Find user by email
@@ -34,22 +29,32 @@ public interface UserRepository {
     Optional<User> findByEmail(Email email);
 
     /**
-     * Check if username exists
-     */
-    boolean existsByUsername(String username);
-
-    /**
-     * Check if email exists
-     */
-    boolean existsByEmail(Email email);
-
-    /**
      * Find all users
      */
     List<User> findAll();
 
     /**
-     * Delete user
+     * Find users by role name
      */
-    void delete(UserId id);
+    List<User> findByRoleName(String roleName);
+
+    /**
+     * Check if email already exists
+     */
+    boolean existsByEmail(Email email);
+
+    /**
+     * Delete a user
+     */
+    void delete(User user);
+
+    /**
+     * Delete user by ID
+     */
+    void deleteById(UserId userId);
+
+    /**
+     * Count the total number of users
+     */
+    long count();
 }

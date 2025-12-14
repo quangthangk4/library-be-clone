@@ -1,8 +1,9 @@
 package com.library.user.domain.repository;
 
-import com.library.user.domain.model.RoleAggregate;
+import com.library.user.domain.entities.Role;
 import com.library.user.domain.valueobject.RoleId;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,30 +15,32 @@ public interface RoleRepository {
     /**
      * Save a role (insert or update)
      */
-    RoleAggregate save(RoleAggregate role);
+    Role save(Role role);
 
     /**
-     * Find role by ID
+     * Find a role by ID
      */
-    Optional<RoleAggregate> findById(RoleId roleId);
+    Optional<Role> findById(RoleId roleId);
 
     /**
-     * Find role by name
+     * Find a role by name
      */
-    Optional<RoleAggregate> findByName(String roleName);
+    Optional<Role> findByName(String roleName);
 
     /**
-     * Check if role exists by name
+     * Check if a role exists by name
      */
     boolean existsByName(String roleName);
 
     /**
      * Delete a role
      */
-    void delete(RoleAggregate role);
+    void delete(Role role);
 
     /**
      * Delete role by ID
      */
     void deleteById(RoleId roleId);
+
+    List<Role> findAll();
 }

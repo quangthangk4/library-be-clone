@@ -1,6 +1,6 @@
 package com.library.user.infrastructure.persistence.repository;
 
-import com.library.user.infrastructure.persistence.entity.UserJpaEntity;
+import com.library.user.infrastructure.persistence.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,22 +13,11 @@ import java.util.Optional;
  * Spring Data JPA Repository for UserJpaEntity
  */
 @Repository
-public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
-
+public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
     /**
-     * Find user by username
+     * Find the user by email
      */
-    Optional<UserJpaEntity> findByUsername(String username);
-
-    /**
-     * Find user by email
-     */
-    Optional<UserJpaEntity> findByEmail(String email);
-
-    /**
-     * Check if username exists
-     */
-    boolean existsByUsername(String username);
+    Optional<UserEntity> findByEmail(String email);
 
     /**
      * Check if email exists
@@ -38,6 +27,6 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     /**
      * Find users by role name
      */
-    @Query("SELECT u FROM UserJpaEntity u JOIN u.roles r WHERE r.roleName = :roleName")
-    List<UserJpaEntity> findByRoleName(@Param("roleName") String roleName);
+    @Query("SELECT u FROM UserEntity u JOIN u.roles r WHERE r.roleName = :roleName")
+    List<UserEntity> findByRoleName(@Param("roleName") String roleName);
 }

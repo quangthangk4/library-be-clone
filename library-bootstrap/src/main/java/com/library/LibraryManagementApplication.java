@@ -2,6 +2,7 @@ package com.library;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * Main entry point for the Library Management System.
@@ -15,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * - library-recommendation-module: AI-powered recommendations, SearchHistory, UserInteraction, Rating, Review
  * - library-shared: Common utilities and shared components
  */
+@EnableJpaAuditing
 @SpringBootApplication(scanBasePackages = "com.library")
 public class LibraryManagementApplication {
 

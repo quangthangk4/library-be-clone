@@ -1,45 +1,34 @@
 package com.library.user.application.dto.request;
 
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 /**
  * DTO for creating a new user
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CreateUserRequest {
-
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username can only contain letters, numbers, and underscores")
-    private String username;
-
+public record CreateUserRequest(
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
-    private String email;
+    String email,
 
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
-    private String password;
+    String password,
 
     @NotBlank(message = "Full name is required")
-    private String fullName;
+    @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Full name must contain only letters")
+    @Size(min = 2, max = 50, message = "Full name must be between 2 and 50 characters")
+    String fullName,
 
     @Past(message = "Date of birth must be in the past")
-    private LocalDate dateOfBirth;
+    LocalDate dateOfBirth,
 
-    @Pattern(regexp = "^[+]?[0-9]{10,15}$", message = "Phone number must be valid")
-    private String phoneNumber;
-
-    private String address;
-
-    private String roleName; // Optional, defaults to READER if not provided
+    @Pattern(regexp = "^[+]?\\d{10,15}$", message = "Phone number must be valid")
+    String phoneNumber
+){
 }

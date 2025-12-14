@@ -13,6 +13,6 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ApiResponseApp.error(errorCode.getMessage()));
+                .body(ApiResponseApp.error(errorCode.getCode(), errorCode.getMessage()));
     }
 }

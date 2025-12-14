@@ -1,8 +1,7 @@
 package com.library.user.domain.service;
 
-import com.library.user.domain.model.Permission;
-import com.library.user.domain.model.RoleAggregate;
-import com.library.user.domain.model.UserAggregate;
+import com.library.user.domain.entities.Role;
+import com.library.user.domain.entities.User;
 import com.library.user.domain.valueobject.Email;
 
 /**
@@ -11,43 +10,21 @@ import com.library.user.domain.valueobject.Email;
 public interface UserDomainService {
 
     /**
-     * Validate that username is unique across the system
-     * @throws IllegalArgumentException if username already exists
-     */
-    void validateUniqueUsername(String username);
-
-    /**
      * Validate that email is unique across the system
      * @throws IllegalArgumentException if email already exists
      */
     void validateUniqueEmail(Email email);
 
     /**
-     * Check if user can perform a specific action based on their permissions
+     * Assign a default role to a newly created user
      */
-    boolean canUserPerformAction(UserAggregate user, String permissionName);
-
-    /**
-     * Assign default role to a newly created user
-     */
-    void assignDefaultRole(UserAggregate user);
+    void assignDefaultRole(User user);
 
     /**
      * Validate that a role change is allowed
-     * @throws IllegalArgumentException if role change is not valid
+     * @throws IllegalArgumentException if a role change is not valid
      */
-    void validateRoleChange(UserAggregate user, RoleAggregate newRole);
-
-    /**
-     * Validate that a permission can be assigned to a role
-     * @throws IllegalArgumentException if assignment is not valid
-     */
-    void validatePermissionAssignment(RoleAggregate role, Permission permission);
-
-    /**
-     * Check if username is available
-     */
-    boolean isUsernameAvailable(String username);
+    void validateRoleChange(User user, Role newRole);
 
     /**
      * Check if email is available
