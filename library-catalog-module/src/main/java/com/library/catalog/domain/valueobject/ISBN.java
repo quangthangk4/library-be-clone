@@ -1,60 +1,118 @@
 package com.library.catalog.domain.valueobject;
 
-import java.util.Objects;
+import lombok.Value;
+
 import java.util.regex.Pattern;
 
 /**
- * ISBN value object
- * Encapsulates ISBN with validation
+ * Value Object representing an International Standard Book Number (ISBN).
+ * Supports both ISBN-10 and ISBN-13 formats with validation.
  */
+@Value
 public class ISBN {
-    private static final Pattern ISBN_PATTERN =
-        Pattern.compile("^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$");
+    private static final Pattern ISBN_10_PATTERN = Pattern.compile("^\\d{9}[\\dX]$");
+    private static final Pattern ISBN_13_PATTERN = Pattern.compile("^\\d{13}$");
 
-    private final String value;
+    String value;
 
     private ISBN(String value) {
-        if (value == null || value.trim().isEmpty()) {
+        if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("ISBN cannot be null or empty");
         }
-        String normalized = value.replaceAll("[- ]", "");
-        if (!ISBN_PATTERN.matcher(value).matches()) {
+
+        String cleanIsbn = value.replaceAll("[\\s-]", "").toUpperCase();
+
+        if (!isValidISBN(cleanIsbn)) {
             throw new IllegalArgumentException("Invalid ISBN format: " + value);
         }
-        this.value = normalized;
+
+        this.value = cleanIsbn;
     }
 
+    /**
+     * Creates an ISBN from a string value.
+     */
     public static ISBN of(String value) {
         return new ISBN(value);
     }
 
-    public String getValue() {
-        return value;
+    /**
+     * Validates if the ISBN format is correct (ISBN-10 or ISBN-13).
+     */
+    private boolean isValidISBN(String isbn) {
+        return isValidISBN10(isbn) || isValidISBN13(isbn);
     }
 
-    public boolean isISBN10() {
-        return value.length() == 10;
+    /**
+     * Validates ISBN-10 format with check digit.
+     */
+    private boolean isValidISBN10(String isbn) {
+        if (!ISBN_10_PATTERN.matcher(isbn).matches()) {
+            return false;
+        }
+
+        int sum = 0;
+        for (int i = 0; i < 9; i++) {
+            sum += (isbn.charAt(i) - '0') * (10 - i);
+        }
+
+        char lastChar = isbn.charAt(9);
+        sum += (lastChar == 'X') ? 10 : (lastChar - '0');
+
+        return sum % 11 == 0;
     }
 
+    /**
+     * Validates ISBN-13 format with check digit (using Luhn algorithm variant).
+     */
+    private boolean isValidISBN13(String isbn) {
+        if (!ISBN_13_PATTERN.matcher(isbn).matches()) {
+            return false;
+        }
+
+        int sum = 0;
+        for (int i = 0; i < 12; i++) {
+            int digit = isbn.charAt(i) - '0';
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+
+        int checkDigit = (10 - (sum % 10)) % 10;
+        return checkDigit == (isbn.charAt(12) - '0');
+    }
+
+    /**
+     * Checks if this ISBN is ISBN-13 format.
+     */
     public boolean isISBN13() {
         return value.length() == 13;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ISBN isbn = (ISBN) o;
-        return Objects.equals(value, isbn.value);
+    /**
+     * Checks if this ISBN is ISBN-10 format.
+     */
+    public boolean isISBN10() {
+        return value.length() == 10;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
-    public String toString() {
-        return value;
+    /**
+     * Returns formatted ISBN with dashes for readability.
+     */
+    public String getFormatted() {
+        if (isISBN13()) {
+            // Format: 978-1-234-56789-0
+            return String.format("%s-%s-%s-%s-%s",
+                value.substring(0, 3),
+                value.substring(3, 4),
+                value.substring(4, 7),
+                value.substring(7, 12),
+                value.substring(12, 13));
+        } else {
+            // Format: 1-234-56789-0
+            return String.format("%s-%s-%s-%s",
+                value.substring(0, 1),
+                value.substring(1, 4),
+                value.substring(4, 9),
+                value.substring(9, 10));
+        }
     }
 }
