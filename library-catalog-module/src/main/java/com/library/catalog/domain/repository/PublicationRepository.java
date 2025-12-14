@@ -15,6 +15,7 @@ public interface PublicationRepository {
     // Basic CRUD
     Publication save(Publication publication);
     Optional<Publication> findById(PublicationId id);
+    List<Publication> findByIds(List<PublicationId> ids);
     Optional<Publication> findByISBN(ISBN isbn);
     List<Publication> findAll();
     Page<Publication> findAll(Pageable pageable);

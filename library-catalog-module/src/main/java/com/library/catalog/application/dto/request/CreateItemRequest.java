@@ -3,7 +3,6 @@ package com.library.catalog.application.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -25,12 +24,6 @@ public record CreateItemRequest(
     String location,
 
     @NotNull(message = "Acquired date is required")
-    LocalDate acquiredDate,
-
-    @Size(max = 50, message = "Size must not exceed 50 characters")
-    String size,
-
-    @Positive(message = "Weight must be positive")
-    Double weight
+    LocalDate acquiredDate
 ) {
 }

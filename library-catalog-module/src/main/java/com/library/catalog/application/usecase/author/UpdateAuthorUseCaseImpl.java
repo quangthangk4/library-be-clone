@@ -32,7 +32,7 @@ public class UpdateAuthorUseCaseImpl implements UpdateAuthorUseCase {
 
         // Update fields if provided
         if (request.authorName() != null) {
-            // Check if new name already exists (and it's not the same author)
+            // Check if a new name already exists (and it's not the same author)
             authorRepository.findByName(request.authorName())
                 .ifPresent(existingAuthor -> {
                     if (!existingAuthor.getId().equals(author.getId())) {

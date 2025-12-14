@@ -38,7 +38,7 @@ public class CreateCategoryUseCaseImpl implements CreateCategoryUseCase {
 
             // Validate parent exists
             categoryRepository.findById(parentId)
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_PARENT_CATEGORY));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
             category = Category.createChild(request.categoryName(), parentId);
         } else {
@@ -51,23 +51,6 @@ public class CreateCategoryUseCaseImpl implements CreateCategoryUseCase {
         log.info("Category created successfully with ID: {}", savedCategory.getId().getValue());
 
         // Build response
-        CategoryResponse response = categoryMapper.toResponse(savedCategory);
-
-        // If has parent, fetch parent name
-        if (savedCategory.getParentCategoryId() != null) {
-            String parentName = categoryRepository.findById(savedCategory.getParentCategoryId())
-                .map(Category::getCategoryName)
-                .orElse(null);
-            response = new CategoryResponse(
-                response.id(),
-                response.categoryName(),
-                response.parentCategoryId(),
-                parentName,
-                response.createdAt(),
-                response.updatedAt()
-            );
-        }
-
-        return response;
+        return categoryMapper.toCategoryResponse(savedCategory, categoryRepository);
     }
 }

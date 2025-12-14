@@ -57,10 +57,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> findAvailableByPublicationId(PublicationId publicationId) {
-        return jpaRepository.findByPublicationIdAndStatus(
-            publicationId.getValue(),
-            ItemStatus.AVAILABLE
-        ).stream()
+        return jpaRepository.findAvailableByPublicationId(publicationId.getValue()).stream()
             .map(entityMapper::toDomainModel)
             .collect(Collectors.toList());
     }
@@ -83,5 +80,27 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public long countAvailableByPublicationId(PublicationId publicationId) {
         return jpaRepository.countAvailableByPublicationId(publicationId.getValue());
+    }
+
+    @Override
+    public List<Item> findAll() {
+        return jpaRepository.findAll().stream()
+            .map(entityMapper::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteById(ItemId id) {
+        jpaRepository.deleteById(id.getValue());
+    }
+
+    @Override
+    public long count() {
+        return jpaRepository.count();
+    }
+
+    @Override
+    public boolean existsById(ItemId id) {
+        return jpaRepository.existsById(id.getValue());
     }
 }

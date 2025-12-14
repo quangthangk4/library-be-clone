@@ -2,7 +2,7 @@ package com.library.catalog.application.usecase.publication;
 
 import com.library.catalog.application.dto.response.AuthorResponse;
 import com.library.catalog.application.dto.response.CategoryResponse;
-import com.library.catalog.application.dto.response.PageResponse;
+import com.library.shared.dto.PageResponse;
 import com.library.catalog.application.dto.response.PublicationResponse;
 import com.library.catalog.application.dto.response.PublisherResponse;
 import com.library.catalog.application.dto.response.TagResponse;
@@ -126,13 +126,13 @@ public class GetAllPublicationsUseCaseImpl implements GetAllPublicationsUseCase 
         Publisher publisher = publisherMap.get(publication.getPublisherId().getValue());
         List<Author> authors = publication.getAuthorIds().stream()
             .map(aid -> authorMap.get(aid.getValue()))
-            .collect(Collectors.toList());
+            .toList();
         List<Category> categories = publication.getCategoryIds().stream()
             .map(cid -> categoryMap.get(cid.getValue()))
-            .collect(Collectors.toList());
+            .toList();
         List<Tag> tags = publication.getTagIds().stream()
             .map(tid -> tagMap.get(tid.getValue()))
-            .collect(Collectors.toList());
+            .toList();
 
         long totalItems = itemRepository.countByPublicationId(publication.getId());
         long availableItems = itemRepository.countAvailableByPublicationId(publication.getId());
@@ -161,6 +161,8 @@ public class GetAllPublicationsUseCaseImpl implements GetAllPublicationsUseCase 
             publication.getPublicationYear(),
             publication.getEdition(),
             publication.getCoverImageUrl(),
+            publication.getSize(),
+            publication.getWeight(),
             categoryResponses,
             tagResponses,
             totalItems,

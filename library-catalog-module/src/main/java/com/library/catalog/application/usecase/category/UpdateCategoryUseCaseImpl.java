@@ -72,21 +72,6 @@ public class UpdateCategoryUseCaseImpl implements UpdateCategoryUseCase {
         log.info("Category updated successfully with ID: {}", id);
 
         // Build response with parent name
-        CategoryResponse response = categoryMapper.toResponse(updatedCategory);
-        if (updatedCategory.getParentCategoryId() != null) {
-            String parentName = categoryRepository.findById(updatedCategory.getParentCategoryId())
-                .map(Category::getCategoryName)
-                .orElse(null);
-            response = new CategoryResponse(
-                response.id(),
-                response.categoryName(),
-                response.parentCategoryId(),
-                parentName,
-                response.createdAt(),
-                response.updatedAt()
-            );
-        }
-
-        return response;
+        return categoryMapper.toCategoryResponse(updatedCategory, categoryRepository);
     }
 }

@@ -1,4 +1,4 @@
-package com.library.catalog.application.dto.response;
+package com.library.shared.dto;
 
 import java.util.List;
 

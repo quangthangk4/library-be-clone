@@ -28,7 +28,7 @@ public class Publisher {
     }
 
     /**
-     * Factory method for mapper (when loading from database).
+     * Factory method for mapper (when loading from a database).
      */
     public static Publisher of(PublisherId id, String publisherName, String address) {
         validatePublisherName(publisherName);
@@ -46,13 +46,6 @@ public class Publisher {
         if (newAddress != null) {
             this.address = newAddress.trim();
         }
-    }
-
-    /**
-     * Updates address only.
-     */
-    public void updateAddress(String newAddress) {
-        this.address = newAddress != null ? newAddress.trim() : null;
     }
 
     private static void validatePublisherName(String name) {

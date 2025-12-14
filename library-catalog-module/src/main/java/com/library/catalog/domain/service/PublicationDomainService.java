@@ -15,7 +15,7 @@ public interface PublicationDomainService {
 
     /**
      * Validates that a publication can be deleted (no items exist).
-     * Throws exception if publication has associated items.
+     * Throws exception if the publication has associated items.
      */
     void validateCanDeletePublication(PublicationId id);
 

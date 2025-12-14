@@ -39,11 +39,7 @@ public class UpdatePublisherUseCaseImpl implements UpdatePublisherUseCase {
                         throw new AppException(ErrorCode.PUBLISHER_NAME_ALREADY_EXISTS);
                     }
                 });
-            publisher.updateName(request.publisherName());
-        }
-
-        if (request.address() != null) {
-            publisher.updateAddress(request.address());
+            publisher.updateInfo(request.publisherName(), request.address());
         }
 
         // Save updated publisher

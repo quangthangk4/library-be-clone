@@ -25,13 +25,13 @@ public class DeleteAuthorUseCaseImpl implements DeleteAuthorUseCase {
 
         AuthorId authorId = AuthorId.of(id);
 
-        // Check if author exists
-        if (!authorRepository.findById(authorId).isPresent()) {
+        // Check if the author exists
+        if (authorRepository.findById(authorId).isEmpty()) {
             throw new AppException(ErrorCode.AUTHOR_NOT_FOUND);
         }
 
-        // Check if author has publications
-        if (!publicationRepository.findByAuthorId(authorId).isEmpty()) {
+        // Check if the author has publications
+        if (publicationRepository.findByAuthorId(authorId).isEmpty()) {
             throw new AppException(ErrorCode.CANNOT_DELETE_AUTHOR_HAS_PUBLICATIONS);
         }
 

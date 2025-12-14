@@ -44,7 +44,7 @@ public class ISBN {
     }
 
     /**
-     * Validates ISBN-10 format with check digit.
+     * Validates an ISBN-10 format with a check digit.
      */
     private boolean isValidISBN10(String isbn) {
         if (!ISBN_10_PATTERN.matcher(isbn).matches()) {
@@ -63,7 +63,7 @@ public class ISBN {
     }
 
     /**
-     * Validates ISBN-13 format with check digit (using Luhn algorithm variant).
+     * Validates an ISBN-13 format with check digit (using Luhn algorithm variant).
      */
     private boolean isValidISBN13(String isbn) {
         if (!ISBN_13_PATTERN.matcher(isbn).matches()) {
@@ -81,14 +81,14 @@ public class ISBN {
     }
 
     /**
-     * Checks if this ISBN is ISBN-13 format.
+     * Checks if this ISBN is an ISBN-13 format.
      */
     public boolean isISBN13() {
         return value.length() == 13;
     }
 
     /**
-     * Checks if this ISBN is ISBN-10 format.
+     * Checks if this ISBN is an ISBN-10 format.
      */
     public boolean isISBN10() {
         return value.length() == 10;

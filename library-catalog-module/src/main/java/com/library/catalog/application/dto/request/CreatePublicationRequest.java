@@ -42,6 +42,12 @@ public record CreatePublicationRequest(
     @Size(max = 500, message = "Cover image URL must not exceed 500 characters")
     String coverImageUrl,
 
+    @Size(max = 50, message = "Size must not exceed 50 characters")
+    String size,
+
+    @Positive(message = "Weight must be positive")
+    Double weight,
+
     List<Long> categoryIds,
 
     List<Long> tagIds

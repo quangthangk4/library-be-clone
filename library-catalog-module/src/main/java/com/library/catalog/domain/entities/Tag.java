@@ -24,7 +24,7 @@ public class Tag {
     }
 
     /**
-     * Factory method for mapper (when loading from database).
+     * Factory method for mapper (when loading from a database).
      */
     public static Tag of(TagId id, String tagName) {
         validateTagName(tagName);

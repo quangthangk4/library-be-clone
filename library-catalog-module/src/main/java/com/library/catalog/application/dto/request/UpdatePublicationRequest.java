@@ -2,6 +2,7 @@ package com.library.catalog.application.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -31,6 +32,12 @@ public record UpdatePublicationRequest(
 
     @Size(max = 500, message = "Cover image URL must not exceed 500 characters")
     String coverImageUrl,
+
+    @Size(max = 50, message = "Size must not exceed 50 characters")
+    String size,
+
+    @Positive(message = "Weight must be positive")
+    Double weight,
 
     Long publisherId,
 

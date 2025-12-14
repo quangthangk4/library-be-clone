@@ -50,6 +50,12 @@ public class PublicationEntity extends BaseEntity {
     @Column(name = "cover_image_url")
     private String coverImageUrl;
 
+    @Column(length = 50)
+    private String size; // e.g., "20x15x3 cm"
+
+    @Column
+    private Double weight; // in grams
+
     // Relationships - managed via junction tables
     @OneToMany(mappedBy = "publicationId", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PublicationAuthorEntity> publicationAuthors = new HashSet<>();

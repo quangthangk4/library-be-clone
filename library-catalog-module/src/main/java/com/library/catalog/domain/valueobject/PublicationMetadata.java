@@ -57,7 +57,7 @@ public class PublicationMetadata {
     }
 
     /**
-     * Creates a new PublicationMetadata with updated title.
+     * Creates a new PublicationMetadata with an updated title.
      */
     public PublicationMetadata withTitle(String newTitle) {
         return new PublicationMetadata(newTitle, this.subtitle, this.description,
@@ -65,7 +65,7 @@ public class PublicationMetadata {
     }
 
     /**
-     * Creates a new PublicationMetadata with updated subtitle.
+     * Creates a new PublicationMetadata with an updated subtitle.
      */
     public PublicationMetadata withSubtitle(String newSubtitle) {
         return new PublicationMetadata(this.title, newSubtitle, this.description,

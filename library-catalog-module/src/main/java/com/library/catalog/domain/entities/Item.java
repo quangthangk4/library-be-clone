@@ -31,10 +31,6 @@ public class Item {
     private String location;
     private final LocalDate acquiredDate;
 
-    // Physical properties
-    private String size;      // e.g., "20x15x3 cm"
-    private Double weight;    // in grams
-
     // Domain events
     private final List<Object> domainEvents = new ArrayList<>();
 
@@ -70,9 +66,7 @@ public class Item {
             ItemStatus.AVAILABLE,
             itemType,
             null, // location
-            acquiredDate,
-            null, // size
-            null  // weight
+            acquiredDate
         );
     }
 
@@ -92,7 +86,7 @@ public class Item {
     }
 
     /**
-     * Factory method for mapper (when loading from database).
+     * Factory method for mapper (when loading from a database).
      */
     public static Item createForMapper(
             ItemId id,
@@ -101,11 +95,9 @@ public class Item {
             ItemStatus status,
             ItemType itemType,
             String location,
-            LocalDate acquiredDate,
-            String size,
-            Double weight
+            LocalDate acquiredDate
     ) {
-        return new Item(id, publicationId, barcode, status, itemType, location, acquiredDate, size, weight);
+        return new Item(id, publicationId, barcode, status, itemType, location, acquiredDate);
     }
 
     // ========== Status Transition Methods ==========
@@ -205,72 +197,45 @@ public class Item {
     // ========== Query Methods ==========
 
     /**
-     * Checks if item is available for borrowing.
+     * Checks if an item is available for borrowing.
      */
     public boolean isAvailable() {
         return status == ItemStatus.AVAILABLE;
     }
 
     /**
-     * Checks if item can be borrowed.
+     * Checks if an item can be borrowed.
      */
     public boolean canBeBorrowed() {
         return status == ItemStatus.AVAILABLE;
     }
 
     /**
-     * Checks if item is currently borrowed.
+     * Checks if an item is currently borrowed.
      */
     public boolean isBorrowed() {
         return status == ItemStatus.BORROWED;
     }
 
     /**
-     * Checks if item is reserved.
+     * Checks if an item is reserved.
      */
     public boolean isReserved() {
         return status == ItemStatus.RESERVED;
     }
 
     /**
-     * Checks if item is under maintenance.
+     * Checks if an item is under maintenance.
      */
     public boolean isInMaintenance() {
         return status == ItemStatus.IN_MAINTENANCE;
     }
 
     /**
-     * Checks if item is lost.
+     * Checks if an item is lost.
      */
     public boolean isLost() {
         return status == ItemStatus.LOST;
-    }
-
-    // ========== Physical Properties Management ==========
-
-    /**
-     * Updates physical dimensions.
-     */
-    public void updateSize(String newSize) {
-        this.size = newSize != null ? newSize.trim() : null;
-    }
-
-    /**
-     * Updates weight in grams.
-     */
-    public void updateWeight(Double newWeight) {
-        if (newWeight != null && newWeight <= 0) {
-            throw new IllegalArgumentException("Weight must be positive");
-        }
-        this.weight = newWeight;
-    }
-
-    /**
-     * Updates both physical properties.
-     */
-    public void updatePhysicalProperties(String newSize, Double newWeight) {
-        updateSize(newSize);
-        updateWeight(newWeight);
     }
 
     // ========== Domain Events Management ==========

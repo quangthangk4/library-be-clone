@@ -25,12 +25,12 @@ public class CreateAuthorUseCaseImpl implements CreateAuthorUseCase {
     public AuthorResponse execute(CreateAuthorRequest request) {
         log.info("Creating author with name: {}", request.authorName());
 
-        // Check if author name already exists
+        // Check if the author name already exists
         if (authorRepository.existsByName(request.authorName())) {
-            throw new AppException(ErrorCode.AUTHOR_NAME_ALREADY_EXISTS);
+            throw new AppException(ErrorCode.AUTHOR_ALREADY_EXISTS);
         }
 
-        // Create author entity
+        // Create an author entity
         Author author = Author.create(
             request.authorName(),
             request.biography(),

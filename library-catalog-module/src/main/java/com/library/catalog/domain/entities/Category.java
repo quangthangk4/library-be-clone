@@ -36,7 +36,7 @@ public class Category {
     }
 
     /**
-     * Factory method for mapper (when loading from database).
+     * Factory method for mapper (when loading from a database).
      */
     public static Category of(CategoryId id, String categoryName, CategoryId parentCategoryId) {
         validateCategoryName(categoryName);
@@ -51,12 +51,16 @@ public class Category {
         this.categoryName = newCategoryName.trim();
     }
 
+    public void changeParent(CategoryId parentCategoryId){
+        this.parentCategoryId = parentCategoryId;
+    }
+
     /**
      * Moves category to a different parent.
      * Pass null to make it a root category.
      */
     public void moveToParent(CategoryId newParentId) {
-        // Business rule: Cannot set parent to itself
+        // Business rule: Cannot set a parent to itself
         if (newParentId != null && newParentId.equals(this.id)) {
             throw new IllegalArgumentException("Category cannot be its own parent");
         }

@@ -42,10 +42,4 @@ public class ItemEntity extends BaseEntity {
 
     @Column(name = "acquired_date", nullable = false)
     private LocalDate acquiredDate;
-
-    @Column(length = 50)
-    private String size; // e.g., "20x15x3 cm"
-
-    @Column
-    private Double weight; // in grams
 }

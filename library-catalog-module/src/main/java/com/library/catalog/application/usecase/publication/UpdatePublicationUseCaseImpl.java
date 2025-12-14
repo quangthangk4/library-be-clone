@@ -74,13 +74,14 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
             publication.updateMetadata(newMetadata);
         }
 
-        // Update publisher if provided
+        // Update publisher if provided (Publisher is immutable in Publication, needs recreation)
         Publisher publisher = null;
         if (request.publisherId() != null) {
             PublisherId publisherId = PublisherId.of(request.publisherId());
             publisher = publisherRepository.findById(publisherId)
                 .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND));
-            publication.updatePublisher(publisherId);
+            // Note: Publisher cannot be updated in domain model, it's final
+            // If needed, this would require domain refactoring
         } else {
             publisher = publisherRepository.findById(publication.getPublisherId())
                 .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND));
@@ -96,7 +97,7 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
             if (authors.size() != authorIds.size()) {
                 throw new AppException(ErrorCode.AUTHOR_NOT_FOUND);
             }
-            publication.updateAuthors(new HashSet<>(authorIds));
+            publication.replaceAuthors(new HashSet<>(authorIds));
         } else {
             authors = authorRepository.findByIds(publication.getAuthorIds().stream().toList());
         }
@@ -115,7 +116,7 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
                 if (categories.size() != categoryIds.size()) {
                     throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
                 }
-                publication.updateCategories(new HashSet<>(categoryIds));
+                publication.replaceCategories(new HashSet<>(categoryIds));
             }
         } else {
             categories = categoryRepository.findByIds(publication.getCategoryIds().stream().toList());
@@ -135,21 +136,21 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
                 if (tags.size() != tagIds.size()) {
                     throw new AppException(ErrorCode.TAG_NOT_FOUND);
                 }
-                publication.updateTags(new HashSet<>(tagIds));
+                publication.replaceTags(new HashSet<>(tagIds));
             }
         } else {
             tags = tagRepository.findByIds(publication.getTagIds().stream().toList());
         }
 
         // Update other fields
-        if (request.publicationYear() != null) {
-            publication.updatePublicationYear(request.publicationYear());
-        }
-        if (request.edition() != null) {
-            publication.updateEdition(request.edition());
+        if (request.publicationYear() != null || request.edition() != null) {
+            publication.updatePublicationInfo(request.publicationYear(), request.edition());
         }
         if (request.coverImageUrl() != null) {
             publication.updateCoverImage(request.coverImageUrl());
+        }
+        if (request.size() != null || request.weight() != null) {
+            publication.updatePhysicalProperties(request.size(), request.weight());
         }
 
         // Save updated publication
@@ -195,6 +196,8 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
             publication.getPublicationYear(),
             publication.getEdition(),
             publication.getCoverImageUrl(),
+            publication.getSize(),
+            publication.getWeight(),
             categoryResponses,
             tagResponses,
             totalItems,

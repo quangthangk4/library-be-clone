@@ -16,6 +16,8 @@ public record PublicationResponse(
     Integer publicationYear,
     String edition,
     String coverImageUrl,
+    String size,
+    Double weight,
     List<CategoryResponse> categories,
     List<TagResponse> tags,
     Long totalItems,

@@ -99,4 +99,33 @@ public class PublicationRepositoryImpl implements PublicationRepository {
     public long count() {
         return jpaRepository.count();
     }
+
+    @Override
+    public List<Publication> findByIds(List<PublicationId> ids) {
+        List<Long> longIds = ids.stream()
+            .map(PublicationId::getValue)
+            .collect(Collectors.toList());
+        return jpaRepository.findAllById(longIds).stream()
+            .map(entityMapper::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Publication> findByTagId(TagId tagId) {
+        return jpaRepository.findByTagId(tagId.getValue()).stream()
+            .map(entityMapper::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Publication> searchByTitle(String titleKeyword) {
+        return jpaRepository.searchByTitle(titleKeyword).stream()
+            .map(entityMapper::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsById(PublicationId id) {
+        return jpaRepository.existsById(id.getValue());
+    }
 }

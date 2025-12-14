@@ -12,8 +12,6 @@ public record ItemResponse(
     String itemType,
     String location,
     LocalDate acquiredDate,
-    String size,
-    Double weight,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {

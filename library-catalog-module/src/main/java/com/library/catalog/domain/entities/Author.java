@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 /**
  * Author entity - represents a book author/writer.
@@ -44,7 +45,7 @@ public class Author {
     }
 
     /**
-     * Factory method for mapper (when loading from database).
+     * Factory method for mapper (when loading from a database).
      */
     public static Author of(AuthorId id, String authorName, String biography,
                           LocalDate dateOfBirth, LocalDate dateOfDeath) {
@@ -69,6 +70,11 @@ public class Author {
         this.dateOfDeath = death;
     }
 
+    public void updateName(String authorName){
+        validateAuthorName(authorName);
+        this.authorName = authorName.trim();
+    }
+
     /**
      * Checks if the author is still alive (no death date recorded).
      */
@@ -80,12 +86,9 @@ public class Author {
      * Gets author's age if alive, or age at death.
      */
     public Integer getAge() {
-        if (dateOfBirth == null) {
-            return null;
-        }
-
+        if (dateOfBirth == null) return null;
         LocalDate endDate = dateOfDeath != null ? dateOfDeath : LocalDate.now();
-        return endDate.getYear() - dateOfBirth.getYear();
+        return Period.between(dateOfBirth, endDate).getYears();
     }
 
     private static void validateAuthorName(String name) {

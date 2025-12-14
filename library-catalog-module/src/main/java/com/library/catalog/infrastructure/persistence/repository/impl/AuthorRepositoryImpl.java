@@ -56,6 +56,13 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     }
 
     @Override
+    public List<Author> searchByName(String nameKeyword) {
+        return jpaRepository.searchByName(nameKeyword).stream()
+                .map(entityMapper::toDomainModel)
+                .toList();
+    }
+
+    @Override
     public boolean existsByName(String authorName) {
         return jpaRepository.existsByAuthorName(authorName);
     }

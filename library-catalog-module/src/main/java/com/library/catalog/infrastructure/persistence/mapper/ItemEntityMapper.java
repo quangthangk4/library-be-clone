@@ -19,8 +19,6 @@ public class ItemEntityMapper {
         entity.setItemType(item.getItemType());
         entity.setLocation(item.getLocation());
         entity.setAcquiredDate(item.getAcquiredDate());
-        entity.setSize(item.getSize());
-        entity.setWeight(item.getWeight());
         return entity;
     }
 
@@ -32,9 +30,7 @@ public class ItemEntityMapper {
             entity.getStatus(),
             entity.getItemType(),
             entity.getLocation(),
-            entity.getAcquiredDate(),
-            entity.getSize(),
-            entity.getWeight()
+            entity.getAcquiredDate()
         );
     }
 }

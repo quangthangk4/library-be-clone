@@ -21,4 +21,6 @@ public interface CategoryJpaRepository extends JpaRepository<CategoryEntity, Lon
     // Check if category has children
     @Query("SELECT COUNT(c) > 0 FROM CategoryEntity c WHERE c.parentCategoryId = :categoryId")
     boolean hasChildren(@Param("categoryId") Long categoryId);
+
+    long countByParentCategoryId(Long parentId);
 }

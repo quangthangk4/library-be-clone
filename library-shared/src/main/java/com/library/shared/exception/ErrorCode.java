@@ -43,7 +43,47 @@ public enum ErrorCode {
 
     // Validation errors (1500-1599)
     VALIDATION_ERROR(1500, "Validation error", HttpStatus.BAD_REQUEST),
-    INVALID_INPUT(1501, "Invalid input", HttpStatus.BAD_REQUEST);
+    INVALID_INPUT(1501, "Invalid input", HttpStatus.BAD_REQUEST),
+
+    // Catalog - Publication errors (2000-2099)
+    PUBLICATION_NOT_FOUND(2000, "Publication not found", HttpStatus.NOT_FOUND),
+    PUBLICATION_ALREADY_EXISTS(2001, "Publication already exists", HttpStatus.CONFLICT),
+    ISBN_ALREADY_EXISTS(2002, "ISBN already exists", HttpStatus.CONFLICT),
+    CANNOT_DELETE_PUBLICATION_HAS_ITEMS(2003, "Cannot delete publication has items", HttpStatus.CONFLICT),
+
+    // Catalog - Item errors (2100-2199)
+    ITEM_NOT_FOUND(2100, "Item not found", HttpStatus.NOT_FOUND),
+    ITEM_ALREADY_EXISTS(2101, "Item already exists", HttpStatus.CONFLICT),
+    BARCODE_ALREADY_EXISTS(2102, "Barcode already exists", HttpStatus.CONFLICT),
+    ITEM_NOT_AVAILABLE(2103, "Item is not available", HttpStatus.CONFLICT),
+
+    // Catalog - Author errors (2200-2299)
+    AUTHOR_NOT_FOUND(2200, "Author not found", HttpStatus.NOT_FOUND),
+    AUTHOR_ALREADY_EXISTS(2201, "Author already exists", HttpStatus.CONFLICT),
+    CANNOT_DELETE_AUTHOR_HAS_PUBLICATIONS(2202, "Cannot delete author has publications", HttpStatus.CONFLICT),
+    AUTHOR_NAME_ALREADY_EXISTS(2003, "Author name already exists", HttpStatus.CONFLICT),
+
+    // Catalog - Publisher errors (2300-2399)
+    PUBLISHER_NOT_FOUND(2300, "Publisher not found", HttpStatus.NOT_FOUND),
+    PUBLISHER_ALREADY_EXISTS(2301, "Publisher already exists", HttpStatus.CONFLICT),
+    PUBLISHER_NAME_ALREADY_EXISTS(2302, "Publisher name already exists", HttpStatus.CONFLICT),
+    CANNOT_DELETE_PUBLISHER_HAS_PUBLICATIONS(2303, "Cannot delete publisher has publications", HttpStatus.CONFLICT),
+
+    // Catalog - Category errors (2400-2499)
+    CATEGORY_NOT_FOUND(2400, "Category not found", HttpStatus.NOT_FOUND),
+    CATEGORY_ALREADY_EXISTS(2401, "Category already exists", HttpStatus.CONFLICT),
+    CATEGORY_NAME_ALREADY_EXISTS(2402, "Category name already exists", HttpStatus.CONFLICT),
+    CANNOT_DELETE_CATEGORY_HAS_CHILDREN(2403, "Cannot delete category has children", HttpStatus.CONFLICT),
+    CANNOT_DELETE_CATEGORY_HAS_PUBLICATIONS(2404, "Cannot delete category has publications", HttpStatus.CONFLICT),
+    CIRCULAR_CATEGORY_REFERENCE(2405, "Circular category reference", HttpStatus.CONFLICT),
+    INVALID_PARENT_CATEGORY(2406, "Invalid parent category", HttpStatus.BAD_REQUEST),
+
+    // Catalog - Tag errors (2500-2599)
+    TAG_NOT_FOUND(2500, "Tag not found", HttpStatus.NOT_FOUND),
+    TAG_ALREADY_EXISTS(2501, "Tag already exists", HttpStatus.CONFLICT),
+    TAG_NAME_ALREADY_EXISTS(2502, "Tag name already exists", HttpStatus.CONFLICT),
+
+    ;
 
     private final int code;
     private final String message;

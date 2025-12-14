@@ -93,6 +93,8 @@ public class GetPublicationByIdUseCaseImpl implements GetPublicationByIdUseCase 
             publication.getPublicationYear(),
             publication.getEdition(),
             publication.getCoverImageUrl(),
+            publication.getSize(),
+            publication.getWeight(),
             categoryResponses,
             tagResponses,
             totalItems,

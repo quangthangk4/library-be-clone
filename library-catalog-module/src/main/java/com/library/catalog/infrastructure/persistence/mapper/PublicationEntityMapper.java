@@ -30,6 +30,8 @@ public class PublicationEntityMapper {
         entity.setPublicationYear(publication.getPublicationYear());
         entity.setEdition(publication.getEdition());
         entity.setCoverImageUrl(publication.getCoverImageUrl());
+        entity.setSize(publication.getSize());
+        entity.setWeight(publication.getWeight());
 
         // Map relationships - clear first to avoid duplicates
         entity.clearAuthors();
@@ -80,6 +82,8 @@ public class PublicationEntityMapper {
             entity.getPublicationYear(),
             entity.getEdition(),
             entity.getCoverImageUrl(),
+            entity.getSize(),
+            entity.getWeight(),
             authorIds,
             categoryIds,
             tagIds

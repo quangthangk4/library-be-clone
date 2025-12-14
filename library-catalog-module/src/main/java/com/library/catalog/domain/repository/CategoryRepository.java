@@ -16,7 +16,7 @@ public interface CategoryRepository {
     List<Category> findAll();
     List<Category> findByIds(List<CategoryId> ids);
     List<Category> findRootCategories(); // Categories with null parent
-    List<Category> findByParentId(CategoryId parentId);
+    List<Category> findByParentCategoryId(CategoryId parentId);
     boolean existsByName(String categoryName);
     boolean hasChildren(CategoryId categoryId);
     void delete(Category category);

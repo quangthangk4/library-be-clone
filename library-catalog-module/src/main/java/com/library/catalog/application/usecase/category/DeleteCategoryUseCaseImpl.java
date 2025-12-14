@@ -25,8 +25,8 @@ public class DeleteCategoryUseCaseImpl implements DeleteCategoryUseCase {
 
         CategoryId categoryId = CategoryId.of(id);
 
-        // Check if category exists
-        if (!categoryRepository.findById(categoryId).isPresent()) {
+        // Check if a category exists
+        if (categoryRepository.findById(categoryId).isEmpty()) {
             throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }
 

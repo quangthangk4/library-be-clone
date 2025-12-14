@@ -25,4 +25,6 @@ public interface ItemJpaRepository extends JpaRepository<ItemEntity, Long> {
 
     @Query("SELECT i FROM ItemEntity i WHERE i.publicationId = :publicationId AND i.status = 'AVAILABLE'")
     List<ItemEntity> findAvailableByPublicationId(@Param("publicationId") Long publicationId);
+
+
 }

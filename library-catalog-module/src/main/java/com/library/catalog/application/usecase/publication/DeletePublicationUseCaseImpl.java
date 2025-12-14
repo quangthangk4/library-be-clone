@@ -26,7 +26,7 @@ public class DeletePublicationUseCaseImpl implements DeletePublicationUseCase {
         PublicationId publicationId = PublicationId.of(id);
 
         // Check if publication exists
-        if (!publicationRepository.findById(publicationId).isPresent()) {
+        if (publicationRepository.findById(publicationId).isEmpty()) {
             throw new AppException(ErrorCode.PUBLICATION_NOT_FOUND);
         }
 

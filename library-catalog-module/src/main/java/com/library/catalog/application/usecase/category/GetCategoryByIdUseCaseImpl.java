@@ -28,23 +28,6 @@ public class GetCategoryByIdUseCaseImpl implements GetCategoryByIdUseCase {
         Category category = categoryRepository.findById(CategoryId.of(id))
             .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        CategoryResponse response = categoryMapper.toResponse(category);
-
-        // If has parent, fetch parent name
-        if (category.getParentCategoryId() != null) {
-            String parentName = categoryRepository.findById(category.getParentCategoryId())
-                .map(Category::getCategoryName)
-                .orElse(null);
-            response = new CategoryResponse(
-                response.id(),
-                response.categoryName(),
-                response.parentCategoryId(),
-                parentName,
-                response.createdAt(),
-                response.updatedAt()
-            );
-        }
-
-        return response;
+        return categoryMapper.toCategoryResponse(category, categoryRepository);
     }
 }

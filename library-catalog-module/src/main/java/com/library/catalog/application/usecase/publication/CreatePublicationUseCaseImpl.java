@@ -115,10 +115,19 @@ public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
             metadata,
             publisherId,
             authorIds.stream().collect(Collectors.toSet()),
-            request.publicationYear(),
-            request.edition(),
-            request.coverImageUrl()
+            request.publicationYear()
         );
+
+        // Set optional fields
+        if (request.edition() != null && !request.edition().isBlank()) {
+            publication.updatePublicationInfo(null, request.edition());
+        }
+        if (request.coverImageUrl() != null && !request.coverImageUrl().isBlank()) {
+            publication.updateCoverImage(request.coverImageUrl());
+        }
+        if (request.size() != null || request.weight() != null) {
+            publication.updatePhysicalProperties(request.size(), request.weight());
+        }
 
         // Assign categories and tags
         categoryIds.forEach(publication::assignCategory);
@@ -170,6 +179,8 @@ public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
             publication.getPublicationYear(),
             publication.getEdition(),
             publication.getCoverImageUrl(),
+            publication.getSize(),
+            publication.getWeight(),
             categoryResponses,
             tagResponses,
             totalItems,

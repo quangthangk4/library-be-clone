@@ -30,7 +30,11 @@ public class Publication {
     private String edition;
     private String coverImageUrl;
 
-    // Relationships (stored as IDs only in domain model)
+    // Physical properties
+    private String size;      // e.g., "20x15x3 cm"
+    private Double weight;    // in grams
+
+    // Relationships (stored as IDs only in the domain model)
     private Set<AuthorId> authorIds;
     private Set<CategoryId> categoryIds;
     private Set<TagId> tagIds;
@@ -70,6 +74,8 @@ public class Publication {
             publicationYear,
             null, // edition
             null, // coverImageUrl
+            null, // size
+            null, // weight
             new HashSet<>(authorIds),
             new HashSet<>(), // categories
             new HashSet<>()  // tags
@@ -86,7 +92,7 @@ public class Publication {
     }
 
     /**
-     * Factory method for mapper (when loading from database).
+     * Factory method for mapper (when loading from a database).
      * Does not trigger domain events.
      */
     public static Publication createForMapper(
@@ -97,6 +103,8 @@ public class Publication {
             Integer publicationYear,
             String edition,
             String coverImageUrl,
+            String size,
+            Double weight,
             Set<AuthorId> authorIds,
             Set<CategoryId> categoryIds,
             Set<TagId> tagIds
@@ -109,6 +117,8 @@ public class Publication {
             publicationYear,
             edition,
             coverImageUrl,
+            size,
+            weight,
             authorIds != null ? new HashSet<>(authorIds) : new HashSet<>(),
             categoryIds != null ? new HashSet<>(categoryIds) : new HashSet<>(),
             tagIds != null ? new HashSet<>(tagIds) : new HashSet<>()
@@ -139,7 +149,7 @@ public class Publication {
     }
 
     /**
-     * Updates cover image URL.
+     * Update cover image URL.
      */
     public void updateCoverImage(String url) {
         this.coverImageUrl = url != null ? url.trim() : null;
@@ -223,6 +233,33 @@ public class Publication {
      */
     public void clearTags() {
         this.tagIds.clear();
+    }
+
+    // ========== Physical Properties Management ==========
+
+    /**
+     * Updates physical dimensions.
+     */
+    public void updateSize(String newSize) {
+        this.size = newSize != null ? newSize.trim() : null;
+    }
+
+    /**
+     * Updates weight in grams.
+     */
+    public void updateWeight(Double newWeight) {
+        if (newWeight != null && newWeight <= 0) {
+            throw new IllegalArgumentException("Weight must be positive");
+        }
+        this.weight = newWeight;
+    }
+
+    /**
+     * Updates both physical properties.
+     */
+    public void updatePhysicalProperties(String newSize, Double newWeight) {
+        updateSize(newSize);
+        updateWeight(newWeight);
     }
 
     /**
