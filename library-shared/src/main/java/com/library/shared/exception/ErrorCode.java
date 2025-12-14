@@ -83,6 +83,17 @@ public enum ErrorCode {
     TAG_ALREADY_EXISTS(2501, "Tag already exists", HttpStatus.CONFLICT),
     TAG_NAME_ALREADY_EXISTS(2502, "Tag name already exists", HttpStatus.CONFLICT),
 
+    // Circulation - Transaction errors (3000-3099)
+    TRANSACTION_NOT_FOUND(3000, "Borrowing transaction not found", HttpStatus.NOT_FOUND),
+    ITEM_NOT_AVAILABLE(3001, "Item is not available for borrowing", HttpStatus.CONFLICT),
+    USER_BORROW_LIMIT_EXCEEDED(3002, "User has exceeded the maximum borrow limit", HttpStatus.CONFLICT),
+    CANNOT_RENEW_TRANSACTION(3003, "Cannot renew transaction - renewal limit reached or transaction is overdue", HttpStatus.CONFLICT),
+    RESERVATION_NOT_FOUND(3004, "Reservation not found", HttpStatus.NOT_FOUND),
+    RESERVATION_ALREADY_EXISTS(3005, "User already has a pending reservation for this publication", HttpStatus.CONFLICT),
+    FINE_NOT_FOUND(3006, "Fine not found", HttpStatus.NOT_FOUND),
+    USER_HAS_UNPAID_FINES(3007, "User has unpaid fines and cannot borrow", HttpStatus.FORBIDDEN),
+    ACCOUNT_SUSPENDED(3008, "User account is suspended", HttpStatus.FORBIDDEN),
+
     ;
 
     private final int code;
