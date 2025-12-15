@@ -64,7 +64,7 @@ public class ItemController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<ItemResponse> getItemById(@PathVariable Long id) {
+    public ApiResponseApp<ItemResponse> getItemById(@PathVariable("id") Long id) {
         log.info("REST request to get item by ID: {}", id);
         ItemResponse response = getItemByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -88,7 +88,7 @@ public class ItemController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> deleteItem(@PathVariable Long id) {
+    public ApiResponseApp<Void> deleteItem(@PathVariable("id") Long id) {
         log.info("REST request to delete item ID: {}", id);
         deleteItemUseCase.execute(id);
         return ApiResponseApp.success(null);
@@ -113,7 +113,7 @@ public class ItemController {
     @PutMapping("/{id}/location")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<ItemResponse> updateItemLocation(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdateItemLocationRequest request) {
         log.info("REST request to update location for item ID: {}", id);
         ItemResponse response = updateItemLocationUseCase.execute(id, request);
@@ -127,7 +127,7 @@ public class ItemController {
     @PutMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<ItemResponse> updateItemStatus(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdateItemStatusRequest request) {
         log.info("REST request to update status for item ID: {}", id);
         ItemResponse response = updateItemStatusUseCase.execute(id, request);

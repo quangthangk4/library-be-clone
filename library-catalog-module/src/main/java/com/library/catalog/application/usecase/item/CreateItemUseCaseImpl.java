@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 /**
  * Implementation of CreateItemUseCase
  */
@@ -59,14 +61,14 @@ public class CreateItemUseCaseImpl implements CreateItemUseCase {
                 barcode,
                 itemType,
                 request.location(),
-                request.acquiredDate()
+                LocalDate.now()
             );
         } else {
             item = Item.create(
                 publicationId,
                 barcode,
                 itemType,
-                request.acquiredDate()
+                LocalDate.now()
             );
         }
 

@@ -59,7 +59,7 @@ public class PublisherController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<PublisherResponse> getPublisherById(@PathVariable Long id) {
+    public ApiResponseApp<PublisherResponse> getPublisherById(@PathVariable("id") Long id) {
         log.info("REST request to get publisher by ID: {}", id);
         PublisherResponse response = getPublisherByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -84,7 +84,7 @@ public class PublisherController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<PublisherResponse> updatePublisher(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdatePublisherRequest request) {
         log.info("REST request to update publisher ID: {}", id);
         PublisherResponse response = updatePublisherUseCase.execute(id, request);
@@ -97,7 +97,7 @@ public class PublisherController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> deletePublisher(@PathVariable Long id) {
+    public ApiResponseApp<Void> deletePublisher(@PathVariable("id") Long id) {
         log.info("REST request to delete publisher ID: {}", id);
         deletePublisherUseCase.execute(id);
         return ApiResponseApp.success(null);

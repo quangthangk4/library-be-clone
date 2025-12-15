@@ -59,7 +59,7 @@ public class AuthorController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<AuthorResponse> getAuthorById(@PathVariable Long id) {
+    public ApiResponseApp<AuthorResponse> getAuthorById(@PathVariable("id") Long id) {
         log.info("REST request to get author by ID: {}", id);
         AuthorResponse response = getAuthorByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -84,7 +84,7 @@ public class AuthorController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<AuthorResponse> updateAuthor(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdateAuthorRequest request) {
         log.info("REST request to update author ID: {}", id);
         AuthorResponse response = updateAuthorUseCase.execute(id, request);
@@ -97,7 +97,7 @@ public class AuthorController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> deleteAuthor(@PathVariable Long id) {
+    public ApiResponseApp<Void> deleteAuthor(@PathVariable("id") Long id) {
         log.info("REST request to delete author ID: {}", id);
         deleteAuthorUseCase.execute(id);
         return ApiResponseApp.success(null);

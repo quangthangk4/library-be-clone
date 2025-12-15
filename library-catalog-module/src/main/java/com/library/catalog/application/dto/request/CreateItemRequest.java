@@ -21,9 +21,6 @@ public record CreateItemRequest(
     String itemType,
 
     @Size(max = 255, message = "Location must not exceed 255 characters")
-    String location,
-
-    @NotNull(message = "Acquired date is required")
-    LocalDate acquiredDate
+    String location
 ) {
 }

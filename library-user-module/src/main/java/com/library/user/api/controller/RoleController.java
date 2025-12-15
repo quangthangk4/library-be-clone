@@ -48,7 +48,7 @@ public class RoleController {
      * GET /api/v1/roles/{id}
      */
     @GetMapping("/{id}")
-    public ApiResponseApp<RoleResponse> getRoleById(@PathVariable Long id) {
+    public ApiResponseApp<RoleResponse> getRoleById(@PathVariable("id") Long id) {
         log.info("REST request to get role by ID: {}", id);
         RoleResponse response = getRoleByIdUseCase.execute(id);
         return ApiResponseApp.success(response);

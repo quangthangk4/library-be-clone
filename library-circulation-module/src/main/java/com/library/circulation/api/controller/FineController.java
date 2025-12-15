@@ -32,7 +32,7 @@ public class FineController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<FineResponse> getFineById(@PathVariable Long id) {
+    public ApiResponseApp<FineResponse> getFineById(@PathVariable("id") Long id) {
         log.info("REST request to get fine by ID: {}", id);
         FineResponse response = getFineByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -44,7 +44,7 @@ public class FineController {
      */
     @GetMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<List<FineResponse>> getFinesByUserId(@PathVariable Long userId) {
+    public ApiResponseApp<List<FineResponse>> getFinesByUserId(@PathVariable("userId") Long userId) {
         log.info("REST request to get fines for user: {}", userId);
         List<FineResponse> responses = getFinesByUserIdUseCase.execute(userId);
         return ApiResponseApp.success(responses);
@@ -56,7 +56,7 @@ public class FineController {
      */
     @PutMapping("/{id}/pay")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> payFine(@PathVariable Long id) {
+    public ApiResponseApp<Void> payFine(@PathVariable("id") Long id) {
         log.info("REST request to pay fine: {}", id);
         payFineUseCase.execute(id);
         return ApiResponseApp.success(null);

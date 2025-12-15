@@ -54,7 +54,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<UserResponse> getUserById(@PathVariable Long id) {
+    public ApiResponseApp<UserResponse> getUserById(@PathVariable("id") Long id) {
         log.info("REST request to get user by ID: {}", id);
         UserResponse response = getUserByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -67,7 +67,7 @@ public class UserController {
     @PutMapping("/{id}/profile")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<UserResponse> updateUserProfile(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdateUserProfileRequest request) {
         log.info("REST request to update profile for user ID: {}", id);
         UserResponse response = updateUserProfileUseCase.execute(id, request);

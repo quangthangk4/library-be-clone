@@ -51,7 +51,7 @@ public class BorrowingTransactionController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<BorrowingTransactionResponse> getTransactionById(@PathVariable Long id) {
+    public ApiResponseApp<BorrowingTransactionResponse> getTransactionById(@PathVariable("id") Long id) {
         log.info("REST request to get transaction by ID: {}", id);
         BorrowingTransactionResponse response = getTransactionByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -76,7 +76,7 @@ public class BorrowingTransactionController {
     @GetMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<List<BorrowingTransactionResponse>> getTransactionsByUserId(
-            @PathVariable Long userId) {
+            @PathVariable("userId") Long userId) {
         log.info("REST request to get transactions for user: {}", userId);
         List<BorrowingTransactionResponse> response = getTransactionsByUserIdUseCase.execute(userId);
         return ApiResponseApp.success(response);
@@ -89,7 +89,7 @@ public class BorrowingTransactionController {
     @PutMapping("/{id}/return")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<BorrowingTransactionResponse> returnItem(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody(required = false) ReturnItemRequest request) {
         log.info("REST request to return item for transaction: {}", id);
 
@@ -109,7 +109,7 @@ public class BorrowingTransactionController {
      */
     @PutMapping("/{id}/renew")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<BorrowingTransactionResponse> renewTransaction(@PathVariable Long id) {
+    public ApiResponseApp<BorrowingTransactionResponse> renewTransaction(@PathVariable("id") Long id) {
         log.info("REST request to renew transaction: {}", id);
         BorrowingTransactionResponse response = renewTransactionUseCase.execute(id);
         return ApiResponseApp.success("Transaction renewed successfully", response);

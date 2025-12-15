@@ -63,7 +63,7 @@ public class PublicationController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<PublicationResponse> getPublicationById(@PathVariable Long id) {
+    public ApiResponseApp<PublicationResponse> getPublicationById(@PathVariable("id") Long id) {
         log.info("REST request to get publication by ID: {}", id);
         PublicationResponse response = getPublicationByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
@@ -88,7 +88,7 @@ public class PublicationController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<PublicationResponse> updatePublication(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdatePublicationRequest request) {
         log.info("REST request to update publication ID: {}", id);
         PublicationResponse response = updatePublicationUseCase.execute(id, request);
@@ -101,7 +101,7 @@ public class PublicationController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> deletePublication(@PathVariable Long id) {
+    public ApiResponseApp<Void> deletePublication(@PathVariable("id") Long id) {
         log.info("REST request to delete publication ID: {}", id);
         deletePublicationUseCase.execute(id);
         return ApiResponseApp.success(null);

@@ -84,7 +84,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponseApp<CategoryResponse> updateCategory(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UpdateCategoryRequest request) {
         log.info("REST request to update category ID: {}", id);
         CategoryResponse response = updateCategoryUseCase.execute(id, request);
