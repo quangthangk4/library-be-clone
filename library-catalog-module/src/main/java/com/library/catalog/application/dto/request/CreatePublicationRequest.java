@@ -5,7 +5,10 @@ import jakarta.validation.constraints.*;
 import java.util.List;
 
 public record CreatePublicationRequest(
-    @Pattern(regexp = "^(\\d{10}|\\d{13})$", message = "Invalid ISBN format. Must be 10 or 13 digits")
+    @Pattern(
+            regexp = "^(?:\\d[\\s-]*){9}\\d$|^(?:\\d[\\s-]*){12}\\d$",
+            message = "Invalid ISBN format. Must be 10 or 13 digits, may contain hyphens or spaces"
+    )
     String isbn,
 
     @NotBlank(message = "Title is required")

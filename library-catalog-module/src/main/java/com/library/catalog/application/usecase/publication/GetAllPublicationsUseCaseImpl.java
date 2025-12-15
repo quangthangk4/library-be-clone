@@ -119,6 +119,7 @@ public class GetAllPublicationsUseCaseImpl implements GetAllPublicationsUseCase 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PublicationResponse> execute() {
         List<Publication> publicationList = publicationRepository.findAll();
         Map<Long, Publisher> publisherMap = publisherRepository.findAll().stream()

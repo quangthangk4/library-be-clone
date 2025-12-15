@@ -56,8 +56,8 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public boolean existsByName(String tagName) {
-        return jpaRepository.existsByTagName(tagName);
+    public boolean existsByNameIgnoreCase(String tagName) {
+        return jpaRepository.existsByTagNameIgnoreCase(tagName);
     }
 
     @Override

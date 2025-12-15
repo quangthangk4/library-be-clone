@@ -26,7 +26,7 @@ public class CreateTagUseCaseImpl implements CreateTagUseCase {
         log.info("Creating tag with name: {}", request.tagName());
 
         // Check if tag name already exists
-        if (tagRepository.existsByName(request.tagName())) {
+        if (tagRepository.existsByNameIgnoreCase(request.tagName().trim())) {
             throw new AppException(ErrorCode.TAG_NAME_ALREADY_EXISTS);
         }
 

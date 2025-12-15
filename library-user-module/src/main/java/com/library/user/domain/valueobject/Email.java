@@ -20,7 +20,7 @@ public class Email {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
         if (!EMAIL_PATTERN.matcher(value).matches()) {
-            throw new IllegalArgumentException("Invalid email format: " + value);
+            throw new IllegalArgumentException("Invalid email format: " + value + ", expected domain: hcmut.edu.vn");
         }
         this.value = value.toLowerCase();
     }

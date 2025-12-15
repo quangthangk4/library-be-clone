@@ -15,7 +15,7 @@ public interface TagRepository {
     Optional<Tag> findByName(String tagName);
     List<Tag> findAll();
     List<Tag> findByIds(List<TagId> ids);
-    boolean existsByName(String tagName);
+    boolean existsByNameIgnoreCase(String tagName);
     void delete(Tag tag);
     void deleteById(TagId id);
     long count();
