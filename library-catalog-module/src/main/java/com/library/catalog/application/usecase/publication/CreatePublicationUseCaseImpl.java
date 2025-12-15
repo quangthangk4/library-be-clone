@@ -1,11 +1,7 @@
 package com.library.catalog.application.usecase.publication;
 
 import com.library.catalog.application.dto.request.CreatePublicationRequest;
-import com.library.catalog.application.dto.response.AuthorResponse;
-import com.library.catalog.application.dto.response.CategoryResponse;
 import com.library.catalog.application.dto.response.PublicationResponse;
-import com.library.catalog.application.dto.response.PublisherResponse;
-import com.library.catalog.application.dto.response.TagResponse;
 import com.library.catalog.application.mapper.AuthorMapper;
 import com.library.catalog.application.mapper.CategoryMapper;
 import com.library.catalog.application.mapper.PublicationMapper;
@@ -138,55 +134,23 @@ public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
 
         log.info("Publication created successfully with ID: {}", savedPublication.getId().getValue());
 
-        // Build enriched response
-        return buildPublicationResponse(savedPublication, publisher, authors, categories, tags);
-    }
-
-    private PublicationResponse buildPublicationResponse(
-            Publication publication,
-            Publisher publisher,
-            List<Author> authors,
-            List<Category> categories,
-            List<Tag> tags) {
-
-        // Map related entities to responses
-        PublisherResponse publisherResponse = publisherMapper.toResponse(publisher);
-        List<AuthorResponse> authorResponses = authors.stream()
-            .map(authorMapper::toResponse)
-            .collect(Collectors.toList());
-        List<CategoryResponse> categoryResponses = categories.stream()
-            .map(categoryMapper::toResponse)
-            .collect(Collectors.toList());
-        List<TagResponse> tagResponses = tags.stream()
-            .map(tagMapper::toResponse)
-            .collect(Collectors.toList());
-
         // Get item counts
-        long totalItems = itemRepository.countByPublicationId(publication.getId());
-        long availableItems = itemRepository.countAvailableByPublicationId(publication.getId());
+        long totalItems = itemRepository.countByPublicationId(savedPublication.getId());
+        long availableItems = itemRepository.countAvailableByPublicationId(savedPublication.getId());
 
-        // Build response
-        return new PublicationResponse(
-            publication.getId().getValue(),
-            publication.getIsbn() != null ? publication.getIsbn().getValue() : null,
-            publication.getMetadata().getTitle(),
-            publication.getMetadata().getSubtitle(),
-            publication.getMetadata().getDescription(),
-            publication.getMetadata().getLanguage(),
-            publication.getMetadata().getNumberOfPages(),
-            publisherResponse,
-            authorResponses,
-            publication.getPublicationYear(),
-            publication.getEdition(),
-            publication.getCoverImageUrl(),
-            publication.getSize(),
-            publication.getWeight(),
-            categoryResponses,
-            tagResponses,
+        // Build enriched response using mapper
+        return publicationMapper.toResponse(
+            savedPublication,
+            publisher,
+            authors,
+            categories,
+            tags,
             totalItems,
             availableItems,
-            null, // createdAt - will be set by entity
-            null  // updatedAt - will be set by entity
+            authorMapper,
+            publisherMapper,
+            categoryMapper,
+            tagMapper
         );
     }
 }

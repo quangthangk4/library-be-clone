@@ -1,12 +1,9 @@
 package com.library.catalog.application.usecase.publication;
 
-import com.library.catalog.application.dto.response.AuthorResponse;
-import com.library.catalog.application.dto.response.CategoryResponse;
 import com.library.catalog.application.dto.response.PublicationResponse;
-import com.library.catalog.application.dto.response.PublisherResponse;
-import com.library.catalog.application.dto.response.TagResponse;
 import com.library.catalog.application.mapper.AuthorMapper;
 import com.library.catalog.application.mapper.CategoryMapper;
+import com.library.catalog.application.mapper.PublicationMapper;
 import com.library.catalog.application.mapper.PublisherMapper;
 import com.library.catalog.application.mapper.TagMapper;
 import com.library.catalog.domain.entities.Author;
@@ -42,6 +39,7 @@ public class GetPublicationByIdUseCaseImpl implements GetPublicationByIdUseCase 
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final ItemRepository itemRepository;
+    private final PublicationMapper publicationMapper;
     private final AuthorMapper authorMapper;
     private final PublisherMapper publisherMapper;
     private final CategoryMapper categoryMapper;
@@ -68,39 +66,19 @@ public class GetPublicationByIdUseCaseImpl implements GetPublicationByIdUseCase 
         long totalItems = itemRepository.countByPublicationId(publication.getId());
         long availableItems = itemRepository.countAvailableByPublicationId(publication.getId());
 
-        // Build response
-        PublisherResponse publisherResponse = publisherMapper.toResponse(publisher);
-        List<AuthorResponse> authorResponses = authors.stream()
-            .map(authorMapper::toResponse)
-            .collect(Collectors.toList());
-        List<CategoryResponse> categoryResponses = categories.stream()
-            .map(categoryMapper::toResponse)
-            .collect(Collectors.toList());
-        List<TagResponse> tagResponses = tags.stream()
-            .map(tagMapper::toResponse)
-            .collect(Collectors.toList());
-
-        return new PublicationResponse(
-            publication.getId().getValue(),
-            publication.getIsbn() != null ? publication.getIsbn().getValue() : null,
-            publication.getMetadata().getTitle(),
-            publication.getMetadata().getSubtitle(),
-            publication.getMetadata().getDescription(),
-            publication.getMetadata().getLanguage(),
-            publication.getMetadata().getNumberOfPages(),
-            publisherResponse,
-            authorResponses,
-            publication.getPublicationYear(),
-            publication.getEdition(),
-            publication.getCoverImageUrl(),
-            publication.getSize(),
-            publication.getWeight(),
-            categoryResponses,
-            tagResponses,
+        // Build response using mapper
+        return publicationMapper.toResponse(
+            publication,
+            publisher,
+            authors,
+            categories,
+            tags,
             totalItems,
             availableItems,
-            null, // createdAt - will be populated from entity
-            null  // updatedAt - will be populated from entity
+            authorMapper,
+            publisherMapper,
+            categoryMapper,
+            tagMapper
         );
     }
 }

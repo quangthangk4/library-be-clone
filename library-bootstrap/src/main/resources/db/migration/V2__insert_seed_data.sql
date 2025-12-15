@@ -131,19 +131,18 @@ INSERT INTO publications (id, created_at, updated_at, title, isbn, description, 
 (6, NOW(), NOW(), 'Code Complete', '9780735619678', 'A Practical Handbook of Software Construction', 2004, 'English', 960, '24x18x5 cm', 1200.0, 16),
 (7, NOW(), NOW(), 'The Mythical Man-Month', '9780201835953', 'Essays on Software Engineering', 1995, 'English', 336, '23x15x2 cm', 600.0, 3),
 (8, NOW(), NOW(), 'Introduction to Algorithms', '9780262033848', 'Third Edition', 2009, 'English', 1312, '26x20x6 cm', 1800.0, 4),
-(9, NOW(), NOW(), 'The C Programming Language', '9780131103628', 'Second Edition', 1988, 'English', 272, '23x15x2 cm', 500.0, 1),
+(9, NOW(), NOW(), 'The C Programming Language', '9780131103627', 'Second Edition', 1988, 'English', 272, '23x15x2 cm', 500.0, 1),
 (10, NOW(), NOW(), 'Effective Java', '9780134685991', 'Third Edition', 2017, 'English', 416, '23x15x3 cm', 700.0, 3),
 (11, NOW(), NOW(), 'Head First Design Patterns', '9780596007126', 'Building Extensible and Maintainable Object-Oriented Software', 2004, 'English', 694, '24x20x4 cm', 1000.0, 2),
 (12, NOW(), NOW(), 'Clean Architecture', '9780134494166', 'A Craftsman''s Guide to Software Structure and Design', 2017, 'English', 432, '23x15x3 cm', 750.0, 1),
 (13, NOW(), NOW(), 'Working Effectively with Legacy Code', '9780131177055', 'Practical techniques for improving existing code', 2004, 'English', 464, '23x15x3 cm', 750.0, 1),
 (14, NOW(), NOW(), 'Implementing Domain-Driven Design', '9780321834577', 'Practical DDD in enterprise', 2013, 'English', 656, '24x17x4 cm', 1000.0, 3),
-(15, NOW(), NOW(), 'Test Driven Development', '9780321146530', 'By Example', 2002, 'English', 240, '23x15x2 cm', 450.0, 3),
+(15, NOW(), NOW(), 'Test Driven Development', '9780321146533', 'By Example', 2002, 'English', 240, '23x15x2 cm', 450.0, 3),
 (16, NOW(), NOW(), 'Continuous Delivery', '9780321601919', 'Reliable Software Releases through Build, Test, and Deployment Automation', 2010, 'English', 512, '24x16x3 cm', 850.0, 3),
 (17, NOW(), NOW(), 'The Art of Computer Programming Vol 1', '9780201896831', 'Fundamental Algorithms', 1997, 'English', 672, '24x16x4 cm', 1100.0, 3),
-(18, NOW(), NOW(), 'Structure and Interpretation of Computer Programs', '9780262510871', 'Second Edition', 1996, 'English', 657, '24x17x4 cm', 1000.0, 4),
+(18, NOW(), NOW(), 'Structure and Interpretation of Computer Programs', '9780262510875', 'Second Edition', 1996, 'English', 657, '24x17x4 cm', 1000.0, 4),
 (19, NOW(), NOW(), 'Database System Concepts', '9780078022159', 'Seventh Edition', 2019, 'English', 1376, '26x20x6 cm', 2000.0, 10),
 (20, NOW(), NOW(), 'Computer Networks', '9780132126953', 'Fifth Edition', 2010, 'English', 960, '24x18x5 cm', 1400.0, 7);
-
 -- ============================================================
 -- PUBLICATION_AUTHORS (Link publications to authors)
 -- ============================================================

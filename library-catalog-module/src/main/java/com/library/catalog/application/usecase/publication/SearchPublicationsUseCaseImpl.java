@@ -1,16 +1,13 @@
 package com.library.catalog.application.usecase.publication;
 
 import com.library.catalog.application.dto.request.SearchPublicationRequest;
-import com.library.catalog.application.dto.response.AuthorResponse;
-import com.library.catalog.application.dto.response.CategoryResponse;
-import com.library.shared.dto.PageResponse;
 import com.library.catalog.application.dto.response.PublicationResponse;
-import com.library.catalog.application.dto.response.PublisherResponse;
-import com.library.catalog.application.dto.response.TagResponse;
 import com.library.catalog.application.mapper.AuthorMapper;
 import com.library.catalog.application.mapper.CategoryMapper;
+import com.library.catalog.application.mapper.PublicationMapper;
 import com.library.catalog.application.mapper.PublisherMapper;
 import com.library.catalog.application.mapper.TagMapper;
+import com.library.shared.dto.PageResponse;
 import com.library.catalog.domain.entities.Author;
 import com.library.catalog.domain.entities.Category;
 import com.library.catalog.domain.entities.Publication;
@@ -45,6 +42,7 @@ public class SearchPublicationsUseCaseImpl implements SearchPublicationsUseCase 
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final ItemRepository itemRepository;
+    private final PublicationMapper publicationMapper;
     private final AuthorMapper authorMapper;
     private final PublisherMapper publisherMapper;
     private final CategoryMapper categoryMapper;
@@ -82,13 +80,35 @@ public class SearchPublicationsUseCaseImpl implements SearchPublicationsUseCase 
 
         // Map to responses
         List<PublicationResponse> responses = publicationPage.getContent().stream()
-            .map(publication -> buildPublicationResponse(
-                publication,
-                publisherMap,
-                authorMap,
-                categoryMap,
-                tagMap
-            ))
+            .map(publication -> {
+                Publisher publisher = publisherMap.get(publication.getPublisherId().getValue());
+                List<Author> authors = publication.getAuthorIds().stream()
+                    .map(aid -> authorMap.get(aid.getValue()))
+                    .toList();
+                List<Category> categories = publication.getCategoryIds().stream()
+                    .map(cid -> categoryMap.get(cid.getValue()))
+                    .toList();
+                List<Tag> tags = publication.getTagIds().stream()
+                    .map(tid -> tagMap.get(tid.getValue()))
+                    .toList();
+
+                long totalItems = itemRepository.countByPublicationId(publication.getId());
+                long availableItems = itemRepository.countAvailableByPublicationId(publication.getId());
+
+                return publicationMapper.toResponse(
+                    publication,
+                    publisher,
+                    authors,
+                    categories,
+                    tags,
+                    totalItems,
+                    availableItems,
+                    authorMapper,
+                    publisherMapper,
+                    categoryMapper,
+                    tagMapper
+                );
+            })
             .collect(Collectors.toList());
 
         return PageResponse.of(
@@ -102,59 +122,4 @@ public class SearchPublicationsUseCaseImpl implements SearchPublicationsUseCase 
         );
     }
 
-    private PublicationResponse buildPublicationResponse(
-            Publication publication,
-            Map<Long, Publisher> publisherMap,
-            Map<Long, Author> authorMap,
-            Map<Long, Category> categoryMap,
-            Map<Long, Tag> tagMap) {
-
-        Publisher publisher = publisherMap.get(publication.getPublisherId().getValue());
-        List<Author> authors = publication.getAuthorIds().stream()
-            .map(aid -> authorMap.get(aid.getValue()))
-            .collect(Collectors.toList());
-        List<Category> categories = publication.getCategoryIds().stream()
-            .map(cid -> categoryMap.get(cid.getValue()))
-            .collect(Collectors.toList());
-        List<Tag> tags = publication.getTagIds().stream()
-            .map(tid -> tagMap.get(tid.getValue()))
-            .collect(Collectors.toList());
-
-        long totalItems = itemRepository.countByPublicationId(publication.getId());
-        long availableItems = itemRepository.countAvailableByPublicationId(publication.getId());
-
-        PublisherResponse publisherResponse = publisherMapper.toResponse(publisher);
-        List<AuthorResponse> authorResponses = authors.stream()
-            .map(authorMapper::toResponse)
-            .collect(Collectors.toList());
-        List<CategoryResponse> categoryResponses = categories.stream()
-            .map(categoryMapper::toResponse)
-            .collect(Collectors.toList());
-        List<TagResponse> tagResponses = tags.stream()
-            .map(tagMapper::toResponse)
-            .collect(Collectors.toList());
-
-        return new PublicationResponse(
-            publication.getId().getValue(),
-            publication.getIsbn() != null ? publication.getIsbn().getValue() : null,
-            publication.getMetadata().getTitle(),
-            publication.getMetadata().getSubtitle(),
-            publication.getMetadata().getDescription(),
-            publication.getMetadata().getLanguage(),
-            publication.getMetadata().getNumberOfPages(),
-            publisherResponse,
-            authorResponses,
-            publication.getPublicationYear(),
-            publication.getEdition(),
-            publication.getCoverImageUrl(),
-            publication.getSize(),
-            publication.getWeight(),
-            categoryResponses,
-            tagResponses,
-            totalItems,
-            availableItems,
-            null,
-            null
-        );
-    }
 }
