@@ -26,6 +26,6 @@ public class GetAllPublishersUseCaseImpl implements GetAllPublishersUseCase {
 
         return publisherRepository.findAll().stream()
             .map(publisherMapper::toResponse)
-            .collect(Collectors.toList());
+            .toList();
     }
 }
