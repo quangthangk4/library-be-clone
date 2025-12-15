@@ -1,17 +1,16 @@
 package com.library.catalog.api.controller;
 
 import com.library.catalog.application.dto.request.CreatePublicationRequest;
-import com.library.catalog.application.dto.request.SearchPublicationRequest;
+import com.library.catalog.application.dto.request.GetAllPublicationForLibrarian;
 import com.library.catalog.application.dto.request.UpdatePublicationRequest;
-import com.library.shared.dto.PageResponse;
 import com.library.catalog.application.dto.response.PublicationResponse;
 import com.library.catalog.application.usecase.publication.CreatePublicationUseCase;
 import com.library.catalog.application.usecase.publication.DeletePublicationUseCase;
-import com.library.catalog.application.usecase.publication.GetAllPublicationsUseCase;
+import com.library.catalog.application.usecase.publication.GetAllPublicationsForLibrarianUseCase;
 import com.library.catalog.application.usecase.publication.GetPublicationByIdUseCase;
-import com.library.catalog.application.usecase.publication.SearchPublicationsUseCase;
 import com.library.catalog.application.usecase.publication.UpdatePublicationUseCase;
 import com.library.shared.dto.ApiResponseApp;
+import com.library.shared.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 /**
  * REST Controller for Publication management
  * Follows RESTFUL API design principles
@@ -40,10 +37,9 @@ public class PublicationController {
 
     private final CreatePublicationUseCase createPublicationUseCase;
     private final GetPublicationByIdUseCase getPublicationByIdUseCase;
-    private final GetAllPublicationsUseCase getAllPublicationsUseCase;
     private final UpdatePublicationUseCase updatePublicationUseCase;
     private final DeletePublicationUseCase deletePublicationUseCase;
-    private final SearchPublicationsUseCase searchPublicationsUseCase;
+    private final GetAllPublicationsForLibrarianUseCase getAllPublicationsForLibrarianUseCase;
 
     /**
      * Create a new publication
@@ -73,14 +69,14 @@ public class PublicationController {
      * Get all publications
      * GET /api/v1/publications
      */
-    @GetMapping
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<List<PublicationResponse>> getAllPublications() {
-        log.info("REST request to get all publications");
-        List<PublicationResponse> responses = getAllPublicationsUseCase.execute();
-        return ApiResponseApp.success(responses);
+    public ApiResponseApp<PageResponse<PublicationResponse>> getAllPublications(
+            @Valid GetAllPublicationForLibrarian request) {
+        log.info("REST request to get publications with criteria: {}", request);
+        PageResponse<PublicationResponse> response = getAllPublicationsForLibrarianUseCase.execute(request);
+        return ApiResponseApp.success(response);
     }
-
     /**
      * Update publication
      * PUT /api/v1/publications/{id}
@@ -107,16 +103,4 @@ public class PublicationController {
         return ApiResponseApp.success(null);
     }
 
-    /**
-     * Search publications
-     * GET /api/v1/publications/search
-     */
-    @GetMapping("/search")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<PageResponse<PublicationResponse>> searchPublications(
-            @Valid SearchPublicationRequest request) {
-        log.info("REST request to search publications with criteria: {}", request);
-        PageResponse<PublicationResponse> response = searchPublicationsUseCase.execute(request);
-        return ApiResponseApp.success(response);
-    }
 }

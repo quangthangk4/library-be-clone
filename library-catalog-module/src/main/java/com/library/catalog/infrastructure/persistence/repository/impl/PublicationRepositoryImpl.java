@@ -1,10 +1,12 @@
 package com.library.catalog.infrastructure.persistence.repository.impl;
 
+import com.library.catalog.application.dto.request.GetAllPublicationForLibrarian;
 import com.library.catalog.domain.entities.Publication;
 import com.library.catalog.domain.repository.PublicationRepository;
 import com.library.catalog.domain.valueobject.*;
 import com.library.catalog.infrastructure.persistence.mapper.PublicationEntityMapper;
 import com.library.catalog.infrastructure.persistence.repository.PublicationJpaRepository;
+import com.library.catalog.infrastructure.persistence.specification.PublicationSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -75,12 +77,6 @@ public class PublicationRepositoryImpl implements PublicationRepository {
     }
 
     @Override
-    public Page<Publication> searchByTitle(String titleKeyword, Pageable pageable) {
-        return jpaRepository.searchByTitle(titleKeyword, pageable)
-            .map(entityMapper::toDomainModel);
-    }
-
-    @Override
     public boolean existsByISBN(ISBN isbn) {
         return jpaRepository.existsByIsbn(isbn.getValue());
     }
@@ -117,11 +113,14 @@ public class PublicationRepositoryImpl implements PublicationRepository {
             .collect(Collectors.toList());
     }
 
+
     @Override
-    public List<Publication> searchByTitle(String titleKeyword) {
-        return jpaRepository.searchByTitle(titleKeyword).stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
+    public Page<Publication> getAllPublicationForLibrarian(GetAllPublicationForLibrarian request, Pageable pageable) {
+        return jpaRepository.findAll(
+                PublicationSpecification.buildSpecification(request),
+                pageable
+            )
+            .map(entityMapper::toDomainModel);
     }
 
     @Override

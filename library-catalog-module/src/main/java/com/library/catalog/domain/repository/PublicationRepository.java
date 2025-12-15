@@ -1,5 +1,6 @@
 package com.library.catalog.domain.repository;
 
+import com.library.catalog.application.dto.request.GetAllPublicationForLibrarian;
 import com.library.catalog.domain.entities.Publication;
 import com.library.catalog.domain.valueobject.*;
 import org.springframework.data.domain.Page;
@@ -30,8 +31,7 @@ public interface PublicationRepository {
     List<Publication> findByTagId(TagId tagId);
 
     // Search methods
-    List<Publication> searchByTitle(String titleKeyword);
-    Page<Publication> searchByTitle(String titleKeyword, Pageable pageable);
+    Page<Publication> getAllPublicationForLibrarian(GetAllPublicationForLibrarian request, Pageable pageable);
 
     // Existence checks
     boolean existsByISBN(ISBN isbn);
