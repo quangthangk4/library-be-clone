@@ -11,9 +11,11 @@ import org.springframework.stereotype.Component;
 /**
  * Data initializer for system roles.
  * Runs on application startup to ensure required roles exist in the database.
+ *
+ * NOTE: Disabled in favor of Flyway migrations (V2__insert_seed_data.sql)
  */
 @Slf4j
-@Component
+//@Component
 @Order(1) // Run first, before AdminAccountInitializer
 @RequiredArgsConstructor
 public class RoleDataInitializer implements CommandLineRunner {

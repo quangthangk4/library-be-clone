@@ -21,9 +21,11 @@ import java.time.LocalDate;
  * Runs on application startup to ensure a default admin account exists.
  *
  * This initializer runs AFTER RoleDataInitializer to ensure roles exist first.
+ *
+ * NOTE: Disabled in favor of Flyway migrations (V2__insert_seed_data.sql)
  */
 @Slf4j
-@Component
+//@Component
 @Order(2) // Run after RoleDataInitializer (which has default order = 1)
 @RequiredArgsConstructor
 public class AdminAccountInitializer implements CommandLineRunner {
