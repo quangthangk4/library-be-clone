@@ -44,7 +44,7 @@ public class TagController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponseApp<TagResponse> createTag(@Valid @RequestBody CreateTagRequest request) {
-        log.info("REST request to create tag: {}", request.name());
+        log.info("REST request to create tag: {}", request.tagName());
         TagResponse response = createTagUseCase.execute(request);
         return ApiResponseApp.created("create tag successfully", response);
     }

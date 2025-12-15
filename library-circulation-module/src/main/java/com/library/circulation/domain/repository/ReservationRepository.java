@@ -63,4 +63,15 @@ public interface ReservationRepository {
      * Check if user has a pending reservation for a publication.
      */
     boolean existsPendingByUserAndPublication(UserId userId, PublicationId publicationId);
+
+    /**
+     * Get the queue position of a reservation.
+     * Returns the position in the queue (1-based) for pending reservations.
+     * Returns 0 if the reservation is not pending.
+     *
+     * @param publicationId the publication ID
+     * @param reservationId the reservation ID
+     * @return the queue position (1-based), or 0 if not pending
+     */
+    int getQueuePosition(PublicationId publicationId, ReservationId reservationId);
 }

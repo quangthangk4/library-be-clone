@@ -48,7 +48,7 @@ public class CategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponseApp<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
-        log.info("REST request to create category: {}", request.name());
+        log.info("REST request to create category: {}", request.categoryName());
         CategoryResponse response = createCategoryUseCase.execute(request);
         return ApiResponseApp.created("create category successfully", response);
     }

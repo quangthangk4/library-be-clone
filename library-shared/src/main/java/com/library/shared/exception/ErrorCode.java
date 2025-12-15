@@ -85,7 +85,6 @@ public enum ErrorCode {
 
     // Circulation - Transaction errors (3000-3099)
     TRANSACTION_NOT_FOUND(3000, "Borrowing transaction not found", HttpStatus.NOT_FOUND),
-    ITEM_NOT_AVAILABLE(3001, "Item is not available for borrowing", HttpStatus.CONFLICT),
     USER_BORROW_LIMIT_EXCEEDED(3002, "User has exceeded the maximum borrow limit", HttpStatus.CONFLICT),
     CANNOT_RENEW_TRANSACTION(3003, "Cannot renew transaction - renewal limit reached or transaction is overdue", HttpStatus.CONFLICT),
     RESERVATION_NOT_FOUND(3004, "Reservation not found", HttpStatus.NOT_FOUND),

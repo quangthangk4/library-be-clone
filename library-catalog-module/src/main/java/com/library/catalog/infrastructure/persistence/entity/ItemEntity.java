@@ -13,9 +13,9 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "items", indexes = {
-    @Index(name = "idx_barcode", columnList = "barcode", unique = true),
-    @Index(name = "idx_publication_id", columnList = "publication_id"),
-    @Index(name = "idx_status", columnList = "status")
+    @Index(name = "idx_item_barcode", columnList = "barcode", unique = true),
+    @Index(name = "idx_item_publication_id", columnList = "publication_id"),
+    @Index(name = "idx_item_status", columnList = "status")
 })
 @Getter
 @Setter

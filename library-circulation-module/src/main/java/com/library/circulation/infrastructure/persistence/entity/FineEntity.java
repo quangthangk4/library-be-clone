@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "fines", indexes = {
-    @Index(name = "idx_transaction_id", columnList = "transaction_id"),
-    @Index(name = "idx_payment_status", columnList = "payment_status"),
+    @Index(name = "idx_fine_transaction_id", columnList = "transaction_id"),
+    @Index(name = "idx_fine_payment_status", columnList = "payment_status"),
     @Index(name = "idx_fine_date", columnList = "fine_date")
 })
 @Getter

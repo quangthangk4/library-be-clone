@@ -2,6 +2,7 @@ package com.library.catalog.application.usecase.publication;
 
 import com.library.catalog.application.dto.response.AuthorResponse;
 import com.library.catalog.application.dto.response.CategoryResponse;
+import com.library.catalog.application.mapper.PublicationMapper;
 import com.library.shared.dto.PageResponse;
 import com.library.catalog.application.dto.response.PublicationResponse;
 import com.library.catalog.application.dto.response.PublisherResponse;
@@ -48,6 +49,7 @@ public class GetAllPublicationsUseCaseImpl implements GetAllPublicationsUseCase 
     private final PublisherMapper publisherMapper;
     private final CategoryMapper categoryMapper;
     private final TagMapper tagMapper;
+    private final PublicationMapper publicationMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -86,7 +88,7 @@ public class GetAllPublicationsUseCaseImpl implements GetAllPublicationsUseCase 
             .collect(Collectors.toMap(p -> p.getId().getValue(), p -> p));
 
         Map<Long, Author> authorMap = authorRepository.findAll().stream()
-            .collect(Collectors.toMap(a -> a.getId().getValue(), a -> a));
+                .collect(Collectors.toMap(a -> a.getId().getValue(), a -> a));
 
         Map<Long, Category> categoryMap = categoryRepository.findAll().stream()
             .collect(Collectors.toMap(c -> c.getId().getValue(), c -> c));
@@ -114,6 +116,34 @@ public class GetAllPublicationsUseCaseImpl implements GetAllPublicationsUseCase 
             publicationPage.isFirst(),
             publicationPage.isLast()
         );
+    }
+
+    @Override
+    public List<PublicationResponse> execute() {
+        List<Publication> publicationList = publicationRepository.findAll();
+        Map<Long, Publisher> publisherMap = publisherRepository.findAll().stream()
+                .collect(Collectors.toMap(p -> p.getId().getValue(), p -> p));
+
+        Map<Long, Author> authorMap = authorRepository.findAll().stream()
+                .collect(Collectors.toMap(a -> a.getId().getValue(), a -> a));
+
+        Map<Long, Category> categoryMap = categoryRepository.findAll().stream()
+                .collect(Collectors.toMap(c -> c.getId().getValue(), c -> c));
+
+        Map<Long, Tag> tagMap = tagRepository.findAll().stream()
+                .collect(Collectors.toMap(t -> t.getId().getValue(), t -> t));
+
+        // Map to responses
+        return publicationList.stream()
+                .map(publication -> buildPublicationResponse(
+                        publication,
+                        publisherMap,
+                        authorMap,
+                        categoryMap,
+                        tagMap
+                ))
+                .collect(Collectors.toList());
+
     }
 
     private PublicationResponse buildPublicationResponse(

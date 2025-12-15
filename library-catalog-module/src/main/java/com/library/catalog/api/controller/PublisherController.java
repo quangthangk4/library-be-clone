@@ -48,7 +48,7 @@ public class PublisherController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponseApp<PublisherResponse> createPublisher(@Valid @RequestBody CreatePublisherRequest request) {
-        log.info("REST request to create publisher: {}", request.name());
+        log.info("REST request to create publisher: {}", request.publisherName());
         PublisherResponse response = createPublisherUseCase.execute(request);
         return ApiResponseApp.created("create publisher successfully", response);
     }

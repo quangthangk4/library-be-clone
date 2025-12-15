@@ -48,7 +48,7 @@ public class AuthorController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponseApp<AuthorResponse> createAuthor(@Valid @RequestBody CreateAuthorRequest request) {
-        log.info("REST request to create author: {}", request.name());
+        log.info("REST request to create author: {}", request.authorName());
         AuthorResponse response = createAuthorUseCase.execute(request);
         return ApiResponseApp.created("create author successfully", response);
     }

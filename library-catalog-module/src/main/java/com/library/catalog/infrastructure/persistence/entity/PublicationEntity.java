@@ -11,9 +11,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "publications", indexes = {
-    @Index(name = "idx_isbn", columnList = "isbn", unique = true),
-    @Index(name = "idx_title", columnList = "title"),
-    @Index(name = "idx_publisher", columnList = "publisher_id")
+    @Index(name = "idx_publication_isbn", columnList = "isbn", unique = true),
+    @Index(name = "idx_publication_title", columnList = "title"),
+    @Index(name = "idx_publication_publisher", columnList = "publisher_id")
 })
 @Getter
 @Setter

@@ -5,6 +5,7 @@ import com.library.circulation.domain.entities.Reservation;
 import com.library.circulation.domain.entities.ReservationStatus;
 import com.library.circulation.domain.repository.ReservationRepository;
 import com.library.circulation.domain.valueobject.ReservationId;
+import com.library.circulation.infrastructure.persistence.entity.ReservationEntity;
 import com.library.circulation.infrastructure.persistence.mapper.ReservationEntityMapper;
 import com.library.circulation.infrastructure.persistence.repository.ReservationJpaRepository;
 import com.library.user.domain.valueobject.UserId;
@@ -88,5 +89,23 @@ public class ReservationRepositoryImpl implements ReservationRepository {
             publicationId.getValue(),
             ReservationStatus.PENDING
         );
+    }
+
+    @Override
+    public int getQueuePosition(PublicationId publicationId, ReservationId reservationId) {
+        // Get all pending reservations for this publication, ordered by date
+        List<ReservationEntity> pendingReservations =
+            jpaRepository.findPendingByPublicationIdOrderByReservationDate(publicationId.getValue());
+
+        // Find the position of the given reservation (1-based index)
+        for (int i = 0; i < pendingReservations.size(); i++) {
+            if (pendingReservations.get(i).getId().equals(reservationId.getValue())) {
+                return i + 1; // Return 1-based position
+            }
+        }
+
+        // Return 0 if reservation is not in the pending queue
+        // (e.g., it's fulfilled, cancelled, or expired)
+        return 0;
     }
 }
