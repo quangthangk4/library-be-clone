@@ -82,6 +82,9 @@ public class Author {
         return dateOfDeath == null;
     }
 
+    public void markAsAlive() {
+        this.dateOfDeath = null;
+    }
     /**
      * Gets author's age if alive, or age at death.
      */
@@ -106,6 +109,10 @@ public class Author {
         }
         if (birth != null && birth.isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Date of birth cannot be in the future");
+        }
+
+        if (death != null && death.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date of death cannot be in the future");
         }
     }
 }

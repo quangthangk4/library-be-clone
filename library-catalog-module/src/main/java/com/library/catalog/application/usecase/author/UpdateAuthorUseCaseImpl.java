@@ -32,13 +32,6 @@ public class UpdateAuthorUseCaseImpl implements UpdateAuthorUseCase {
 
         // Update fields if provided
         if (request.authorName() != null) {
-            // Check if a new name already exists (and it's not the same author)
-            authorRepository.findByName(request.authorName())
-                .ifPresent(existingAuthor -> {
-                    if (!existingAuthor.getId().equals(author.getId())) {
-                        throw new AppException(ErrorCode.AUTHOR_NAME_ALREADY_EXISTS);
-                    }
-                });
             author.updateName(request.authorName());
         }
 
@@ -46,10 +39,18 @@ public class UpdateAuthorUseCaseImpl implements UpdateAuthorUseCase {
             author.updateBiography(request.biography());
         }
 
-        if (request.dateOfBirth() != null || request.dateOfDeath() != null) {
+        if (Boolean.TRUE.equals(request.isAlive())) {
+            author.markAsAlive();
+
+            if (request.dateOfBirth() != null) {
+                author.updateLifeDates(request.dateOfBirth(), null);
+            }
+        }
+        // 2. Nếu không đánh dấu isAlive thì chạy logic update ngày tháng bình thường
+        else if (request.dateOfBirth() != null || request.dateOfDeath() != null) {
             author.updateLifeDates(
-                request.dateOfBirth() != null ? request.dateOfBirth() : author.getDateOfBirth(),
-                request.dateOfDeath() != null ? request.dateOfDeath() : author.getDateOfDeath()
+                    request.dateOfBirth() != null ? request.dateOfBirth() : author.getDateOfBirth(),
+                    request.dateOfDeath() != null ? request.dateOfDeath() : author.getDateOfDeath()
             );
         }
 

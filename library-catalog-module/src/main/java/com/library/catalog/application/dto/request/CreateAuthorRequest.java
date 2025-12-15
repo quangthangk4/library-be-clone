@@ -15,6 +15,8 @@ public record CreateAuthorRequest(
 
     LocalDate dateOfBirth,
 
-    LocalDate dateOfDeath
+    LocalDate dateOfDeath,
+
+    Boolean isAlive
 ) {
 }

@@ -13,6 +13,8 @@ public record UpdateAuthorRequest(
 
     LocalDate dateOfBirth,
 
-    LocalDate dateOfDeath
+    LocalDate dateOfDeath,
+
+    Boolean isAlive
 ) {
 }
