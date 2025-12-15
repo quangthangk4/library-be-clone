@@ -43,7 +43,7 @@ public class UpdateCategoryUseCaseImpl implements UpdateCategoryUseCase {
         }
 
         // Update parent category if provided
-        if (request.parentCategoryId() != null) {
+        if (request.parentCategoryId() != null && request.hasParent()) {
             CategoryId newParentId = CategoryId.of(request.parentCategoryId());
 
             // Prevent circular reference (category cannot be its own parent)
@@ -64,6 +64,8 @@ public class UpdateCategoryUseCaseImpl implements UpdateCategoryUseCase {
             });
 
             category.changeParent(newParentId);
+        } else if (!request.hasParent() && request.parentCategoryId() == null) {
+            category.changeParent(null);
         }
 
         // Save updated category

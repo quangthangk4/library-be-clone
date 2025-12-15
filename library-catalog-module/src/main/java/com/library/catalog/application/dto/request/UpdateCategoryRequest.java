@@ -6,6 +6,8 @@ public record UpdateCategoryRequest(
     @Size(max = 255, message = "Category name must not exceed 255 characters")
     String categoryName,
 
-    Long parentCategoryId
+    Long parentCategoryId,
+
+    Boolean hasParent
 ) {
 }
