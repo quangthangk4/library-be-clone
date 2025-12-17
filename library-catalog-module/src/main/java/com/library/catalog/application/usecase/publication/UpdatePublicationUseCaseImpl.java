@@ -74,7 +74,7 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
 
         // Update publisher if provided (Publisher is immutable in Publication, needs recreation)
         Publisher publisher = null;
-        if (request.publisherId() != null) {
+        if (request.publisherId() != null && !request.authorIds().isEmpty()) {
             PublisherId publisherId = PublisherId.of(request.publisherId());
             publisher = publisherRepository.findById(publisherId)
                 .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND));
@@ -88,6 +88,10 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
         // Update authors if provided
         List<Author> authors;
         if (request.authorIds() != null && !request.authorIds().isEmpty()) {
+            Set<Long> uniqueIds = new HashSet<>(request.authorIds()); // Giả sử ID là String
+            if (uniqueIds.size() < request.authorIds().size()) {
+                throw new IllegalArgumentException("Danh sách tác giả không được chứa ID trùng lặp.");
+            }
             List<AuthorId> authorIds = request.authorIds().stream()
                 .map(AuthorId::of)
                 .collect(Collectors.toList());
@@ -107,6 +111,10 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
                 publication.clearCategories();
                 categories = List.of();
             } else {
+                Set<Long> uniqueIds = new HashSet<>(request.categoryIds()); // Giả sử ID là String
+                if (uniqueIds.size() < request.categoryIds().size()) {
+                    throw new IllegalArgumentException("Danh sách category không được trùng lặp.");
+                }
                 List<CategoryId> categoryIds = request.categoryIds().stream()
                     .map(CategoryId::of)
                     .collect(Collectors.toList());
@@ -127,6 +135,10 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
                 publication.clearTags();
                 tags = List.of();
             } else {
+                Set<Long> uniqueIds = new HashSet<>(request.tagIds()); // Giả sử ID là String
+                if (uniqueIds.size() < request.tagIds().size()) {
+                    throw new IllegalArgumentException("Danh sách Tags không được chứa ID trùng lặp.");
+                }
                 List<TagId> tagIds = request.tagIds().stream()
                     .map(TagId::of)
                     .collect(Collectors.toList());

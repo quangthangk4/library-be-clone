@@ -2,6 +2,7 @@ package com.library.catalog.application.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
@@ -39,8 +40,10 @@ public record UpdatePublicationRequest(
     @Positive(message = "Weight must be positive")
     Double weight,
 
+    @NotNull(message = "Publisher ID is required")
     Long publisherId,
 
+    @NotNull(message = "At least one author is required")
     List<Long> authorIds,
 
     List<Long> categoryIds,
