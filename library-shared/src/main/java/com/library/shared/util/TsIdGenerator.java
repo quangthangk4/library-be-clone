@@ -6,6 +6,6 @@ public class TsIdGenerator {
     private TsIdGenerator(){}
 
     public static Long next() {
-        return TSID.Factory.getTsid().toLong();
+        return TSID.Factory.getTsid().toLong()/1000;
     }
 }

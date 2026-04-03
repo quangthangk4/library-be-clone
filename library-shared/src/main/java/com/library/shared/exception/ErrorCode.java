@@ -93,6 +93,13 @@ public enum ErrorCode {
     USER_HAS_UNPAID_FINES(3007, "User has unpaid fines and cannot borrow", HttpStatus.FORBIDDEN),
     ACCOUNT_SUSPENDED(3008, "User account is suspended", HttpStatus.FORBIDDEN),
 
+
+    // Security Error (2600 - 2699)
+    USER_LOCKED(2600, "User account is locked", HttpStatus.LOCKED),
+    USER_EMAIL_NOT_VERIFIED(2601, "Email address is not verified", HttpStatus.UNAUTHORIZED),
+    USER_BANNED(2602, "User account has BANNED", HttpStatus.UNAUTHORIZED),
+    PASSWORD_EXPIRED(2603, "User password has expired", HttpStatus.UNAUTHORIZED),
+    TOKEN_INVALID(2604, "Token invalid", HttpStatus.UNAUTHORIZED),
     ;
 
     private final int code;

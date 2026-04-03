@@ -6,6 +6,6 @@ package com.library.user.domain.entities;
 public enum UserStatus {
     ACTIVE,
     INACTIVE,
-    SUSPENDED,
-    DEACTIVATED
+    LOCKED,
+    BANNED
 }

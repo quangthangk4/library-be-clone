@@ -1,9 +1,10 @@
-package com.library.user.application.usecase.user;
+package com.library.user.application.usecase.user.impl;
 
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
 import com.library.user.application.dto.response.UserResponse;
 import com.library.user.application.mapper.UserMapper;
+import com.library.user.application.usecase.user.GetUserByIdUseCase;
 import com.library.user.domain.entities.User;
 import com.library.user.domain.repository.UserRepository;
 import com.library.user.domain.valueobject.UserId;

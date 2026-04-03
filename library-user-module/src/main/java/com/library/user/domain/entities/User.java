@@ -157,27 +157,27 @@ public class User {
      * Business logic: Deactivate user
      */
     public void deactivate() {
-        if (this.status == UserStatus.DEACTIVATED) {
+        if (this.status == UserStatus.BANNED) {
             throw new IllegalStateException("User is already deactivated");
         }
 
         UserStatus oldStatus = this.status;
-        this.status = UserStatus.DEACTIVATED;
-        addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.DEACTIVATED));
+        this.status = UserStatus.BANNED;
+        addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.BANNED));
     }
 
     /**
      * Business logic: Suspend user
      */
     public void suspend() {
-        if (this.status == UserStatus.SUSPENDED) {
+        if (this.status == UserStatus.LOCKED) {
             throw new IllegalStateException("User is already suspended");
         }
 
         UserStatus oldStatus = this.status;
-        this.status = UserStatus.SUSPENDED;
+        this.status = UserStatus.LOCKED;
 
-        addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.SUSPENDED));
+        addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.LOCKED));
     }
 
     // ============== Business Rules ==============

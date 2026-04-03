@@ -22,9 +22,16 @@ spring:
     locations: classpath:db/migration
     clean-disabled: true  # Prevent accidental data loss
 
+
 server:
   port: 8080
 
+jwt:
+  rsa-private-key: classpath:certs/privateKey.pem
+  rsa-public-key: classpath:certs/publicKey.pem
+  key-id: ${JWT_KEY_ID:library-key}
+  expirationTime: ${EXP_TOKEN:86400} # 1 day in seconds
+  refreshExpTime: ${EXP_REFRESH_TOKEN:604800} # 7 days in seconds
 
 #logging:
 #  level:

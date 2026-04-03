@@ -1,15 +1,13 @@
-package com.library.user.application.usecase.role;
+package com.library.user.application.usecase.role.impl;
 
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
 import com.library.user.application.dto.response.RoleResponse;
 import com.library.user.application.mapper.RoleMapper;
-import com.library.user.application.mapper.UserMapper;
+import com.library.user.application.usecase.role.GetRoleByIdUseCase;
 import com.library.user.domain.entities.Role;
-import com.library.user.domain.entities.User;
 import com.library.user.domain.repository.RoleRepository;
 import com.library.user.domain.valueobject.RoleId;
-import com.library.user.domain.valueobject.UserId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

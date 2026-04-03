@@ -1,6 +1,7 @@
 package com.library.catalog.application.usecase.item;
 
 import com.library.catalog.application.dto.response.ItemResponse;
+import com.library.catalog.application.dto.response.ItemWithPublicationResponse;
 
 /**
  * Use case for retrieving an item by ID
@@ -13,5 +14,5 @@ public interface GetItemByIdUseCase {
      * @param id the item ID
      * @return the item response
      */
-    ItemResponse execute(Long id);
+    ItemWithPublicationResponse execute(Long id);
 }

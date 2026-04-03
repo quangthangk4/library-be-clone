@@ -36,7 +36,7 @@ public class AdminAccountInitializer implements CommandLineRunner {
 
     // Default admin credentials
     private static final String ADMIN_EMAIL = "admin@hcmut.edu.vn";
-    private static final String ADMIN_PASSWORD = "Admin@123";
+    private static final String ADMIN_PASSWORD = "admin";
     private static final String ADMIN_FULL_NAME = "System Administrator";
 
     @Override

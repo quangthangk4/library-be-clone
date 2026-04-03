@@ -14,10 +14,16 @@ INSERT INTO roles (id, created_at, updated_at, role_name, description) VALUES
 -- Password: Admin@123 (hashed with BCrypt)
 -- ============================================================
 INSERT INTO users (id, created_at, updated_at, email, full_name, hashed_password, account_status, ai_personalization_enabled, date_of_birth, phone_number, address, last_login_at, profile_picture_url) VALUES
-(1, NOW(), NOW(), 'admin@hcmut.edu.vn', 'System Administrator', '$2a$10$N9qo8uLOickgx2ZMRZoMye1L/nMJqLJVPdam6mEZqZQfz3WJQFaXu', 'ACTIVE', true, '1990-01-01', '0000000000', 'System', NULL, NULL);
+(1, NOW(), NOW(), 'admin@hcmut.edu.vn', 'System Administrator', '$2a$10$N9qo8uLOickgx2ZMRZoMye1L/nMJqLJVPdam6mEZqZQfz3WJQFaXu', 'ACTIVE', true, '1990-01-01', '0000000000', 'System', NULL, NULL),
+(2, NOW(), NOW(), 'student@hcmut.edu.vn', 'Student', '$2a$10$N9qo8uLOickgx2ZMRZoMye1L/nMJqLJVPdam6mEZqZQfz3WJQFaXu', 'ACTIVE', true, '1990-01-01', '0000000000', 'System', NULL, NULL),
+(3, NOW(), NOW(), 'library@hcmut.edu.vn', 'Library', '$2a$10$N9qo8uLOickgx2ZMRZoMye1L/nMJqLJVPdam6mEZqZQfz3WJQFaXu', 'ACTIVE', true, '1990-01-01', '0000000000', 'System', NULL, NULL);
+
 
 -- Link admin user to ADMIN role
-INSERT INTO user_roles (user_id, role_id) VALUES (1, 3);
+INSERT INTO user_roles (user_id, role_id) VALUES
+(1, 3),
+(2, 1),
+(3, 2);;
 
 -- ============================================================
 -- AUTHORS (20 records)

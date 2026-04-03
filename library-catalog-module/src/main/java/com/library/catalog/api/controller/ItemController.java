@@ -4,6 +4,7 @@ import com.library.catalog.application.dto.request.CreateItemRequest;
 import com.library.catalog.application.dto.request.UpdateItemLocationRequest;
 import com.library.catalog.application.dto.request.UpdateItemStatusRequest;
 import com.library.catalog.application.dto.response.ItemResponse;
+import com.library.catalog.application.dto.response.ItemWithPublicationResponse;
 import com.library.catalog.application.usecase.item.CreateItemUseCase;
 import com.library.catalog.application.usecase.item.DeleteItemUseCase;
 import com.library.catalog.application.usecase.item.GetAllItemsUseCase;
@@ -64,9 +65,9 @@ public class ItemController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<ItemResponse> getItemById(@PathVariable("id") Long id) {
+    public ApiResponseApp<ItemWithPublicationResponse> getItemById(@PathVariable("id") Long id) {
         log.info("REST request to get item by ID: {}", id);
-        ItemResponse response = getItemByIdUseCase.execute(id);
+        ItemWithPublicationResponse response = getItemByIdUseCase.execute(id);
         return ApiResponseApp.success(response);
     }
 

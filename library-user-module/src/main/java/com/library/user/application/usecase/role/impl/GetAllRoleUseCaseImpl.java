@@ -1,7 +1,8 @@
-package com.library.user.application.usecase.role;
+package com.library.user.application.usecase.role.impl;
 
 import com.library.user.application.dto.response.RoleResponse;
 import com.library.user.application.mapper.RoleMapper;
+import com.library.user.application.usecase.role.GetAllRoleUseCase;
 import com.library.user.domain.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

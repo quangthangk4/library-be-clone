@@ -6,8 +6,6 @@ import com.library.catalog.domain.valueobject.ItemId;
 import com.library.catalog.domain.valueobject.PublicationId;
 import com.library.circulation.domain.entities.BorrowingTransaction;
 import com.library.circulation.domain.entities.Fine;
-import com.library.circulation.domain.entities.PaymentStatus;
-import com.library.circulation.domain.entities.TransactionStatus;
 import com.library.circulation.domain.repository.BorrowingTransactionRepository;
 import com.library.circulation.domain.repository.FineRepository;
 import com.library.circulation.domain.repository.ReservationRepository;
@@ -49,7 +47,7 @@ public class CirculationDomainServiceImpl implements CirculationDomainService {
 
         // Check account status - must be ACTIVE
         if (user.getStatus() != UserStatus.ACTIVE) {
-            if (user.getStatus() == UserStatus.SUSPENDED) {
+            if (user.getStatus() == UserStatus.LOCKED) {
                 throw new AppException(ErrorCode.ACCOUNT_SUSPENDED);
             }
             throw new AppException(ErrorCode.USER_NOT_ACTIVE);
