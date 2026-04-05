@@ -15,5 +15,6 @@ public record UserResponse (
     Set<RoleResponse> roles,
     String status,
     boolean aiPersonalizationEnabled,
-    LocalDateTime lastLoginAt
+    LocalDateTime lastLoginAt,
+    Long creditScore
 ){}

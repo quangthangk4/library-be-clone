@@ -77,4 +77,10 @@ public class UserRepositoryImpl implements UserRepository {
     public long count() {
         return userJpaRepository.count();
     }
+
+    @Override
+    public Optional<User> findByProviderAndProviderId(String provider, String providerId) {
+        return userJpaRepository.findByProviderAndProviderId(provider, providerId)
+                .map(entityMapper::toDomainModel);
+    }
 }

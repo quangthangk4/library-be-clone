@@ -28,7 +28,7 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(name = "hashed_password", nullable = false)
+    @Column(name = "hashed_password")
     private String hashedPassword;
 
     @Column(name = "full_name", nullable = false, length = 100)
@@ -54,9 +54,19 @@ public class UserEntity extends BaseEntity {
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
+    @Column(name = "provider")
+    private String provider;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
     @Column(name = "ai_personalization_enabled", nullable = false)
     @Builder.Default
     private Boolean aiPersonalizationEnabled = true;
+
+    @Column(name = "credit_score", nullable = false)
+    @Builder.Default
+    private int creditScore = 100;
 
     @ManyToMany
     @JoinTable(

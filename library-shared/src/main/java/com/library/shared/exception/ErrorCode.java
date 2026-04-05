@@ -17,10 +17,11 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS(1102, "Username already exists", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS(1103, "Email already exists", HttpStatus.CONFLICT),
     INVALID_USERNAME(1104, "Invalid username format", HttpStatus.BAD_REQUEST),
-    INVALID_EMAIL(1105, "Invalid email format", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(1105, "Invalid email format, expect to: @hcmut.edu.vn", HttpStatus.BAD_REQUEST),
     INVALID_PASSWORD(1106, "Invalid password", HttpStatus.BAD_REQUEST),
     USER_NOT_ACTIVE(1107, "User account is not active", HttpStatus.FORBIDDEN),
     USER_SUSPENDED(1108, "User account is suspended", HttpStatus.FORBIDDEN),
+    EMAIL_OR_PASSWORD_INCORRECT(1109, "Email or password is incorrect", HttpStatus.BAD_REQUEST),
 
     // Role errors (1200-1299)
     ROLE_NOT_FOUND(1200, "Role not found", HttpStatus.NOT_FOUND),
@@ -33,13 +34,16 @@ public enum ErrorCode {
     PERMISSION_NOT_FOUND(1300, "Permission not found", HttpStatus.NOT_FOUND),
     PERMISSION_ALREADY_EXISTS(1301, "Permission already exists", HttpStatus.CONFLICT),
     PERMISSION_NAME_ALREADY_EXISTS(1302, "Permission name already exists", HttpStatus.CONFLICT),
-    INSUFFICIENT_PERMISSIONS(1303, "Insufficient permissions", HttpStatus.FORBIDDEN),
+    INSUFFICIENT_PERMISSIONS(1303, "You do not have permission to access this resource", HttpStatus.FORBIDDEN),
 
     // Authentication errors (1400-1499)
-    UNAUTHENTICATED(1400, "Unauthenticated", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1401, "Unauthorized", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(1400, "Authentication required", HttpStatus.UNAUTHORIZED),
+    FORBIDDEN(1401, "Access denied", HttpStatus.FORBIDDEN),
     INVALID_TOKEN(1402, "Invalid token", HttpStatus.UNAUTHORIZED),
     TOKEN_EXPIRED(1403, "Token expired", HttpStatus.UNAUTHORIZED),
+    TOKEN_GENERATION_FAILED(1404, "Token generation failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    NOT_OWNER(1405, "You are not the owner of this resource", HttpStatus.FORBIDDEN),
+    TOKEN_REFRESH_FAILED(1406, "Token refresh failed", HttpStatus.BAD_REQUEST),
 
     // Validation errors (1500-1599)
     VALIDATION_ERROR(1500, "Validation error", HttpStatus.BAD_REQUEST),
@@ -100,6 +104,8 @@ public enum ErrorCode {
     USER_BANNED(2602, "User account has BANNED", HttpStatus.UNAUTHORIZED),
     PASSWORD_EXPIRED(2603, "User password has expired", HttpStatus.UNAUTHORIZED),
     TOKEN_INVALID(2604, "Token invalid", HttpStatus.UNAUTHORIZED),
+    BUILD_OAUTH2_URL_FAILED(2605, "Failed to build OAuth2 URL", HttpStatus.BAD_REQUEST),
+
     ;
 
     private final int code;

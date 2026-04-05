@@ -13,9 +13,18 @@ public class PublicationMetadata {
     String description;
     String language;
     Integer numberOfPages;
+    String aiSummary;
+    String aiTargetAudience;
+    String fileUrl;
+    Integer publicationYear;
+    String edition;
+    String coverImageUrl;
 
-    public PublicationMetadata(String title, String subtitle, String description,
-                              String language, Integer numberOfPages) {
+
+    private PublicationMetadata(String title, String subtitle, String description,
+                               String language, Integer numberOfPages, String aiSummary,
+                                String aiTargetAudience, String fileUrl, Integer publicationYear,
+                                String edition, String coverImageUrl) {
         // Validate title (required)
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title is required");
@@ -33,6 +42,7 @@ public class PublicationMetadata {
         if (language == null || language.isBlank()) {
             throw new IllegalArgumentException("Language is required");
         }
+
         if (language.length() > 50) {
             throw new IllegalArgumentException("Language must not exceed 50 characters");
         }
@@ -42,55 +52,27 @@ public class PublicationMetadata {
             throw new IllegalArgumentException("Number of pages must be positive");
         }
 
+        if (coverImageUrl == null || coverImageUrl.isBlank()) {
+            throw new IllegalArgumentException("Cover image URL is required");
+        }
+
         this.title = title.trim();
         this.subtitle = subtitle != null ? subtitle.trim() : null;
         this.description = description != null ? description.trim() : null;
         this.language = language.trim();
         this.numberOfPages = numberOfPages;
+        this.aiSummary = aiSummary;
+        this.aiTargetAudience = aiTargetAudience;
+        this.fileUrl = fileUrl;
+        this.publicationYear = publicationYear;
+        this.edition = edition;
+        this.coverImageUrl = coverImageUrl;
     }
 
-    /**
-     * Creates PublicationMetadata with only required fields.
-     */
-    public static PublicationMetadata of(String title, String language) {
-        return new PublicationMetadata(title, null, null, language, null);
-    }
-
-    /**
-     * Creates a new PublicationMetadata with an updated title.
-     */
-    public PublicationMetadata withTitle(String newTitle) {
-        return new PublicationMetadata(newTitle, this.subtitle, this.description,
-                                      this.language, this.numberOfPages);
-    }
-
-    /**
-     * Creates a new PublicationMetadata with an updated subtitle.
-     */
-    public PublicationMetadata withSubtitle(String newSubtitle) {
-        return new PublicationMetadata(this.title, newSubtitle, this.description,
-                                      this.language, this.numberOfPages);
-    }
-
-    /**
-     * Creates a new PublicationMetadata with updated description.
-     */
-    public PublicationMetadata withDescription(String newDescription) {
-        return new PublicationMetadata(this.title, this.subtitle, newDescription,
-                                      this.language, this.numberOfPages);
-    }
-
-    /**
-     * Checks if this publication has a description.
-     */
-    public boolean hasDescription() {
-        return description != null && !description.isBlank();
-    }
-
-    /**
-     * Checks if this publication has a subtitle.
-     */
-    public boolean hasSubtitle() {
-        return subtitle != null && !subtitle.isBlank();
+    public static PublicationMetadata of(String title, String subtitle, String description,
+                                         String language, Integer numberOfPages, String aiSummary,
+                                         String aiTargetAudience, String fileUrl, Integer publicationYear,
+                                         String edition, String coverImageUrl){
+        return new PublicationMetadata(title, subtitle, description, language, numberOfPages, aiSummary, aiTargetAudience, fileUrl, publicationYear, edition, coverImageUrl);
     }
 }

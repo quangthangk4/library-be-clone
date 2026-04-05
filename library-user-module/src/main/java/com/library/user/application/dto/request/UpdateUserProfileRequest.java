@@ -24,6 +24,6 @@ public record UpdateUserProfileRequest (
 
     String address,
 
-    String profilePictureUrl
+    boolean aiPersonalizationEnabled
 )
 {}

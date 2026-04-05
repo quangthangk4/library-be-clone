@@ -18,22 +18,11 @@ public class Publication {
     // Identity
     private final PublicationId id;
     private ISBN isbn; // nullable - not all publications have ISBN
-
-    // Metadata
     private PublicationMetadata metadata;
-
-    // Publisher reference
     private PublisherId publisherId;
-
-    // Additional fields
-    private Integer publicationYear;
-    private String edition;
-    private String coverImageUrl;
-
     // Physical properties
     private String size;      // e.g., "20x15x3 cm"
     private Double weight;    // in grams
-
     // Relationships (stored as IDs only in the domain model)
     private Set<AuthorId> authorIds;
     private Set<CategoryId> categoryIds;
@@ -71,9 +60,6 @@ public class Publication {
             isbn,
             metadata,
             publisherId,
-            publicationYear,
-            null, // edition
-            null, // coverImageUrl
             null, // size
             null, // weight
             new HashSet<>(authorIds),
@@ -100,9 +86,6 @@ public class Publication {
             ISBN isbn,
             PublicationMetadata metadata,
             PublisherId publisherId,
-            Integer publicationYear,
-            String edition,
-            String coverImageUrl,
             String size,
             Double weight,
             Set<AuthorId> authorIds,
@@ -114,9 +97,6 @@ public class Publication {
             isbn,
             metadata,
             publisherId,
-            publicationYear,
-            edition,
-            coverImageUrl,
             size,
             weight,
             authorIds != null ? new HashSet<>(authorIds) : new HashSet<>(),
@@ -135,24 +115,6 @@ public class Publication {
             throw new IllegalArgumentException("Metadata cannot be null");
         }
         this.metadata = newMetadata;
-    }
-
-    /**
-     * Updates publication year and edition.
-     */
-    public void updatePublicationInfo(Integer year, String newEdition) {
-        if (year != null) {
-            validatePublicationYear(year);
-            this.publicationYear = year;
-        }
-        this.edition = newEdition != null ? newEdition.trim() : null;
-    }
-
-    /**
-     * Update cover image URL.
-     */
-    public void updateCoverImage(String url) {
-        this.coverImageUrl = url != null ? url.trim() : null;
     }
 
     /**
@@ -286,28 +248,6 @@ public class Publication {
         this.tagIds = newTagIds != null ? new HashSet<>(newTagIds) : new HashSet<>();
     }
 
-    // ========== Query Methods ==========
-
-    /**
-     * Checks if this publication has an ISBN.
-     */
-    public boolean hasISBN() {
-        return isbn != null;
-    }
-
-    /**
-     * Checks if this publication has a cover image.
-     */
-    public boolean hasCoverImage() {
-        return coverImageUrl != null && !coverImageUrl.isBlank();
-    }
-
-    /**
-     * Checks if this publication is authored by the given author.
-     */
-    public boolean hasAuthor(AuthorId authorId) {
-        return authorIds.contains(authorId);
-    }
 
     /**
      * Checks if this publication is in the given category.
@@ -363,9 +303,9 @@ public class Publication {
 
     private static void validatePublicationYear(Integer year) {
         int currentYear = java.time.Year.now().getValue();
-        if (year < 1000 || year > currentYear + 1) {
+        if (year < 0 || year > currentYear + 1) {
             throw new IllegalArgumentException(
-                "Publication year must be between 1000 and " + (currentYear + 1)
+                "Publication year must be between 0 and " + (currentYear + 1)
             );
         }
     }

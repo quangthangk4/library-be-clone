@@ -1,6 +1,6 @@
 package com.library.user.domain.valueobject;
 
-import com.library.user.domain.service.IPasswordHasher;
+import com.library.user.domain.port.IPasswordHasher;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

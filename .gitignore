@@ -13,6 +13,7 @@ target/
 *.ipr
 docker-compose.yml
 note.md
+.env
 
 ### Eclipse ###
 .apt_generated

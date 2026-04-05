@@ -1,10 +1,7 @@
 package com.library.user.domain.valueobject;
 
 import com.library.shared.util.TsIdGenerator;
-import lombok.Getter;
 import lombok.Value;
-
-import java.util.Objects;
 
 @Value
 public class UserId {

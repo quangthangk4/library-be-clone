@@ -57,4 +57,6 @@ public interface UserRepository {
      * Count the total number of users
      */
     long count();
+
+    Optional<User> findByProviderAndProviderId(String provider, String providerId);
 }

@@ -1,5 +1,6 @@
 package com.library.user.domain.valueobject;
 
+import com.library.shared.util.StaticVariable;
 import lombok.Value;
 import lombok.With;
 
@@ -36,11 +37,11 @@ public class UserProfile {
         this.profilePictureUrl = profilePictureUrl != null ? profilePictureUrl.trim() : null;
     }
 
-    public static UserProfile create(String fullName) {
-        return new UserProfile(fullName, null, null, null, null);
+    public static UserProfile create(String fullName, LocalDate dateOfBirth, String phoneNumber, String address) {
+        return new UserProfile(fullName, dateOfBirth, phoneNumber, address, StaticVariable.DEFAULT_AVATAR);
     }
 
-    public static UserProfile create(String fullName, LocalDate dateOfBirth, String phoneNumber, String address) {
-        return new UserProfile(fullName, dateOfBirth, phoneNumber, address, null);
+    public static UserProfile createWithAvatar(String fullName, String avatarUrl) {
+        return new UserProfile(fullName, null, null, null, avatarUrl);
     }
 }

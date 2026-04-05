@@ -32,7 +32,7 @@ public class UserEntityMapper {
         }
 
         UserEntity entity = UserEntity.builder()
-            .hashedPassword(user.getPasswordHash().getValue())
+            .hashedPassword(user.getPasswordHash() != null ? user.getPasswordHash().getValue() : null)
             .email(user.getEmail().getValue())
             .fullName(user.getProfile().getFullName())
             .dateOfBirth(user.getProfile().getDateOfBirth())
@@ -42,6 +42,8 @@ public class UserEntityMapper {
             .accountStatus(user.getStatus())
             .lastLoginAt(user.getLastLoginAt())
             .aiPersonalizationEnabled(user.isAiPersonalizationEnabled())
+            .provider(user.getProvider())
+            .providerId(user.getProviderId())
             .build();
 
         // Set ID if exists
@@ -69,7 +71,7 @@ public class UserEntityMapper {
         // Create value objects
         UserId userId = UserId.of(entity.getId());
         Email email = Email.of(entity.getEmail());
-        PasswordHash passwordHash = PasswordHash.of(entity.getHashedPassword());
+        PasswordHash passwordHash = entity.getHashedPassword() != null ? PasswordHash.of(entity.getHashedPassword()) : null;
         UserProfile profile = new UserProfile(
             entity.getFullName(),
             entity.getDateOfBirth(),
@@ -91,7 +93,10 @@ public class UserEntityMapper {
             roles,
             entity.getAccountStatus(),
             entity.getAiPersonalizationEnabled(),
-            entity.getLastLoginAt()
+            entity.getLastLoginAt(),
+            entity.getProvider(),
+            entity.getProviderId(),
+            entity.getCreditScore()
         );
     }
 

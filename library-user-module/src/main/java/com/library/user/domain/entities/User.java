@@ -1,12 +1,16 @@
 package com.library.user.domain.entities;
 
+import com.library.shared.exception.AppException;
+import com.library.shared.exception.ErrorCode;
 import com.library.user.domain.event.UserCreatedEvent;
 import com.library.user.domain.event.UserStatusChangedEvent;
-import com.library.user.domain.service.IPasswordHasher;
+import com.library.user.domain.port.IPasswordHasher;
 import com.library.user.domain.valueobject.Email;
 import com.library.user.domain.valueobject.PasswordHash;
 import com.library.user.domain.valueobject.UserId;
 import com.library.user.domain.valueobject.UserProfile;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -22,6 +26,7 @@ import java.util.Set;
  * Manages user data, roles
  */
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
     private final UserId id;
     private final Email email;
@@ -31,31 +36,16 @@ public class User {
     private UserStatus status;
     private boolean aiPersonalizationEnabled;
     private LocalDateTime lastLoginAt;
+    private final String provider;
+    private final String providerId;
+    private int creditScore;
 
     // Domain events
     private final List<Object> domainEvents = new ArrayList<>();
-
-    private User(UserId id,
-                Email email,
-                PasswordHash passwordHash,
-                UserProfile profile,
-                Set<Role> roles,
-                UserStatus status,
-                boolean aiPersonalizationEnabled,
-                LocalDateTime lastLoginAt) {
-        this.id = id;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.profile = profile;
-        this.roles = roles != null? new HashSet<>(roles) : new HashSet<>();
-        this.status = status;
-        this.aiPersonalizationEnabled = aiPersonalizationEnabled;
-        this.lastLoginAt = lastLoginAt;
-    }
-
     /**
      * Factory method to create a new user
      */
+
     public static User createForMapper(UserId id,
                               Email email,
                               PasswordHash passwordHash,
@@ -63,9 +53,12 @@ public class User {
                               Set<Role> roles,
                               UserStatus status,
                               boolean aiPersonalizationEnabled,
-                              LocalDateTime lastLoginAt) {
+                              LocalDateTime lastLoginAt,
+                              String provider,
+                              String providerId,
+                               int creditScore) {
         return new User(id, email, passwordHash, profile,
-                roles, status, aiPersonalizationEnabled, lastLoginAt);
+                roles, status, aiPersonalizationEnabled, lastLoginAt, provider, providerId, creditScore);
     }
 
     public static User create(
@@ -82,11 +75,29 @@ public class User {
         }
 
         User user = new User(id, email, passwordHash, profile,
-            roles, UserStatus.INACTIVE, true, null);
+            roles, UserStatus.INACTIVE, true, null, null, null, 100);
 
         user.addDomainEvent(new UserCreatedEvent(id, email.getValue()));
 
         return user;
+    }
+
+    public static User createWithOauth2(
+            Email email,
+            UserProfile profile,
+            String provider,
+            String providerId,
+            Role defaultRole
+    ){
+        UserId id = UserId.generate();
+
+        Set<Role> roles = new HashSet<>();
+        if (defaultRole != null) {
+            roles.add(defaultRole);
+        }
+
+        return new User(id, email, null, profile,
+                roles, UserStatus.ACTIVE, true, null, provider, providerId, 100);
     }
 
     // ============== Role Management ==============
@@ -224,6 +235,18 @@ public class User {
         this.profile = newProfile;
     }
 
+    public void validateStatus() {
+        if (status == UserStatus.LOCKED) {
+            throw new AppException(ErrorCode.USER_LOCKED);
+        }
+        if (status == UserStatus.INACTIVE) {
+            throw new AppException(ErrorCode.USER_EMAIL_NOT_VERIFIED);
+        }
+        if (status == UserStatus.BANNED) {
+            throw new AppException(ErrorCode.USER_BANNED);
+        }
+    }
+
     /**
      * Business logic: Change password
      */
@@ -234,11 +257,13 @@ public class User {
         this.passwordHash = newPasswordHash;
     }
 
-    public boolean verifyPassword(String newPassword, IPasswordHasher hasher) {
+    public void verifyPassword(String newPassword, IPasswordHasher hasher) {
         if (newPassword == null || newPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
         }
-        return this.passwordHash.matches(newPassword, hasher);
+        if (this.passwordHash == null || !this.passwordHash.matches(newPassword, hasher)){
+            throw new AppException(ErrorCode.EMAIL_OR_PASSWORD_INCORRECT);
+        }
     }
 
     /**

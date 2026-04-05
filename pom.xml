@@ -19,6 +19,7 @@
         <module>library-circulation-module</module>
         <module>library-recommendation-module</module>
         <module>library-bootstrap</module>
+        <module>library-auth-module</module>
     </modules>
 
     <properties>
@@ -84,6 +85,11 @@
             <dependency>
                 <groupId>com.library</groupId>
                 <artifactId>library-user-module</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.library</groupId>
+                <artifactId>library-auth-module</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

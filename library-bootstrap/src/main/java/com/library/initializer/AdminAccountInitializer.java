@@ -4,7 +4,7 @@ import com.library.user.domain.entities.Role;
 import com.library.user.domain.entities.User;
 import com.library.user.domain.repository.RoleRepository;
 import com.library.user.domain.repository.UserRepository;
-import com.library.user.domain.service.IPasswordHasher;
+import com.library.user.domain.port.IPasswordHasher;
 import com.library.user.domain.valueobject.Email;
 import com.library.user.domain.valueobject.PasswordHash;
 import com.library.user.domain.valueobject.UserProfile;
@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 

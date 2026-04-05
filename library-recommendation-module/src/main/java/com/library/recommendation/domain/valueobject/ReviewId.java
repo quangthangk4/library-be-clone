@@ -1,48 +1,26 @@
 package com.library.recommendation.domain.valueobject;
 
-import java.util.Objects;
-import java.util.UUID;
+import com.library.shared.util.TsIdGenerator;
+import lombok.Value;
 
-/**
- * ReviewId value object
- */
+@Value
 public class ReviewId {
-    private final String value;
+    // properties
+    Long value; // private final Long value;
 
-    private ReviewId(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("Review ID cannot be null or empty");
+
+    private ReviewId(Long value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Review ID cannot be null");
         }
         this.value = value;
     }
 
-    public static ReviewId of(String value) {
+    public static ReviewId of(Long value) {
         return new ReviewId(value);
     }
 
     public static ReviewId generate() {
-        return new ReviewId(UUID.randomUUID().toString());
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ReviewId reviewId = (ReviewId) o;
-        return Objects.equals(value, reviewId.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
-    public String toString() {
-        return value;
+        return new ReviewId(TsIdGenerator.next());
     }
 }

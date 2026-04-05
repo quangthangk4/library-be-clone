@@ -1,6 +1,6 @@
 package com.library.recommendation.domain.model;
 
-import com.library.recommendation.domain.valueobject.Rating;
+import com.library.recommendation.domain.valueobject.RatingMetadata;
 import com.library.recommendation.domain.valueobject.ReviewId;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ public class Review {
     private final ReviewId id;
     private final String userId;
     private final String bookId;
-    private Rating rating;
+    private RatingMetadata ratingMetadata;
     private String comment;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -20,30 +20,30 @@ public class Review {
     public Review(ReviewId id,
                  String userId,
                  String bookId,
-                 Rating rating,
+                 RatingMetadata ratingMetadata,
                  String comment,
                  LocalDateTime createdAt,
                  LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.bookId = bookId;
-        this.rating = rating;
+        this.ratingMetadata = ratingMetadata;
         this.comment = comment;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
     // Factory method
-    public static Review create(String userId, String bookId, Rating rating, String comment) {
+    public static Review create(String userId, String bookId, RatingMetadata ratingMetadata, String comment) {
         ReviewId id = ReviewId.generate();
         LocalDateTime now = LocalDateTime.now();
-        return new Review(id, userId, bookId, rating, comment, now, now);
+        return new Review(id, userId, bookId, ratingMetadata, comment, now, now);
     }
 
     // Business logic: Update review
-    public void update(Rating newRating, String newComment) {
-        if (newRating != null) {
-            this.rating = newRating;
+    public void update(RatingMetadata newRatingMetadata, String newComment) {
+        if (newRatingMetadata != null) {
+            this.ratingMetadata = newRatingMetadata;
         }
         this.comment = newComment;
         this.updatedAt = LocalDateTime.now();
@@ -51,12 +51,12 @@ public class Review {
 
     // Business logic: Check if review is positive
     public boolean isPositive() {
-        return this.rating.isPositive();
+        return this.ratingMetadata.isPositive();
     }
 
     // Business logic: Check if review is negative
     public boolean isNegative() {
-        return this.rating.isNegative();
+        return this.ratingMetadata.isNegative();
     }
 
     // Business logic: Check if review has comment
@@ -77,8 +77,8 @@ public class Review {
         return bookId;
     }
 
-    public Rating getRating() {
-        return rating;
+    public RatingMetadata getRating() {
+        return ratingMetadata;
     }
 
     public String getComment() {

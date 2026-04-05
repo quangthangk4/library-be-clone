@@ -10,7 +10,7 @@ import com.library.user.domain.entities.Role;
 import com.library.user.domain.entities.User;
 import com.library.user.domain.repository.RoleRepository;
 import com.library.user.domain.repository.UserRepository;
-import com.library.user.domain.service.IPasswordHasher;
+import com.library.user.domain.port.IPasswordHasher;
 import com.library.user.domain.service.UserDomainService;
 import com.library.user.domain.valueobject.Email;
 import com.library.user.domain.valueobject.PasswordHash;

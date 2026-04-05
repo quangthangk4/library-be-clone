@@ -26,6 +26,7 @@ public interface UserMapper {
     @Mapping(target = "profilePictureUrl", source = "profile.profilePictureUrl")
     @Mapping(target = "status", source = "status")
     @Mapping(target = "roles", source = "roles")
+    @Mapping(target = "creditScore", source = "creditScore")
     UserResponse toResponse(User user);
 
     @Mapping(target = "id", source = "id.value")
@@ -45,7 +46,7 @@ public interface UserMapper {
             request.dateOfBirth() != null? request.dateOfBirth() : currentProfile.getDateOfBirth(),
             request.phoneNumber() != null? request.phoneNumber() : currentProfile.getPhoneNumber(),
             request.address() != null ? request.address() : currentProfile.getAddress(),
-            request.profilePictureUrl() != null? request.profilePictureUrl() : currentProfile.getProfilePictureUrl()
+            currentProfile.getProfilePictureUrl()
         );
     }
 

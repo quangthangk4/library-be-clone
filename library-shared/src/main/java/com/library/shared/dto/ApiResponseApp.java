@@ -22,6 +22,10 @@ public class ApiResponseApp<T>{
         return new ApiResponseApp<>(HttpStatus.OK.value(), "Success", data);
     }
 
+    public static <T> ApiResponseApp<T> success(String message) {
+        return new ApiResponseApp<>(HttpStatus.OK.value(), message, null);
+    }
+
     public static <T> ApiResponseApp<T> success(String message,T data) {
         return new ApiResponseApp<>(HttpStatus.OK.value(), message, data);
     }
