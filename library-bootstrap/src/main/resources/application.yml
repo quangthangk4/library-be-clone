@@ -34,22 +34,7 @@ spring:
     locations: classpath:db/migration
     clean-disabled: true  # Prevent accidental data loss
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            scope: profile, email,openid
-            redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000/oauth2/callback}
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
-            user-name-attribute: sub
+
 
 
 server:
