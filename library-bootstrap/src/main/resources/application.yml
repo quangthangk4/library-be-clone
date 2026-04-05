@@ -39,8 +39,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID:937096248326-ufp0dhmi6695c2selghgk86gjmk351rd.apps.googleusercontent.com}
-            client-secret: ${GOOGLE_CLIENT_SECRET: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}
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
             authorization-grant-type: authorization_code
             scope: profile, email,openid
             redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000/oauth2/callback}
