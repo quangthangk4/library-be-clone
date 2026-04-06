@@ -19,12 +19,22 @@ public class BookReview extends BaseDomainEntity {
     private PublicationId publicationId;
     private RatingMetadata rating; // 1-5 stars
     private Integer helpfulCount; // Number of users who found this review helpful
-    private Boolean isVerifiedPurchase; // User actually borrowed this book
+    private Boolean verifiedBorrow; // User actually borrowed this book
 
     public void markAsHelpful() {
         if (this.helpfulCount == null) {
             this.helpfulCount = 0;
         }
         this.helpfulCount++;
+    }
+
+    public static BookReview createForMapper(
+            ReviewId id,
+            UserId userId,
+            PublicationId publicationId,
+            RatingMetadata rating,
+            Integer helpfulCount,
+            Boolean verifiedBorrow) {
+        return new BookReview(id, userId, publicationId, rating, helpfulCount, verifiedBorrow);
     }
 }

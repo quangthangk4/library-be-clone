@@ -6,6 +6,7 @@ import com.library.circulation.domain.valueobject.ReservationId;
 import com.library.user.domain.valueobject.UserId;
 import lombok.Getter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,11 @@ public class Reservation {
     private final PublicationId publicationId;
 
     // Reservation metadata
-    private final LocalDateTime reservationDate;
+    private final Instant reservationDate;
     private ReservationStatus status;
-    private LocalDateTime notificationSentDate;
+    private int queuePosition;
+    private Instant holdExpirationTime;
+    private Instant notificationSentDate;
 
     // Domain events
     private final List<Object> domainEvents = new ArrayList<>();
@@ -33,14 +36,18 @@ public class Reservation {
             ReservationId id,
             UserId userId,
             PublicationId publicationId,
-            LocalDateTime reservationDate,
+            Instant reservationDate,
             ReservationStatus status,
-            LocalDateTime notificationSentDate) {
+            int queuePosition,
+            Instant holdExpirationTime,
+            Instant notificationSentDate) {
         this.id = id;
         this.userId = userId;
         this.publicationId = publicationId;
         this.reservationDate = reservationDate;
         this.status = status;
+        this.queuePosition = queuePosition;
+        this.holdExpirationTime = holdExpirationTime;
         this.notificationSentDate = notificationSentDate;
     }
 
@@ -59,7 +66,7 @@ public class Reservation {
         }
 
         ReservationId id = ReservationId.generate();
-        LocalDateTime reservationDate = LocalDateTime.now();
+        Instant reservationDate = Instant.now();
 
         Reservation reservation = new Reservation(
             id,
@@ -67,6 +74,8 @@ public class Reservation {
             publicationId,
             reservationDate,
             ReservationStatus.PENDING,
+            0, // queuePosition
+            null, // holdExpirationTime
             null // notificationSentDate
         );
 
@@ -82,15 +91,19 @@ public class Reservation {
             ReservationId id,
             UserId userId,
             PublicationId publicationId,
-            LocalDateTime reservationDate,
+            Instant reservationDate,
             ReservationStatus status,
-            LocalDateTime notificationSentDate) {
+            int queuePosition,
+            Instant holdExpirationTime,
+            Instant notificationSentDate) {
         return new Reservation(
             id,
             userId,
             publicationId,
             reservationDate,
             status,
+            queuePosition,
+            holdExpirationTime,
             notificationSentDate
         );
     }
@@ -145,7 +158,7 @@ public class Reservation {
             throw new IllegalStateException("Can only notify for fulfilled reservations");
         }
 
-        this.notificationSentDate = LocalDateTime.now();
+        this.notificationSentDate = Instant.now();
     }
 
     // ============== Domain Events Management ==============

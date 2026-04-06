@@ -5,6 +5,7 @@ import com.library.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -12,10 +13,9 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "reservations", indexes = {
-    @Index(name = "idx_reservation_user_id", columnList = "user_id"),
-    @Index(name = "idx_reservation_publication_id", columnList = "publication_id"),
-    @Index(name = "idx_reservation_status", columnList = "status"),
-    @Index(name = "idx_reservation_date", columnList = "reservation_date")
+    @Index(name = "idx_reservation_user_id", columnList = "userId"),
+    @Index(name = "idx_reservation_publication_id", columnList = "publicationId"),
+    @Index(name = "idx_reservation_status", columnList = "status")
 })
 @Getter
 @Setter
@@ -24,20 +24,25 @@ import java.time.LocalDateTime;
 @Builder
 public class ReservationEntity extends BaseEntity {
 
-    @Column(name = "user_id", nullable = false)
+    @Column(nullable = false)
     private Long userId;
 
-    @Column(name = "publication_id", nullable = false)
+    @Column( nullable = false)
     private Long publicationId;
 
-    @Column(name = "reservation_date", nullable = false)
-    private LocalDateTime reservationDate;
+    @Column( nullable = false)
+    private Instant reservationDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private ReservationStatus status = ReservationStatus.PENDING;
 
-    @Column(name = "notification_sent_date")
-    private LocalDateTime notificationSentDate;
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer queuePosition = 0;
+
+    private Instant holdExpirationTime;
+
+    private Instant notificationSentDate;
 }

@@ -1,5 +1,6 @@
 package com.library.circulation.application.dto.response;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -12,9 +13,9 @@ public record ReservationResponse(
     String userFullName,
     Long publicationId,
     String publicationTitle,
-    LocalDateTime reservationDate,
+    Instant reservationDate,
     String status,
-    LocalDateTime notificationSentDate,
+    Instant notificationSentDate,
     Integer queuePosition
 ) {
 }

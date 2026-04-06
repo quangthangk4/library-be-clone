@@ -5,9 +5,10 @@ import com.library.catalog.domain.valueobject.Barcode;
 import com.library.catalog.domain.valueobject.ItemId;
 import com.library.catalog.domain.valueobject.PublicationId;
 import com.library.catalog.infrastructure.persistence.entity.ItemEntity;
+import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
-@Component
+@Mapper(componentModel = "spring")
 public class ItemEntityMapper {
 
     public ItemEntity toEntity(Item item) {
@@ -17,7 +18,9 @@ public class ItemEntityMapper {
         entity.setBarcode(item.getBarcode().getValue());
         entity.setStatus(item.getStatus());
         entity.setItemType(item.getItemType());
-        entity.setLocation(item.getLocation());
+        entity.setBranch(item.getBranch());
+        entity.setShelf(item.getShelf());
+        entity.setCondition(item.getCondition());
         entity.setAcquiredDate(item.getAcquiredDate());
         return entity;
     }
@@ -29,7 +32,9 @@ public class ItemEntityMapper {
             Barcode.of(entity.getBarcode()),
             entity.getStatus(),
             entity.getItemType(),
-            entity.getLocation(),
+            entity.getBranch(),
+            entity.getShelf(),
+            entity.getCondition(),
             entity.getAcquiredDate()
         );
     }

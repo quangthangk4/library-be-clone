@@ -14,6 +14,7 @@ import com.library.circulation.domain.valueobject.TransactionId;
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
 import com.library.user.domain.entities.User;
+import com.library.user.domain.enums.ViolationType;
 import com.library.user.domain.repository.UserRepository;
 import com.library.user.domain.valueobject.UserId;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class ReturnItemUseCaseImpl implements ReturnItemUseCase {
             int daysOverdue = transaction.calculateDaysOverdue();
             BigDecimal fineAmount = circulationDomainService.calculateFineAmount(daysOverdue);
 
-            Fine fine = Fine.create(transactionId, fineAmount);
+            Fine fine = Fine.create(transactionId, fineAmount, ViolationType.OVERDUE_RETURN);
             fineRepository.save(fine);
 
             log.info("Created fine for overdue transaction. Amount: {}, Days: {}", fineAmount, daysOverdue);

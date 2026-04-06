@@ -13,7 +13,7 @@ import java.util.Set;
 @Table(name = "publications", indexes = {
     @Index(name = "idx_publication_isbn", columnList = "isbn", unique = true),
     @Index(name = "idx_publication_title", columnList = "title"),
-    @Index(name = "idx_publication_publisher", columnList = "publisher_id")
+    @Index(name = "idx_publication_publisher", columnList = "publisherId")
 })
 @Getter
 @Setter
@@ -29,10 +29,8 @@ public class PublicationEntity extends BaseEntity {
     @Column(length = 255)
     private String subtitle;
 
-    @Column(name = "publisher_id")
     private Long publisherId;
 
-    @Column(name = "publication_year")
     private Integer publicationYear;
 
     @Column(length = 100)
@@ -44,19 +42,18 @@ public class PublicationEntity extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String language;
 
-    @Column(name = "number_of_pages")
     private Integer numberOfPages;
 
-    @Column(name = "ai_summary", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String aiSummary;
 
-    @Column(name = "file_url", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String fileUrl;
 
-    @Column(name = "ai_target_audience", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String aiTargetAudience;
 
-    @Column(name = "cover_image_url", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String coverImageUrl;
 
     @Column(length = 50)

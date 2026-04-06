@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "tags", indexes = {
-    @Index(name = "idx_tag_name", columnList = "tag_name", unique = true)
+    @Index(name = "idx_tag_name", columnList = "tagName", unique = true)
 })
 @Getter
 @Setter
@@ -17,6 +17,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TagEntity extends BaseEntity {
 
-    @Column(name = "tag_name", nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String tagName;
 }

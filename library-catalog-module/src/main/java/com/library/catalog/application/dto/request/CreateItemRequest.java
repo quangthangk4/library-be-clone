@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
-
 public record CreateItemRequest(
     @NotNull(message = "Publication ID is required")
     Long publicationId,
@@ -20,7 +18,10 @@ public record CreateItemRequest(
     @Pattern(regexp = "^(HARDCOVER|PAPERBACK|JOURNAL)$", message = "Item type must be HARDCOVER, PAPERBACK, or JOURNAL")
     String itemType,
 
-    @Size(max = 255, message = "Location must not exceed 255 characters")
-    String location
+    @Size(max = 100, message = "Branch must not exceed 100 characters")
+    String branch,
+
+    @Size(max = 100, message = "Shelf must not exceed 100 characters")
+    String shelf
 ) {
 }

@@ -28,51 +28,47 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(name = "hashed_password")
+    @Column(name = "hashedPassword")
     private String hashedPassword;
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(name = "fullName", nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "dateOfBirth")
     private LocalDate dateOfBirth;
 
     @Column(name = "address")
     private String address;
 
-    @Column(name = "phone_number", length = 20)
+    @Column(name = "phoneNumber", length = 20)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_status", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private UserStatus accountStatus = UserStatus.INACTIVE;
 
-    @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
-    @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
-    @Column(name = "provider")
     private String provider;
 
-    @Column(name = "provider_id")
     private String providerId;
 
-    @Column(name = "ai_personalization_enabled", nullable = false)
+    @Column( nullable = false)
     @Builder.Default
     private Boolean aiPersonalizationEnabled = true;
 
-    @Column(name = "credit_score", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private int creditScore = 100;
 
     @ManyToMany
     @JoinTable(
         name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
+        joinColumns = @JoinColumn(name = "userId"),
+        inverseJoinColumns = @JoinColumn(name = "roleId")
     )
     @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();

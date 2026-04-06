@@ -21,10 +21,10 @@ public abstract class BaseEntity {
     private Long id;
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column( updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(insertable = false)
+    @Column( insertable = false)
     private LocalDateTime updatedAt;
 }

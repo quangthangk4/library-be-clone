@@ -13,7 +13,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "roles", indexes = {
-    @Index(name = "idx_role_name", columnList = "role_name", unique = true)
+    @Index(name = "idx_role_name", columnList = "roleName", unique = true)
 })
 @Getter
 @Setter
@@ -22,10 +22,9 @@ import java.util.Set;
 @Builder
 public class RoleEntity extends BaseEntity {
 
-    @Column(name = "role_name", unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = false, length = 50)
     private String roleName;
 
-    @Column(name = "description")
     private String description;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)

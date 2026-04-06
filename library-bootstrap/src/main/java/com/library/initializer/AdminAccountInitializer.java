@@ -12,19 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-/**
- * Data initializer for default admin account.
- * Runs on application startup to ensure a default admin account exists.
- *
- * This initializer runs AFTER RoleDataInitializer to ensure roles exist first.
- *
- * NOTE: Disabled in favor of Flyway migrations (V2__insert_seed_data.sql)
- */
 @Slf4j
-//@Component
+@Component
 @Order(2) // Run after RoleDataInitializer (which has default order = 1)
 @RequiredArgsConstructor
 public class AdminAccountInitializer implements CommandLineRunner {

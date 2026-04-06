@@ -66,7 +66,9 @@ public class GetItemsByPublicationIdUseCaseImpl implements GetItemsByPublication
             response.barcode(),
             response.status(),
             response.itemType(),
-            response.location(),
+            item.getBranch(),
+            item.getShelf(),
+            item.getCondition() != null ? item.getCondition().name() : null,
             item.getAcquiredDate(),
             null, // createdAt - will be populated from entity
             null  // updatedAt - will be populated from entity

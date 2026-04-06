@@ -3,6 +3,8 @@ package com.library.circulation.domain.entities;
 import com.library.circulation.domain.event.FineCreatedEvent;
 import com.library.circulation.domain.valueobject.FineId;
 import com.library.circulation.domain.valueobject.TransactionId;
+import com.library.shared.entity.BaseDomainEntity;
+import com.library.user.domain.enums.ViolationType;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -17,7 +19,7 @@ import java.util.List;
  * Manages the lifecycle of fines and their payment status.
  */
 @Getter
-public class Fine {
+public class Fine extends BaseDomainEntity {
     // Identity
     private final FineId id;
     private final TransactionId transactionId;
@@ -27,6 +29,8 @@ public class Fine {
     private final LocalDate fineDate;
     private PaymentStatus paymentStatus;
     private LocalDateTime paidDate;
+    private ViolationType violationType;
+
 
     // Domain events
     private final List<Object> domainEvents = new ArrayList<>();
@@ -37,13 +41,15 @@ public class Fine {
             BigDecimal fineAmount,
             LocalDate fineDate,
             PaymentStatus paymentStatus,
-            LocalDateTime paidDate) {
+            LocalDateTime paidDate,
+            ViolationType violationType) {
         this.id = id;
         this.transactionId = transactionId;
         this.fineAmount = fineAmount;
         this.fineDate = fineDate;
         this.paymentStatus = paymentStatus;
         this.paidDate = paidDate;
+        this.violationType = violationType;
     }
 
     /**
@@ -51,7 +57,8 @@ public class Fine {
      */
     public static Fine create(
             TransactionId transactionId,
-            BigDecimal fineAmount) {
+            BigDecimal fineAmount,
+            ViolationType violationType) {
 
         if (transactionId == null) {
             throw new IllegalArgumentException("Transaction ID cannot be null");
@@ -69,7 +76,8 @@ public class Fine {
             fineAmount,
             fineDate,
             PaymentStatus.UNPAID,
-            null // paidDate
+            null, // paidDate
+            violationType
         );
 
         fine.addDomainEvent(new FineCreatedEvent(id, transactionId, fineAmount));
@@ -86,14 +94,16 @@ public class Fine {
             BigDecimal fineAmount,
             LocalDate fineDate,
             PaymentStatus paymentStatus,
-            LocalDateTime paidDate) {
+            LocalDateTime paidDate,
+            ViolationType violationType) {
         return new Fine(
             id,
             transactionId,
             fineAmount,
             fineDate,
             paymentStatus,
-            paidDate
+            paidDate,
+            violationType
         );
     }
 

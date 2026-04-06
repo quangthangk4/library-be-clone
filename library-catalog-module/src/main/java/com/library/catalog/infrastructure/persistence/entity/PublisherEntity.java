@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "publishers", indexes = {
-    @Index(name = "idx_publisher_name", columnList = "publisher_name")
+    @Index(name = "idx_publisher_name", columnList = "publisherName")
 })
 @Getter
 @Setter
@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PublisherEntity extends BaseEntity {
 
-    @Column(name = "publisher_name", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String publisherName;
 
     @Column(length = 255)

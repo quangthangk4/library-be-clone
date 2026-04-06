@@ -2,6 +2,7 @@ package com.library.circulation.infrastructure.persistence.entity;
 
 import com.library.circulation.domain.entities.PaymentStatus;
 import com.library.shared.entity.BaseEntity;
+import com.library.user.domain.enums.ViolationType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,9 +15,9 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "fines", indexes = {
-    @Index(name = "idx_fine_transaction_id", columnList = "transaction_id"),
-    @Index(name = "idx_fine_payment_status", columnList = "payment_status"),
-    @Index(name = "idx_fine_date", columnList = "fine_date")
+    @Index(name = "idx_fine_transaction_id", columnList = "transactionId"),
+    @Index(name = "idx_fine_payment_status", columnList = "paymentStatus"),
+    @Index(name = "idx_fine_date", columnList = "fineDate")
 })
 @Getter
 @Setter
@@ -25,20 +26,23 @@ import java.time.LocalDateTime;
 @Builder
 public class FineEntity extends BaseEntity {
 
-    @Column(name = "transaction_id", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private Long transactionId;
 
-    @Column(name = "fine_amount", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal fineAmount;
 
-    @Column(name = "fine_date", nullable = false)
+    @Column(nullable = false)
     private LocalDate fineDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
 
-    @Column(name = "paid_date")
     private LocalDateTime paidDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private ViolationType violationType;
 }

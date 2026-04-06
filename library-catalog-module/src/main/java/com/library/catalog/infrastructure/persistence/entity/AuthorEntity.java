@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "authors", indexes = {
-    @Index(name = "idx_author_name", columnList = "author_name")
+    @Index(name = "idx_author_name", columnList = "authorName")
 })
 @Getter
 @Setter
@@ -19,15 +19,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AuthorEntity extends BaseEntity {
 
-    @Column(name = "author_name", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String authorName;
 
     @Column(columnDefinition = "TEXT")
     private String biography;
 
-    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Column(name = "date_of_death")
     private LocalDate dateOfDeath;
 }

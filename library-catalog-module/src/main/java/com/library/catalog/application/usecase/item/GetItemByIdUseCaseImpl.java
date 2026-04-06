@@ -52,7 +52,9 @@ public class GetItemByIdUseCaseImpl implements GetItemByIdUseCase {
             item.getBarcode().getValue(),
             item.getStatus().toString(),
             item.getItemType().toString(),
-            item.getLocation(),
+            item.getBranch(),
+            item.getShelf(),
+            item.getCondition() != null ? item.getCondition().name() : null,
             item.getAcquiredDate(),
             null, // createdAt - will be populated from entity
             null  // updatedAt - will be populated from entity

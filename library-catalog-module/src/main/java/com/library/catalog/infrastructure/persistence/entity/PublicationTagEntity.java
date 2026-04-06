@@ -16,10 +16,8 @@ import lombok.Setter;
 public class PublicationTagEntity {
 
     @Id
-    @Column(name = "publication_id")
     private Long publicationId;
 
     @Id
-    @Column(name = "tag_id")
     private Long tagId;
 }

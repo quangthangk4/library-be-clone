@@ -54,23 +54,14 @@ public class CreateItemUseCaseImpl implements CreateItemUseCase {
         ItemType itemType = ItemType.valueOf(request.itemType());
 
         // Create item entity
-        Item item;
-        if (request.location() != null && !request.location().isBlank()) {
-            item = Item.create(
-                publicationId,
-                barcode,
-                itemType,
-                request.location(),
-                LocalDate.now()
-            );
-        } else {
-            item = Item.create(
-                publicationId,
-                barcode,
-                itemType,
-                LocalDate.now()
-            );
-        }
+        Item item = Item.create(
+            publicationId,
+            barcode,
+            itemType,
+            LocalDate.now(),
+            request.branch(),
+            request.shelf()
+        );
 
         // Save item
         Item savedItem = itemRepository.save(item);
@@ -90,7 +81,9 @@ public class CreateItemUseCaseImpl implements CreateItemUseCase {
             response.barcode(),
             response.status(),
             response.itemType(),
-            response.location(),
+            item.getBranch(),
+            item.getShelf(),
+            item.getCondition() != null ? item.getCondition().name() : null,
             item.getAcquiredDate(),
             null, // createdAt - will be set by entity
             null  // updatedAt - will be set by entity

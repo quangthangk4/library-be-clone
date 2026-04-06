@@ -26,6 +26,7 @@ public class FineEntityMapper {
             .fineDate(fine.getFineDate())
             .paymentStatus(fine.getPaymentStatus())
             .paidDate(fine.getPaidDate())
+            .violationType(fine.getViolationType())
             .build();
 
         if (fine.getId() != null) {
@@ -52,7 +53,8 @@ public class FineEntityMapper {
             entity.getFineAmount(),
             entity.getFineDate(),
             entity.getPaymentStatus(),
-            entity.getPaidDate()
+            entity.getPaidDate(),
+            entity.getViolationType()
         );
     }
 }

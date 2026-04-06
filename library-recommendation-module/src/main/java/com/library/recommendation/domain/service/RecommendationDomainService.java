@@ -1,7 +1,9 @@
 package com.library.recommendation.domain.service;
 
-import com.library.recommendation.domain.model.Review;
+import com.library.catalog.domain.valueobject.PublicationId;
+import com.library.recommendation.domain.entity.BookReview;
 import com.library.recommendation.domain.repository.ReviewRepository;
+import com.library.user.domain.valueobject.UserId;
 
 import java.util.List;
 
@@ -18,8 +20,8 @@ public class RecommendationDomainService {
     /**
      * Calculate average rating for a book
      */
-    public double calculateAverageRating(String bookId) {
-        List<Review> reviews = reviewRepository.findByBookId(bookId);
+    public double calculateAverageRating(PublicationId publicationId) {
+        List<BookReview> reviews = reviewRepository.findByPublicationId(publicationId);
         if (reviews.isEmpty()) {
             return 0.0;
         }
@@ -34,15 +36,15 @@ public class RecommendationDomainService {
     /**
      * Check if user has already reviewed a book
      */
-    public boolean hasUserReviewedBook(String userId, String bookId) {
-        return reviewRepository.findByUserIdAndBookId(userId, bookId).isPresent();
+    public boolean hasUserReviewedBook(UserId userId, PublicationId publicationId) {
+        return reviewRepository.findByUserIdAndPublicationId(userId, publicationId).isPresent();
     }
 
     /**
      * Validate user can create review
      */
-    public void validateCanCreateReview(String userId, String bookId) {
-        if (hasUserReviewedBook(userId, bookId)) {
+    public void validateCanCreateReview(UserId userId, PublicationId publicationId) {
+        if (hasUserReviewedBook(userId, publicationId)) {
             throw new IllegalStateException("User has already reviewed this book");
         }
     }

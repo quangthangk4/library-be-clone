@@ -26,6 +26,8 @@ public class ReservationEntityMapper {
             .publicationId(reservation.getPublicationId().getValue())
             .reservationDate(reservation.getReservationDate())
             .status(reservation.getStatus())
+            .queuePosition(reservation.getQueuePosition())
+            .holdExpirationTime(reservation.getHoldExpirationTime())
             .notificationSentDate(reservation.getNotificationSentDate())
             .build();
 
@@ -54,6 +56,8 @@ public class ReservationEntityMapper {
             publicationId,
             entity.getReservationDate(),
             entity.getStatus(),
+            entity.getQueuePosition(),
+            entity.getHoldExpirationTime(),
             entity.getNotificationSentDate()
         );
     }

@@ -10,7 +10,9 @@ public record ItemResponse(
     String barcode,
     String status,
     String itemType,
-    String location,
+    String branch,
+    String shelf,
+    String condition,
     LocalDate acquiredDate,
     LocalDateTime createdAt,
     LocalDateTime updatedAt

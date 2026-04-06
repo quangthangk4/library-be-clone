@@ -1,5 +1,6 @@
 package com.library.catalog.domain.entities;
 
+import com.library.catalog.domain.enums.ConditionItemEnum;
 import com.library.catalog.domain.event.ItemStatusChangedEvent;
 import com.library.catalog.domain.valueobject.Barcode;
 import com.library.catalog.domain.valueobject.ItemId;
@@ -28,7 +29,9 @@ public class Item {
     // Item properties
     private ItemStatus status;
     private final ItemType itemType;
-    private String location;
+    private String branch;
+    private String shelf;
+    private ConditionItemEnum condition;
     private final LocalDate acquiredDate;
 
     // Domain events
@@ -41,7 +44,9 @@ public class Item {
             PublicationId publicationId,
             Barcode barcode,
             ItemType itemType,
-            LocalDate acquiredDate
+            LocalDate acquiredDate,
+            String branch,
+            String shelf
     ) {
         if (publicationId == null) {
             throw new IllegalArgumentException("Publication ID cannot be null");
@@ -52,12 +57,6 @@ public class Item {
         if (itemType == null) {
             throw new IllegalArgumentException("Item type cannot be null");
         }
-        if (acquiredDate == null) {
-            throw new IllegalArgumentException("Acquired date cannot be null");
-        }
-        if (acquiredDate.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Acquired date cannot be in the future");
-        }
 
         return new Item(
             ItemId.generate(),
@@ -65,24 +64,11 @@ public class Item {
             barcode,
             ItemStatus.AVAILABLE,
             itemType,
-            null, // location
-            acquiredDate
+            branch,
+            shelf,
+            ConditionItemEnum.NEW,
+            acquiredDate != null ? acquiredDate : LocalDate.now()
         );
-    }
-
-    /**
-     * Factory method to create Item with location.
-     */
-    public static Item create(
-            PublicationId publicationId,
-            Barcode barcode,
-            ItemType itemType,
-            String location,
-            LocalDate acquiredDate
-    ) {
-        Item item = create(publicationId, barcode, itemType, acquiredDate);
-        item.updateLocation(location);
-        return item;
     }
 
     /**
@@ -94,10 +80,12 @@ public class Item {
             Barcode barcode,
             ItemStatus status,
             ItemType itemType,
-            String location,
+            String branch,
+            String shelf,
+            ConditionItemEnum condition,
             LocalDate acquiredDate
     ) {
-        return new Item(id, publicationId, barcode, status, itemType, location, acquiredDate);
+        return new Item(id, publicationId, barcode, status, itemType, branch, shelf, condition, acquiredDate);
     }
 
     // ========== Status Transition Methods ==========
@@ -188,10 +176,11 @@ public class Item {
     // ========== Location Management ==========
 
     /**
-     * Updates item location (shelf position).
+     * Updates item location (branch and shelf).
      */
-    public void updateLocation(String newLocation) {
-        this.location = newLocation != null ? newLocation.trim() : null;
+    public void updateLocation(String branch, String shelf) {
+        this.branch = branch != null ? branch.trim() : null;
+        this.shelf = shelf != null ? shelf.trim() : null;
     }
 
     // ========== Query Methods ==========

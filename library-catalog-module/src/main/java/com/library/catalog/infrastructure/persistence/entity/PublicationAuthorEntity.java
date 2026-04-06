@@ -16,10 +16,8 @@ import lombok.Setter;
 public class PublicationAuthorEntity {
 
     @Id
-    @Column(name = "publication_id")
     private Long publicationId;
 
     @Id
-    @Column(name = "author_id")
     private Long authorId;
 }

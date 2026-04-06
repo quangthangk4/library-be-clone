@@ -37,7 +37,7 @@ public class UpdateItemLocationUseCaseImpl implements UpdateItemLocationUseCase 
             .orElseThrow(() -> new AppException(ErrorCode.ITEM_NOT_FOUND));
 
         // Update location
-        item.updateLocation(request.location());
+        item.updateLocation(request.branch(), request.shelf());
 
         // Save item
         Item updatedItem = itemRepository.save(item);
@@ -61,7 +61,9 @@ public class UpdateItemLocationUseCaseImpl implements UpdateItemLocationUseCase 
             response.barcode(),
             response.status(),
             response.itemType(),
-            response.location(),
+            item.getBranch(),
+            item.getShelf(),
+            item.getCondition() != null ? item.getCondition().name() : null,
             item.getAcquiredDate(),
             null, // createdAt - will be populated from entity
             null  // updatedAt - will be populated from entity

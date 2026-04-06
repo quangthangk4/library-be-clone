@@ -9,8 +9,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "categories", indexes = {
-    @Index(name = "idx_category_name", columnList = "category_name", unique = true),
-    @Index(name = "idx_parent_category", columnList = "parent_category_id")
+    @Index(name = "idx_category_name", columnList = "categoryName", unique = true),
+    @Index(name = "idx_parent_category", columnList = "parentCategoryId")
 })
 @Getter
 @Setter
@@ -18,9 +18,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CategoryEntity extends BaseEntity {
 
-    @Column(name = "category_name", nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String categoryName;
 
-    @Column(name = "parent_category_id")
     private Long parentCategoryId; // Self-reference for hierarchy
 }
