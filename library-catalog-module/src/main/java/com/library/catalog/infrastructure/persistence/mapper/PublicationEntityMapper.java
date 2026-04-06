@@ -25,11 +25,14 @@ public class PublicationEntityMapper {
         entity.setDescription(metadata.getDescription());
         entity.setLanguage(metadata.getLanguage());
         entity.setNumberOfPages(metadata.getNumberOfPages());
+        entity.setAiSummary(metadata.getAiSummary());
+        entity.setAiTargetAudience(metadata.getAiTargetAudience());
+        entity.setFileUrl(metadata.getFileUrl());
+        entity.setPublicationYear(metadata.getPublicationYear());
+        entity.setEdition(metadata.getEdition());
+        entity.setCoverImageUrl(metadata.getCoverImageUrl());
 
         entity.setPublisherId(publication.getPublisherId().getValue());
-        entity.setPublicationYear(publication.getPublicationYear());
-        entity.setEdition(publication.getEdition());
-        entity.setCoverImageUrl(publication.getCoverImageUrl());
         entity.setSize(publication.getSize());
         entity.setWeight(publication.getWeight());
 
@@ -66,22 +69,25 @@ public class PublicationEntityMapper {
             .collect(Collectors.toSet());
 
         // Create metadata value object
-        PublicationMetadata metadata = new PublicationMetadata(
-            entity.getTitle(),
-            entity.getSubtitle(),
-            entity.getDescription(),
-            entity.getLanguage(),
-            entity.getNumberOfPages()
-        );
+        PublicationMetadata metadata = PublicationMetadata.builder()
+            .title(entity.getTitle())
+            .subtitle(entity.getSubtitle())
+            .description(entity.getDescription())
+            .language(entity.getLanguage())
+            .numberOfPages(entity.getNumberOfPages())
+            .aiSummary(entity.getAiSummary())
+            .aiTargetAudience(entity.getAiTargetAudience())
+            .fileUrl(entity.getFileUrl())
+            .publicationYear(entity.getPublicationYear())
+            .edition(entity.getEdition())
+            .coverImageUrl(entity.getCoverImageUrl())
+            .build();
 
         return Publication.createForMapper(
             PublicationId.of(entity.getId()),
             entity.getIsbn() != null ? ISBN.of(entity.getIsbn()) : null,
             metadata,
             PublisherId.of(entity.getPublisherId()),
-            entity.getPublicationYear(),
-            entity.getEdition(),
-            entity.getCoverImageUrl(),
             entity.getSize(),
             entity.getWeight(),
             authorIds,

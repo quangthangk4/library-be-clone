@@ -19,11 +19,11 @@ public class Publication {
     private final PublicationId id;
     private ISBN isbn; // nullable - not all publications have ISBN
     private PublicationMetadata metadata;
-    private PublisherId publisherId;
     // Physical properties
     private String size;      // e.g., "20x15x3 cm"
     private Double weight;    // in grams
     // Relationships (stored as IDs only in the domain model)
+    private PublisherId publisherId;
     private Set<AuthorId> authorIds;
     private Set<CategoryId> categoryIds;
     private Set<TagId> tagIds;
@@ -51,17 +51,36 @@ public class Publication {
         if (authorIds == null || authorIds.isEmpty()) {
             throw new IllegalArgumentException("Publication must have at least one author");
         }
+        
+        // If publicationYear is provided separately, ensure it's validated and set in metadata
+        PublicationMetadata finalMetadata = metadata;
         if (publicationYear != null) {
             validatePublicationYear(publicationYear);
+            if (metadata.getPublicationYear() == null || !metadata.getPublicationYear().equals(publicationYear)) {
+                // Since PublicationMetadata is @Value (immutable), we use builder to create a new one with the year
+                finalMetadata = PublicationMetadata.builder()
+                    .title(metadata.getTitle())
+                    .subtitle(metadata.getSubtitle())
+                    .description(metadata.getDescription())
+                    .language(metadata.getLanguage())
+                    .numberOfPages(metadata.getNumberOfPages())
+                    .aiSummary(metadata.getAiSummary())
+                    .aiTargetAudience(metadata.getAiTargetAudience())
+                    .fileUrl(metadata.getFileUrl())
+                    .publicationYear(publicationYear)
+                    .edition(metadata.getEdition())
+                    .coverImageUrl(metadata.getCoverImageUrl())
+                    .build();
+            }
         }
 
         Publication publication = new Publication(
             PublicationId.generate(),
             isbn,
-            metadata,
-            publisherId,
+            finalMetadata,
             null, // size
             null, // weight
+            publisherId,
             new HashSet<>(authorIds),
             new HashSet<>(), // categories
             new HashSet<>()  // tags
@@ -96,9 +115,9 @@ public class Publication {
             id,
             isbn,
             metadata,
-            publisherId,
             size,
             weight,
+            publisherId,
             authorIds != null ? new HashSet<>(authorIds) : new HashSet<>(),
             categoryIds != null ? new HashSet<>(categoryIds) : new HashSet<>(),
             tagIds != null ? new HashSet<>(tagIds) : new HashSet<>()
@@ -115,6 +134,48 @@ public class Publication {
             throw new IllegalArgumentException("Metadata cannot be null");
         }
         this.metadata = newMetadata;
+    }
+
+    /**
+     * Updates publication info (publication year and edition).
+     */
+    public void updatePublicationInfo(Integer year, String edition) {
+        if (year != null) {
+            validatePublicationYear(year);
+        }
+        
+        this.metadata = PublicationMetadata.builder()
+            .title(metadata.getTitle())
+            .subtitle(metadata.getSubtitle())
+            .description(metadata.getDescription())
+            .language(metadata.getLanguage())
+            .numberOfPages(metadata.getNumberOfPages())
+            .aiSummary(metadata.getAiSummary())
+            .aiTargetAudience(metadata.getAiTargetAudience())
+            .fileUrl(metadata.getFileUrl())
+            .publicationYear(year != null ? year : metadata.getPublicationYear())
+            .edition(edition != null ? edition : metadata.getEdition())
+            .coverImageUrl(metadata.getCoverImageUrl())
+            .build();
+    }
+
+    /**
+     * Updates cover image URL.
+     */
+    public void updateCoverImage(String coverImageUrl) {
+        this.metadata = PublicationMetadata.builder()
+            .title(metadata.getTitle())
+            .subtitle(metadata.getSubtitle())
+            .description(metadata.getDescription())
+            .language(metadata.getLanguage())
+            .numberOfPages(metadata.getNumberOfPages())
+            .aiSummary(metadata.getAiSummary())
+            .aiTargetAudience(metadata.getAiTargetAudience())
+            .fileUrl(metadata.getFileUrl())
+            .publicationYear(metadata.getPublicationYear())
+            .edition(metadata.getEdition())
+            .coverImageUrl(coverImageUrl)
+            .build();
     }
 
     /**

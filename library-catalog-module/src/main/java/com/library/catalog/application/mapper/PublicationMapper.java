@@ -26,6 +26,12 @@ public interface PublicationMapper {
     @Mapping(target = "description", source = "request.description")
     @Mapping(target = "language", source = "request.language")
     @Mapping(target = "numberOfPages", source = "request.numberOfPages")
+    @Mapping(target = "publicationYear", source = "request.publicationYear")
+    @Mapping(target = "edition", source = "request.edition")
+    @Mapping(target = "coverImageUrl", source = "request.coverImageUrl")
+    @Mapping(target = "aiSummary", ignore = true)
+    @Mapping(target = "aiTargetAudience", ignore = true)
+    @Mapping(target = "fileUrl", ignore = true)
     PublicationMetadata toMetadata(CreatePublicationRequest request);
 
     /**
@@ -82,9 +88,9 @@ public interface PublicationMapper {
             publication.getMetadata().getNumberOfPages(),
             publisherResponse,
             authorResponses,
-            publication.getPublicationYear(),
-            publication.getEdition(),
-            publication.getCoverImageUrl(),
+            publication.getMetadata().getPublicationYear(),
+            publication.getMetadata().getEdition(),
+            publication.getMetadata().getCoverImageUrl(),
             publication.getSize(),
             publication.getWeight(),
             categoryResponses,

@@ -47,7 +47,16 @@ public class PublicationEntity extends BaseEntity {
     @Column(name = "number_of_pages")
     private Integer numberOfPages;
 
-    @Column(name = "cover_image_url")
+    @Column(name = "ai_summary", columnDefinition = "TEXT")
+    private String aiSummary;
+
+    @Column(name = "file_url", columnDefinition = "TEXT")
+    private String fileUrl;
+
+    @Column(name = "ai_target_audience", columnDefinition = "TEXT")
+    private String aiTargetAudience;
+
+    @Column(name = "cover_image_url", columnDefinition = "TEXT")
     private String coverImageUrl;
 
     @Column(length = 50)

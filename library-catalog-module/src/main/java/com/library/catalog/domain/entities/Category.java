@@ -5,10 +5,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Category entity - represents a hierarchical classification for publications.
- * Supports tree structure via parentCategoryId.
- */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Category {

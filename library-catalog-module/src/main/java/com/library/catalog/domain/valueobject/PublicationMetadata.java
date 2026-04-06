@@ -1,5 +1,8 @@
 package com.library.catalog.domain.valueobject;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
 
 /**
@@ -7,6 +10,8 @@ import lombok.Value;
  * Immutable and self-validating.
  */
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class PublicationMetadata {
     String title;
     String subtitle;
@@ -21,11 +26,10 @@ public class PublicationMetadata {
     String coverImageUrl;
 
 
-    private PublicationMetadata(String title, String subtitle, String description,
-                               String language, Integer numberOfPages, String aiSummary,
-                                String aiTargetAudience, String fileUrl, Integer publicationYear,
-                                String edition, String coverImageUrl) {
-        // Validate title (required)
+    public static PublicationMetadata of(String title, String subtitle, String description,
+                                         String language, Integer numberOfPages, String aiSummary,
+                                         String aiTargetAudience, String fileUrl, Integer publicationYear,
+                                         String edition, String coverImageUrl){
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title is required");
         }
@@ -55,24 +59,6 @@ public class PublicationMetadata {
         if (coverImageUrl == null || coverImageUrl.isBlank()) {
             throw new IllegalArgumentException("Cover image URL is required");
         }
-
-        this.title = title.trim();
-        this.subtitle = subtitle != null ? subtitle.trim() : null;
-        this.description = description != null ? description.trim() : null;
-        this.language = language.trim();
-        this.numberOfPages = numberOfPages;
-        this.aiSummary = aiSummary;
-        this.aiTargetAudience = aiTargetAudience;
-        this.fileUrl = fileUrl;
-        this.publicationYear = publicationYear;
-        this.edition = edition;
-        this.coverImageUrl = coverImageUrl;
-    }
-
-    public static PublicationMetadata of(String title, String subtitle, String description,
-                                         String language, Integer numberOfPages, String aiSummary,
-                                         String aiTargetAudience, String fileUrl, Integer publicationYear,
-                                         String edition, String coverImageUrl){
         return new PublicationMetadata(title, subtitle, description, language, numberOfPages, aiSummary, aiTargetAudience, fileUrl, publicationYear, edition, coverImageUrl);
     }
 }
