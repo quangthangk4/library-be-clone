@@ -21,5 +21,5 @@ public class TagEntity extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    protected TagEntity() {}
+    public TagEntity() {}
 }

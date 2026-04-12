@@ -1,6 +1,7 @@
 package com.library.catalog.presentation.controller;
 
-import com.library.catalog.dto.response.author.AuthorOverviewResponse;
+import com.library.catalog.application.CreatePublisherUseCase;
+import com.library.catalog.application.SearchPublisherUseCase;
 import com.library.catalog.dto.response.publisher.PublisherOverviewResponse;
 import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
@@ -22,29 +23,25 @@ import java.util.List;
 @RequestMapping("/api/v1/publishers")
 @RequiredArgsConstructor
 public class PublisherController {
-    // not finish
+
+    private final SearchPublisherUseCase searchPublisherUseCase;
+    private final CreatePublisherUseCase createPublisherUseCase;
+
     // limit 10
     @RequiresRole(RoleConstants.LIBRARIAN)
     @GetMapping
     public ApiResponseApp<List<PublisherOverviewResponse>> searchPublisher(@RequestParam("keyword") String keyword) {
         log.info("Search publisher with keyword: {}", keyword);
-        if ("thangvip123".contains(keyword.toLowerCase()))
-            return ApiResponseApp.success(List.of(
-                    PublisherOverviewResponse.builder().id(55L).name("Thang").build(),
-                    PublisherOverviewResponse.builder().id(2L).name("ThangVip123").build(),
-                    PublisherOverviewResponse.builder().id(3L).name("test1").build(),
-                    PublisherOverviewResponse.builder().id(4L).name("test2").build()
-            ));
-        return ApiResponseApp.success(null);
+        return ApiResponseApp.success(searchPublisherUseCase.execute(keyword));
     }
 
 
-    // not finish
     @PostMapping
     @RequiresRole(RoleConstants.LIBRARIAN)
     public ApiResponseApp<Void> createPublisher(@RequestBody String name) {
         log.info("Create publisher: {}", name);
-        return ApiResponseApp.success(null);
+        createPublisherUseCase.execute(name);
+        return ApiResponseApp.success("create publisher success");
     }
 
 }

@@ -28,5 +28,5 @@ public class CategoryEntity extends BaseEntity {
     @Column(name = "parent_category_id")
     private Long parentCategoryId; // Self-reference for hierarchy
 
-    protected CategoryEntity() {}
+    public CategoryEntity() {}
 }

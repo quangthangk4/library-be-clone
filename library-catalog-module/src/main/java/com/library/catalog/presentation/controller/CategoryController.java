@@ -1,7 +1,8 @@
 package com.library.catalog.presentation.controller;
 
+import com.library.catalog.application.CreateCategoryUseCase;
 import com.library.catalog.application.GetAllCategoryUseCase;
-import com.library.catalog.dto.response.author.AuthorOverviewResponse;
+import com.library.catalog.application.SearchCategoryUseCase;
 import com.library.catalog.dto.response.category.CategoryOverviewResponse;
 import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
@@ -24,21 +25,15 @@ import java.util.List;
 public class CategoryController {
 
     private final GetAllCategoryUseCase getAllCategoryUseCase;
+    private final SearchCategoryUseCase searchCategoryUseCase;
+    private final CreateCategoryUseCase createCategoryUseCase;
 
-    // not finish
     // limit 10
     @RequiresRole(RoleConstants.LIBRARIAN)
     @GetMapping("/search")
     public ApiResponseApp<List<CategoryOverviewResponse>> searchCategories(@RequestParam("keyword") String keyword) {
-        log.info("Search category with keyword: {}", keyword);
-        if ("thangvip123".contains(keyword.toLowerCase()))
-            return ApiResponseApp.success(List.of(
-                    CategoryOverviewResponse.builder().id(55L).name("category1").build(),
-                    CategoryOverviewResponse.builder().id(2L).name("category2").build(),
-                    CategoryOverviewResponse.builder().id(3L).name("test1").build(),
-                    CategoryOverviewResponse.builder().id(4L).name("test2").build()
-            ));
-        return ApiResponseApp.success(null);
+        log.info("Search categories with keyword: {}", keyword);
+        return ApiResponseApp.success(searchCategoryUseCase.execute(keyword));
     }
 
 
@@ -47,11 +42,11 @@ public class CategoryController {
         return ApiResponseApp.success(getAllCategoryUseCase.execute());
     }
 
-    // not finish
     @PostMapping
     @RequiresRole(RoleConstants.LIBRARIAN)
-    public ApiResponseApp<Void> createAuthor(@RequestBody String name) {
+    public ApiResponseApp<Void> createCategory(@RequestBody String name) {
         log.info("Create category: {}", name);
-        return ApiResponseApp.success(null);
+        createCategoryUseCase.execute(name);
+        return ApiResponseApp.success("create category success");
     }
 }

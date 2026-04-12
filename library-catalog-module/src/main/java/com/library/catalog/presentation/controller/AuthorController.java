@@ -1,5 +1,7 @@
 package com.library.catalog.presentation.controller;
 
+import com.library.catalog.application.CreateAuthorUseCase;
+import com.library.catalog.application.SearchAuthorUseCase;
 import com.library.catalog.dto.response.author.AuthorOverviewResponse;
 import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
@@ -15,35 +17,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/authors")
 @RequiredArgsConstructor
 public class AuthorController {
 
-    // not finish
+    private final SearchAuthorUseCase searchAuthorUseCase;
+    private final CreateAuthorUseCase createAuthorUseCase;
+
     // limit 10
     @RequiresRole(RoleConstants.LIBRARIAN)
     @GetMapping
     public ApiResponseApp<List<AuthorOverviewResponse>> searchAuthor(@RequestParam("keyword") String keyword) {
         log.info("Search author with keyword: {}", keyword);
-        if ("thangvip123".contains(keyword.toLowerCase()))
-            return ApiResponseApp.success(List.of(
-                    AuthorOverviewResponse.builder().id(55L).name("Thang").build(),
-                    AuthorOverviewResponse.builder().id(2L).name("ThangVip123").build(),
-                    AuthorOverviewResponse.builder().id(3L).name("test1").build(),
-                    AuthorOverviewResponse.builder().id(4L).name("test2").build()
-            ));
-        return ApiResponseApp.success(null);
+        return ApiResponseApp.success(searchAuthorUseCase.execute(keyword));
     }
 
-
-    // not finish
     @PostMapping
     @RequiresRole(RoleConstants.LIBRARIAN)
     public ApiResponseApp<Void> createAuthor(@RequestBody String name) {
         log.info("Create author: {}", name);
-        return ApiResponseApp.success(null);
+        createAuthorUseCase.execute(name);
+        return ApiResponseApp.success("create author success");
     }
 }

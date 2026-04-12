@@ -1,6 +1,7 @@
 package com.library.catalog.presentation.controller;
 
-import com.library.catalog.dto.response.author.AuthorOverviewResponse;
+import com.library.catalog.application.CreateTagUseCase;
+import com.library.catalog.application.SearchTagUseCase;
 import com.library.catalog.dto.response.tag.TagResponse;
 import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
@@ -23,28 +24,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TagController {
 
-    // not finish
+    private final SearchTagUseCase searchTagUseCase;
+    private final CreateTagUseCase createTagUseCase;
+
     // limit 10
     @RequiresRole(RoleConstants.LIBRARIAN)
     @GetMapping
-    public ApiResponseApp<List<TagResponse>> searchAuthor(@RequestParam("keyword") String keyword) {
+    public ApiResponseApp<List<TagResponse>> searchTags(@RequestParam("keyword") String keyword) {
         log.info("Search tags with keyword: {}", keyword);
-        if ("thangvip123".contains(keyword.toLowerCase()))
-            return ApiResponseApp.success(List.of(
-                    TagResponse.builder().id(55L).name("tag1").build(),
-                    TagResponse.builder().id(2L).name("tag2").build(),
-                    TagResponse.builder().id(3L).name("test1").build(),
-                    TagResponse.builder().id(4L).name("test2").build()
-            ));
-        return ApiResponseApp.success(null);
+        return ApiResponseApp.success(searchTagUseCase.execute(keyword));
     }
 
 
-    // not finish
     @PostMapping
     @RequiresRole(RoleConstants.LIBRARIAN)
-    public ApiResponseApp<Void> createAuthor(@RequestBody String name) {
-        log.info("Create tags: {}", name);
-        return ApiResponseApp.success(null);
+    public ApiResponseApp<Void> createTag(@RequestBody String name) {
+        log.info("Create tag: {}", name);
+        createTagUseCase.execute(name);
+        return ApiResponseApp.success("create tag success");
     }
 }
