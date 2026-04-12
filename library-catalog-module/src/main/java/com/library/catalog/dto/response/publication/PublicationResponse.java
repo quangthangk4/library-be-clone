@@ -1,5 +1,7 @@
 package com.library.catalog.dto.response.publication;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.library.catalog.domain.enums.FacultyTarget;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 public class PublicationResponse {
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     private String isbn;
     private String title;

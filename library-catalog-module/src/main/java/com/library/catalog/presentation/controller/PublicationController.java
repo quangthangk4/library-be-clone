@@ -2,6 +2,8 @@ package com.library.catalog.presentation.controller;
 
 import com.library.catalog.application.GetListPublicationForLibrarianUseCase;
 import com.library.catalog.application.GetPublicationByIdByLibrarianUseCase;
+import com.library.catalog.application.UpdatePublicationUseCase;
+import com.library.catalog.application.CreatePublicationUseCase;
 import com.library.catalog.dto.request.publication.CreatePublicationRequest;
 import com.library.catalog.dto.request.publication.PublicationSearchRequest;
 import com.library.catalog.dto.request.publication.UpdatePublicationRequest;
@@ -35,23 +37,25 @@ public class PublicationController {
 
     private final GetListPublicationForLibrarianUseCase getListPublicationForLibrarianUseCase;
     private final GetPublicationByIdByLibrarianUseCase getPublicationByIdByLibrarianUseCase;
+    private final UpdatePublicationUseCase updatePublicationUseCase;
+    private final CreatePublicationUseCase createPublicationUseCase;
 
-    // not finish
     @PostMapping
     @RequiresRole(RoleConstants.LIBRARIAN)
     public ApiResponseApp<Void> createPublication(@RequestBody @Valid CreatePublicationRequest request) {
         log.info("Create publication with request: {}", request);
+        createPublicationUseCase.execute(request);
         return ApiResponseApp.success("create publication success");
     }
 
 
-    // not finish
     @PutMapping("/{id}")
     @RequiresRole(RoleConstants.LIBRARIAN)
-    public ApiResponseApp<UpdatePublicationResponse> updatePublication(
+    public ApiResponseApp<Void> updatePublication(
             @PathVariable("id") Long id,
             @RequestBody @Valid UpdatePublicationRequest request) {
         log.info("Update publication with request: {}", request);
+        updatePublicationUseCase.execute(id, request);
         return ApiResponseApp.success("update success");
     }
 

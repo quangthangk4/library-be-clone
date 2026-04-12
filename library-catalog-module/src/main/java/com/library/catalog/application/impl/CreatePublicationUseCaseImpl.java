@@ -1,7 +1,7 @@
 package com.library.catalog.application.impl;
 
-import com.library.catalog.application.UpdatePublicationUseCase;
-import com.library.catalog.dto.request.publication.UpdatePublicationRequest;
+import com.library.catalog.application.CreatePublicationUseCase;
+import com.library.catalog.dto.request.publication.CreatePublicationRequest;
 import com.library.catalog.infrastructure.persistence.entity.PublicationEntity;
 import com.library.catalog.infrastructure.persistence.repository.PublicationJpaRepository;
 import com.library.shared.util.TsIdGenerator;
@@ -12,41 +12,40 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
+public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
 
     private final PublicationJpaRepository publicationJpaRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
-    public void execute(Long publicationId, UpdatePublicationRequest request) {
-        PublicationEntity entity = publicationJpaRepository.findById(publicationId)
-                .orElseThrow(() -> new IllegalArgumentException("Publication not found: " + publicationId));
-
-        // 1. Update Publication Entity
+    public void execute(CreatePublicationRequest request) {
+        // 1. Create and Save Publication Entity
+        PublicationEntity entity = new PublicationEntity();
+        entity.setId(TsIdGenerator.next());
+        entity.setIsbn(request.isbn());
         entity.setTitle(request.title());
         entity.setSubtitle(request.subtitle());
         entity.setDescription(request.description());
         entity.setLanguage(request.language());
         entity.setNumberOfPages(request.numberOfPages());
+        entity.setAiSummary(request.aiSummary());
+        entity.setAiTargetAudience(request.aiTargetAudience());
         entity.setPublicationYear(request.publicationYear());
         entity.setEdition(request.edition());
-        entity.setCoverImageUrl(request.coverImageUrl());
         entity.setSize(request.size());
         entity.setWeight(request.weight());
-        entity.setAiTargetAudience(request.aiTargetAudience());
         entity.setPublisherId(request.publisherId());
 
         publicationJpaRepository.saveAndFlush(entity);
 
-        // 2. Update Junction Tables
-        updateAuthors(publicationId, request.authorIds());
-        updateCategories(publicationId, request.categoryIds());
-        updateTags(publicationId, request.tagIds());
+        // 2. Insert into Junction Tables
+        insertAuthors(entity.getId(), request.authorIds());
+        insertCategories(entity.getId(), request.categoryIds());
+        insertTags(entity.getId(), request.tagIds());
     }
 
-    private void updateAuthors(Long publicationId, Long[] authorIds) {
-        jdbcTemplate.update("DELETE FROM publication_authors WHERE publication_id = ?", publicationId);
+    private void insertAuthors(Long publicationId, Long[] authorIds) {
         if (authorIds != null) {
             for (Long authorId : authorIds) {
                 jdbcTemplate.update("INSERT INTO publication_authors (id, publication_id, author_id) VALUES (?, ?, ?)",
@@ -55,8 +54,7 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
         }
     }
 
-    private void updateCategories(Long publicationId, Long[] categoryIds) {
-        jdbcTemplate.update("DELETE FROM publication_categories WHERE publication_id = ?", publicationId);
+    private void insertCategories(Long publicationId, Long[] categoryIds) {
         if (categoryIds != null) {
             for (Long categoryId : categoryIds) {
                 jdbcTemplate.update("INSERT INTO publication_categories (id, publication_id, category_id) VALUES (?, ?, ?)",
@@ -65,8 +63,7 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
         }
     }
 
-    private void updateTags(Long publicationId, Long[] tagIds) {
-        jdbcTemplate.update("DELETE FROM publication_tags WHERE publication_id = ?", publicationId);
+    private void insertTags(Long publicationId, Long[] tagIds) {
         if (tagIds != null) {
             for (Long tagId : tagIds) {
                 jdbcTemplate.update("INSERT INTO publication_tags (id, publication_id, tag_id) VALUES (?, ?, ?)",

@@ -248,16 +248,16 @@ public class PublicationRepositoryImpl implements PublicationRepositoryCustom {
         }
 
         return LibrarianPublicationListResponse.builder()
-                .publicationId(((Number) row[0]).longValue())
+                .publicationId(toLong(row[0]))
                 .title((String) row[1])
                 .subtitle((String) row[2])
                 .coverImageUrl((String) row[3])
-                .publicationYear(row[4] != null ? ((Number) row[4]).intValue() : null)
+                .publicationYear(toInt(row[4]))
                 .createdAt(createdAt)
                 .authorNames(row[6] != null
                         ? Arrays.asList(((String) row[6]).split(","))
                         : List.of())
-                .totalItems(((Number) row[7]).longValue())
+                .totalItems(toLong(row[7]))
                 .build();
     }
 

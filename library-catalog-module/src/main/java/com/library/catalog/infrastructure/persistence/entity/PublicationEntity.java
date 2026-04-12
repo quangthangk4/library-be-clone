@@ -52,5 +52,5 @@ public class PublicationEntity extends BaseEntity {
     private Double weight; // in grams
 
     private Long publisherId;
-    protected PublicationEntity() {}
+    public PublicationEntity() {}
 }

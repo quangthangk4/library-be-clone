@@ -11,15 +11,13 @@ public record CreatePublicationRequest (
     Integer numberOfPages,
     String aiSummary,
     FacultyTarget aiTargetAudience,
-    String fileUrl,
     Integer publicationYear,
     Integer edition,
-    String coverImageUrl,
     String size, // e.g., "20x15x3 cm"
     Double weight, // in grams
     Long publisherId,
-    Long[] authorId,
-    Long[] tags,
-    Long[] categories
+    Long[] authorIds,
+    Long[] categoryIds,
+    Long[] tagIds
 ){
 }
