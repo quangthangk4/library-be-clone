@@ -94,6 +94,7 @@ public class PublicationController {
     public ApiResponseApp<PageResponse<LibrarianPublicationListResponse>> getPublications(
             @ModelAttribute PublicationSearchRequest request
     ) {
+        log.info("Get publications with request: {}", request);
         return ApiResponseApp.success(getListPublicationForLibrarianUseCase.execute(request));
     }
 

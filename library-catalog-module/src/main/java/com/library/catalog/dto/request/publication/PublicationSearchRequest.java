@@ -10,6 +10,6 @@ public class PublicationSearchRequest {
     private Long categoryId;
     private Integer year;
     private Boolean hasItems;
-    private String sortBy = "createAt";
+    private String sortBy = "createdAt";
     private String sortDir = "DESC";
 }

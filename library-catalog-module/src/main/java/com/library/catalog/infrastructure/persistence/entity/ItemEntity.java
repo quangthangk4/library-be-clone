@@ -41,5 +41,5 @@ public class ItemEntity extends BaseEntity {
     @Column(length = 20)
     private ConditionItemEnum condition;
 
-    protected ItemEntity() {}
+    public ItemEntity() {}
 }

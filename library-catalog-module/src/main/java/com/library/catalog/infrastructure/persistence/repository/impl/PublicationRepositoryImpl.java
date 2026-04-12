@@ -76,6 +76,27 @@ public class PublicationRepositoryImpl implements PublicationRepositoryCustom {
 
         String countSQL = "SELECT COUNT(*) FROM (SELECT p.id " + joins + where + "GROUP BY p.id) sub";
 
+        // Append Sorting
+        String orderBy = "ORDER BY p.created_at DESC"; // default
+        if (pageable.getSort().isSorted()) {
+            StringBuilder sb = new StringBuilder("ORDER BY ");
+            pageable.getSort().forEach(order -> {
+                String property = order.getProperty();
+                String direction = order.getDirection().name();
+                String column = switch (property) {
+                    case "title" -> "p.title";
+                    case "publicationYear" -> "p.publication_year";
+                    case "createdAt" -> "p.created_at";
+                    case "id" -> "p.id";
+                    default -> "p.created_at";
+                };
+                sb.append(column).append(" ").append(direction).append(", ");
+            });
+            orderBy = sb.substring(0, sb.length() - 2);
+        }
+
+        dataSQL += " " + orderBy;
+
         Query dataQuery = em.createNativeQuery(dataSQL)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize());
