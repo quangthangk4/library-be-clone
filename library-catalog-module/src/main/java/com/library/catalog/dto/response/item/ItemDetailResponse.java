@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.library.catalog.domain.entities.ItemStatus;
 import com.library.catalog.domain.enums.ConditionItemEnum;
+import com.library.catalog.dto.response.publication.LibrarianPublicationDetailResponse;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,4 +19,5 @@ public class ItemDetailResponse {
     private ItemStatus status;
     private ConditionItemEnum condition;
     private String publicationTitle;
+    private LibrarianPublicationDetailResponse publication;
 }

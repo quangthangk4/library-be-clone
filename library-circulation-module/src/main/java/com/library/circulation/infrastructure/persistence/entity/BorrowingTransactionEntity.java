@@ -2,8 +2,16 @@ package com.library.circulation.infrastructure.persistence.entity;
 
 import com.library.circulation.domain.enums.TransactionStatus;
 import com.library.shared.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -11,9 +19,6 @@ import java.time.LocalDateTime;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-/**
- * JPA Entity for BorrowingTransaction table.
- */
 @Entity
 @Table(name = "borrowing_transactions", indexes = {
     @Index(name = "idx_borrow_user_id", columnList = "userId"),
@@ -45,7 +50,7 @@ public class BorrowingTransactionEntity extends BaseEntity {
     private LocalDate dueDate;
 
     @Column(name = "returned_date")
-    private LocalDateTime returnedDate;
+    private Instant returnedDate;
 
     @Column(name = "picked_up_deadline", nullable = false)
     @Builder.Default
@@ -60,7 +65,7 @@ public class BorrowingTransactionEntity extends BaseEntity {
     @Builder.Default
     private Integer renewalCount = 0;
 
-    protected BorrowingTransactionEntity() {
+    public BorrowingTransactionEntity() {
         // Default constructor for JPA
     }
 }

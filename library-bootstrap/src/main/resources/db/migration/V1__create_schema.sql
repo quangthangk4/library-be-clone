@@ -348,7 +348,7 @@ CREATE TABLE borrowing_transactions (
                                         librarian_id_return BIGINT NULL,
                                         picked_up_deadline  TIMESTAMPTZ(6) NOT NULL,
                                         renewal_count       INT NOT NULL,
-                                        returned_date       TIMESTAMP(6) NULL,
+                                        returned_date       TIMESTAMPTZ(6) NULL,
                                         status              VARCHAR(20) NOT NULL,
                                         user_id             BIGINT NOT NULL,
                                         CONSTRAINT borrowing_transactions_pkey PRIMARY KEY (id),
