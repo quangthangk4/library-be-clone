@@ -10,6 +10,8 @@ public record UserResponse (
     String fullName,
     LocalDate dateOfBirth,
     String phoneNumber,
+    String studentId,
+    String faculty,
     String address,
     String profilePictureUrl,
     Set<RoleResponse> roles,

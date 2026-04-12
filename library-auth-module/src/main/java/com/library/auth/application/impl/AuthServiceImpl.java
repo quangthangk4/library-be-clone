@@ -14,11 +14,9 @@ import com.library.shared.exception.ErrorCode;
 import com.library.shared.util.StaticVariable;
 import com.library.user.domain.entities.Role;
 import com.library.user.domain.entities.User;
-import com.library.user.domain.entities.UserStatus;
 import com.library.user.domain.repository.RoleRepository;
 import com.library.user.domain.repository.UserRepository;
 import com.library.user.domain.valueobject.Email;
-import com.library.user.domain.valueobject.RoleId;
 import com.library.user.domain.valueobject.UserId;
 import com.library.user.domain.valueobject.UserProfile;
 import com.nimbusds.jose.JOSEException;
@@ -108,15 +106,13 @@ public class AuthServiceImpl implements AuthService {
 
         // save refresh token if purpose is REFRESH
         if (purpose == PurposeToken.REFRESH) {
-            refreshTokensRepository.deleteByUserIdAndDeviceId(user.getId().getValue(), "deviceId");
-            refreshTokensRepository.flush();
-            refreshTokensRepository.save(
-                    new RefreshTokens(UUIDToken.of(jwtId),
-                            "deviceId",
-                            user.getId().getValue(),
-                            Instant.now().plusSeconds(expireSeconds)
-                    )
+            RefreshTokens refreshToken = new RefreshTokens(UUIDToken.of(jwtId),
+                    "deviceId",
+                    user.getId().getValue(),
+                    Instant.now().plusSeconds(expireSeconds)
             );
+
+            refreshTokensRepository.upsertRefreshToken(refreshToken);
         }
         return object.serialize();
     }
@@ -187,11 +183,13 @@ public class AuthServiceImpl implements AuthService {
         // Here you would typically generate a JWT token or similar
         String accessTokenResponse = generateToken(user, PurposeToken.ACCESS);
         String refreshToken = generateToken(user, PurposeToken.REFRESH);
+        boolean isNewUser = user.getStudentId() == null;
 
 //        loginAttemptsService.loginSucceeded(user.getId());
         return TokenResponse.builder()
                 .accessToken(accessTokenResponse)
                 .refreshToken(refreshToken)
+                .isNewUser(isNewUser)
                 .build();
 
     }

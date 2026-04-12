@@ -25,4 +25,20 @@ public interface RefreshTokensJpaRepository extends JpaRepository<RefreshTokensE
     @Modifying
     @Query("UPDATE RefreshTokensEntity t SET t.revoked = true WHERE t.uuidToken = :uuidToken")
     void revokeToken(@Param("uuidToken") String uuidToken);
+
+    @Modifying
+    @Query(value = """
+        INSERT INTO refresh_tokens (user_id, device_id, uuid_token, expiry_date, revoked)
+        VALUES (:userId, :deviceId, :uuidToken, :expiryDate, false)
+        ON CONFLICT (user_id, device_id)
+        DO UPDATE SET
+            uuid_token = EXCLUDED.uuid_token,
+            expiry_date = EXCLUDED.expiry_date,
+            revoked = false
+    """, nativeQuery = true)
+    void upsertRefreshToken(@Param("userId") Long userId,
+                            @Param("deviceId") String deviceId,
+                            @Param("uuidToken") String uuidToken,
+                            @Param("expiryDate") Instant expiryDate);
+
 }

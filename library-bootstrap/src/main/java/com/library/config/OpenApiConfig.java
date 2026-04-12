@@ -8,7 +8,6 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,16 +15,11 @@ import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
-    @Value("${server.port:8080}")
-    private String serverPort;
-
     @Bean
     public OpenAPI libraryOpenAPI() {
-        // 1. Cấu hình Server (để Swagger biết gọi API ở đâu)
         Server localServer = new Server();
-        localServer.setUrl("http://localhost:" + serverPort);
-        localServer.setDescription("Local Server");
-
+        localServer.setUrl("http://localhost:8080");
+        localServer.setDescription("Local server");
         // 2. Cấu hình Info (Thông tin đồ án)
         Info info = new Info()
                 .title("Library Management System API")

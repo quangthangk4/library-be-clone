@@ -4,13 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -20,11 +20,19 @@ public abstract class BaseEntity {
     @Id
     private Long id;
 
-    @CreatedDate
-    @Column( updatable = false)
-    private LocalDateTime createdAt;
+    @Column(updatable = false)
+    private Instant createdAt;
 
-    @LastModifiedDate
-    @Column( insertable = false)
-    private LocalDateTime updatedAt;
+    @Column(insertable = false)
+    private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
 }

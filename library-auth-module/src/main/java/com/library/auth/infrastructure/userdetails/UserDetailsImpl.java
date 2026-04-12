@@ -38,16 +38,16 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return user.getAccountStatus() != UserStatus.BANNED;
+        return user.getStatus() != UserStatus.BANNED;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return user.getAccountStatus() != UserStatus.LOCKED;
+        return user.getStatus() != UserStatus.LOCKED;
     }
 
     @Override
     public boolean isEnabled() {
-        return user.getAccountStatus() != UserStatus.INACTIVE;
+        return user.getStatus() != UserStatus.INACTIVE;
     }
 }

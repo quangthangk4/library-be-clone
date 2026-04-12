@@ -2,6 +2,7 @@ package com.library.user.infrastructure.persistence.entity;
 
 import com.library.shared.entity.BaseEntity;
 import com.library.user.domain.entities.UserStatus;
+import com.library.user.domain.enums.FacultyEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,29 +29,33 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(name = "hashedPassword")
     private String hashedPassword;
 
-    @Column(name = "fullName", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "dateOfBirth")
     private LocalDate dateOfBirth;
 
-    @Column(name = "address")
     private String address;
 
-    @Column(name = "phoneNumber", length = 20)
+    @Column(length = 20)
     private String phoneNumber;
+
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    @Column(name = "student_id", length = 7)
+    private String studentId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private UserStatus accountStatus = UserStatus.INACTIVE;
+    private UserStatus status = UserStatus.INACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    private FacultyEnum faculty;
 
     private LocalDateTime lastLoginAt;
-
-    private String profilePictureUrl;
 
     private String provider;
 
@@ -72,20 +77,4 @@ public class UserEntity extends BaseEntity {
     )
     @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
-
-    /**
-     * Helper method to add a role
-     */
-    public void addRole(RoleEntity role) {
-        this.roles.add(role);
-        role.getUsers().add(this);
-    }
-
-    /**
-     * Helper method to remove a role
-     */
-    public void removeRole(RoleEntity role) {
-        this.roles.remove(role);
-        role.getUsers().remove(this);
-    }
 }

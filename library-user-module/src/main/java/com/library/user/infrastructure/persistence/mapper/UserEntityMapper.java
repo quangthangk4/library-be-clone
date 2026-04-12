@@ -14,18 +14,9 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Mapper for converting between JPA Entities and Domain Models
- * This is a critical component in Clean Architecture to maintain separation between layers
- */
 @Component
 public class UserEntityMapper {
 
-    // ============== User Mapping ==============
-
-    /**
-     * Convert UserAggregate (Domain) to UserEntity (Infrastructure)
-     */
     public UserEntity toEntity(User user) {
         if (user == null) {
             return null;
@@ -39,10 +30,12 @@ public class UserEntityMapper {
             .phoneNumber(user.getProfile().getPhoneNumber())
             .address(user.getProfile().getAddress())
             .profilePictureUrl(user.getProfile().getProfilePictureUrl())
-            .accountStatus(user.getStatus())
+            .status(user.getStatus())
             .lastLoginAt(user.getLastLoginAt())
             .aiPersonalizationEnabled(user.isAiPersonalizationEnabled())
+            .faculty(user.getFaculty())
             .provider(user.getProvider())
+            .studentId(user.getStudentId())
             .providerId(user.getProviderId())
             .build();
 
@@ -91,10 +84,12 @@ public class UserEntityMapper {
             passwordHash,
             profile,
             roles,
-            entity.getAccountStatus(),
+            entity.getStatus(),
             entity.getAiPersonalizationEnabled(),
             entity.getLastLoginAt(),
             entity.getProvider(),
+            entity.getStudentId(),
+            entity.getFaculty(),
             entity.getProviderId(),
             entity.getCreditScore()
         );

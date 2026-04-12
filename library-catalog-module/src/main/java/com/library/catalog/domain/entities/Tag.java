@@ -5,43 +5,22 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Tag entity - represents a keyword/label for categorizing publications.
- * Used for semantic search and AI recommendations.
- */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Tag {
-    private final TagId id;
-    private String tagName;
+    private TagId id;
+    private String name;
 
-    /**
-     * Factory method to create a new Tag with generated ID.
-     */
     public static Tag create(String tagName) {
         validateTagName(tagName);
         return new Tag(TagId.generate(), tagName.trim().toLowerCase());
     }
 
-    /**
-     * Factory method for mapper (when loading from a database).
-     */
     public static Tag of(TagId id, String tagName) {
         validateTagName(tagName);
         return new Tag(id, tagName.trim().toLowerCase());
     }
 
-    /**
-     * Renames the tag.
-     */
-    public void rename(String newTagName) {
-        validateTagName(newTagName);
-        this.tagName = newTagName.trim().toLowerCase();
-    }
-
-    /**
-     * Validates tag name.
-     */
     private static void validateTagName(String tagName) {
         if (tagName == null || tagName.isBlank()) {
             throw new IllegalArgumentException("Tag name cannot be null or empty");

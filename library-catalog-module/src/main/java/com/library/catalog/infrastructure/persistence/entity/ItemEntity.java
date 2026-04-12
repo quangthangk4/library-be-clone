@@ -14,28 +14,22 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "items", indexes = {
-    @Index(name = "idx_item_barcode", columnList = "barcode", unique = true),
-    @Index(name = "idx_item_publication_id", columnList = "publicationId"),
-    @Index(name = "idx_item_status", columnList = "status")
+    @Index(name = "idx_item_publication_id", columnList = "publicationId")
 })
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class ItemEntity extends BaseEntity {
+
+    @Column(name = "publication_id", nullable = false)
+    private Long publicationId;
 
     @Column(nullable = false, unique = true, length = 50)
     private String barcode;
 
-    private Long publicationId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ItemStatus status;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private ItemType itemType;
 
     @Column(length = 100)
     private String branch;
@@ -47,6 +41,5 @@ public class ItemEntity extends BaseEntity {
     @Column(length = 20)
     private ConditionItemEnum condition;
 
-    @Column(nullable = false)
-    private LocalDate acquiredDate;
+    protected ItemEntity() {}
 }

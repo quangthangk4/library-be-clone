@@ -2,39 +2,36 @@ package com.library.user.infrastructure.persistence.entity;
 
 import com.library.shared.entity.BaseEntity;
 import com.library.user.domain.enums.NotificationType;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * JPA Entity for user notifications.
  */
 @Entity
-@Table(name = "notifications", indexes = {
-    @Index(name = "idx_notification_user_id", columnList = "userId"),
-    @Index(name = "idx_notification_type", columnList = "notificationType"),
-    @Index(name = "idx_notification_is_read", columnList = "isRead")
-})
+@Table(name = "notifications")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class NotificationEntity extends BaseEntity {
 
-    @Column(nullable = false)
-    private Long userId;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private NotificationType notificationType;
+    @Column(name = "type", nullable = false, length = 30)
+    private NotificationType type;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     private String message;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isRead = false;
 
     @Column(length = 255)
     private String link;
+
+    protected NotificationEntity() {}
 }

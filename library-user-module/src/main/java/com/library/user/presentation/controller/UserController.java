@@ -44,10 +44,6 @@ public class UserController {
     private final AssignRoleToUserUseCase assignRoleToUserUseCase;
     private final SecurityEvaluator security;
 
-    /**
-     * Create a new user
-     * POST /api/v1/users
-     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponseApp<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -55,11 +51,7 @@ public class UserController {
         UserResponse response = createUserUseCase.execute(request);
         return ApiResponseApp.created("create user successfully", response);
     }
-
-    /**
-     * Get user by ID
-     * GET /api/v1/users/{id}
-     */
+    
     @GetMapping("/my-profile")
     @RequiresAuthentication()
     public ApiResponseApp<UserResponse> getUserById() {
@@ -68,10 +60,6 @@ public class UserController {
         return ApiResponseApp.success(response);
     }
 
-    /**
-     * Update user profile
-     * PUT /api/v1/users/{id}/profile
-     */
     @PutMapping("/my-profile")
     @RequiresAuthentication()
     @ResponseStatus(HttpStatus.OK)
@@ -94,16 +82,6 @@ public class UserController {
         return ApiResponseApp.success("Change password successfully");
     }
 
-    @PutMapping("avatar")
-    @RequiresAuthentication()
-    public ApiResponseApp<String> updateAvatar(){
-        return ApiResponseApp.success("update avatar successfully");
-    }
-
-    /**
-     * Assign a role to user
-     * POST /api/v1/users/{userId}/roles/{roleId}
-     */
     @PostMapping("/{userId}/roles/{roleId}")
     @RequiresRole(RoleConstants.ADMIN)
     public ApiResponseApp<UserResponse> assignRoleToUser(

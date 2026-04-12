@@ -1,87 +1,50 @@
 package com.library.catalog.presentation.controller;
 
-import com.library.catalog.application.dto.request.CreateTagRequest;
-import com.library.catalog.application.dto.response.TagResponse;
-import com.library.catalog.application.usecase.tag.CreateTagUseCase;
-import com.library.catalog.application.usecase.tag.DeleteTagUseCase;
-import com.library.catalog.application.usecase.tag.GetAllTagsUseCase;
-import com.library.catalog.application.usecase.tag.GetTagByIdUseCase;
+import com.library.catalog.dto.response.author.AuthorOverviewResponse;
+import com.library.catalog.dto.response.tag.TagResponse;
+import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
-import jakarta.validation.Valid;
+import com.library.shared.util.RequiresRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * REST Controller for Tag management
- * Follows RESTFUL API design principles
- */
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/tags")
 @RequiredArgsConstructor
 public class TagController {
 
-    private final CreateTagUseCase createTagUseCase;
-    private final GetTagByIdUseCase getTagByIdUseCase;
-    private final GetAllTagsUseCase getAllTagsUseCase;
-    private final DeleteTagUseCase deleteTagUseCase;
-
-    /**
-     * Create a new tag
-     * POST /api/v1/tags
-     */
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponseApp<TagResponse> createTag(@Valid @RequestBody CreateTagRequest request) {
-        log.info("REST request to create tag: {}", request.tagName());
-        TagResponse response = createTagUseCase.execute(request);
-        return ApiResponseApp.created("create tag successfully", response);
-    }
-
-    /**
-     * Get tag by ID
-     * GET /api/v1/tags/{id}
-     */
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<TagResponse> getTagById(@PathVariable Long id) {
-        log.info("REST request to get tag by ID: {}", id);
-        TagResponse response = getTagByIdUseCase.execute(id);
-        return ApiResponseApp.success(response);
-    }
-
-    /**
-     * Get all tags
-     * GET /api/v1/tags
-     */
+    // not finish
+    // limit 10
+    @RequiresRole(RoleConstants.LIBRARIAN)
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<List<TagResponse>> getAllTags() {
-        log.info("REST request to get all tags");
-        List<TagResponse> responses = getAllTagsUseCase.execute();
-        return ApiResponseApp.success(responses);
+    public ApiResponseApp<List<TagResponse>> searchAuthor(@RequestParam("keyword") String keyword) {
+        log.info("Search tags with keyword: {}", keyword);
+        if ("thangvip123".contains(keyword.toLowerCase()))
+            return ApiResponseApp.success(List.of(
+                    TagResponse.builder().id(55L).name("tag1").build(),
+                    TagResponse.builder().id(2L).name("tag2").build(),
+                    TagResponse.builder().id(3L).name("test1").build(),
+                    TagResponse.builder().id(4L).name("test2").build()
+            ));
+        return ApiResponseApp.success(null);
     }
 
-    /**
-     * Delete tag
-     * DELETE /api/v1/tags/{id}
-     */
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> deleteTag(@PathVariable Long id) {
-        log.info("REST request to delete tag ID: {}", id);
-        deleteTagUseCase.execute(id);
+
+    // not finish
+    @PostMapping
+    @RequiresRole(RoleConstants.LIBRARIAN)
+    public ApiResponseApp<Void> createAuthor(@RequestBody String name) {
+        log.info("Create tags: {}", name);
         return ApiResponseApp.success(null);
     }
 }

@@ -20,10 +20,10 @@ import java.time.LocalDate;
 public class AuthorEntity extends BaseEntity {
 
     @Column(nullable = false, length = 100)
-    private String authorName;
+    private String name;
 
     @Column(columnDefinition = "TEXT")
-    private String biography;
+    private String bio;
 
     private LocalDate dateOfBirth;
 

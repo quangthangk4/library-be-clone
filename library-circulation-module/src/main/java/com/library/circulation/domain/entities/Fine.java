@@ -1,135 +1,72 @@
 package com.library.circulation.domain.entities;
 
+import com.library.circulation.domain.enums.PaymentStatus;
 import com.library.circulation.domain.event.FineCreatedEvent;
 import com.library.circulation.domain.valueobject.FineId;
 import com.library.circulation.domain.valueobject.TransactionId;
 import com.library.shared.entity.BaseDomainEntity;
 import com.library.user.domain.enums.ViolationType;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Fine Aggregate Root - represents a fine for overdue transactions.
- * Manages the lifecycle of fines and their payment status.
- */
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Fine extends BaseDomainEntity {
     // Identity
-    private final FineId id;
-    private final TransactionId transactionId;
+    private FineId id;
+    private TransactionId transactionId;
 
     // Fine details
-    private final BigDecimal fineAmount;
-    private final LocalDate fineDate;
-    private PaymentStatus paymentStatus;
-    private LocalDateTime paidDate;
-    private ViolationType violationType;
-
+    private BigDecimal fineAmount;
+    private Instant createAt;
+    private PaymentStatus status;
+    private Instant paidDate;
+    private ViolationType type;
 
     // Domain events
     private final List<Object> domainEvents = new ArrayList<>();
 
-    private Fine(
-            FineId id,
-            TransactionId transactionId,
-            BigDecimal fineAmount,
-            LocalDate fineDate,
-            PaymentStatus paymentStatus,
-            LocalDateTime paidDate,
-            ViolationType violationType) {
-        this.id = id;
-        this.transactionId = transactionId;
-        this.fineAmount = fineAmount;
-        this.fineDate = fineDate;
-        this.paymentStatus = paymentStatus;
-        this.paidDate = paidDate;
-        this.violationType = violationType;
-    }
-
-    /**
-     * Factory method to create a new fine.
-     */
-    public static Fine create(
-            TransactionId transactionId,
-            BigDecimal fineAmount,
-            ViolationType violationType) {
-
-        if (transactionId == null) {
-            throw new IllegalArgumentException("Transaction ID cannot be null");
-        }
-        if (fineAmount == null || fineAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Fine amount must be greater than zero");
-        }
-
-        FineId id = FineId.generate();
-        LocalDate fineDate = LocalDate.now();
-
+    public static Fine create(TransactionId transactionId, BigDecimal fineAmount, ViolationType violationType) {
         Fine fine = new Fine(
-            id,
+            FineId.generate(),
             transactionId,
             fineAmount,
-            fineDate,
+            Instant.now(),
             PaymentStatus.UNPAID,
-            null, // paidDate
+            null,
             violationType
         );
-
-        fine.addDomainEvent(new FineCreatedEvent(id, transactionId, fineAmount));
-
+        fine.addDomainEvent(new FineCreatedEvent(fine.getId(), transactionId, fineAmount));
         return fine;
     }
 
-    /**
-     * Factory method for mapper (when loading from database).
-     */
-    public static Fine createForMapper(
-            FineId id,
-            TransactionId transactionId,
-            BigDecimal fineAmount,
-            LocalDate fineDate,
-            PaymentStatus paymentStatus,
-            LocalDateTime paidDate,
-            ViolationType violationType) {
-        return new Fine(
-            id,
-            transactionId,
-            fineAmount,
-            fineDate,
-            paymentStatus,
-            paidDate,
-            violationType
-        );
+    public static Fine of(FineId fineId, TransactionId transactionId, BigDecimal fineAmount, Instant createAt, PaymentStatus status, Instant paidDate, ViolationType violationType) {
+        return new Fine(fineId, transactionId, fineAmount, createAt, status, paidDate, violationType);
     }
 
-    // ============== Business Logic Methods ==============
-
-    /**
-     * Mark fine as paid.
-     */
     public void markAsPaid() {
-        if (this.paymentStatus == PaymentStatus.PAID) {
+        if (this.status == PaymentStatus.PAID) {
             throw new IllegalStateException("Fine is already paid");
         }
 
-        this.paymentStatus = PaymentStatus.PAID;
-        this.paidDate = LocalDateTime.now();
+        this.status = PaymentStatus.PAID;
+        this.paidDate = Instant.now();
     }
 
-    /**
-     * Check if fine is overdue (unpaid for more than 30 days).
-     */
     public boolean isOverdue() {
-        if (this.paymentStatus == PaymentStatus.PAID) {
+        if (this.status == PaymentStatus.PAID) {
             return false;
         }
 
-        long daysSinceFine = ChronoUnit.DAYS.between(this.fineDate, LocalDate.now());
+        long daysSinceFine = ChronoUnit.DAYS.between(this.createAt, LocalDate.now());
         return daysSinceFine > 30;
     }
 

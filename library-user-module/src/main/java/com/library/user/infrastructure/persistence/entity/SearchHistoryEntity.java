@@ -11,22 +11,21 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "search_history", indexes = {
-    @Index(name = "idx_search_user_id", columnList = "userId"),
-    @Index(name = "idx_search_timestamp", columnList = "timestamp")
+    @Index(name = "idx_search_user_id", columnList = "userId")
 })
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class SearchHistoryEntity extends BaseEntity {
 
-    @Column( nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column( nullable = false, columnDefinition = "TEXT")
+    @Column(name = "search_query", nullable = false, columnDefinition = "TEXT")
     private String searchQuery;
 
-    @Column(nullable = false)
-    private Instant timestamp;
+    protected SearchHistoryEntity() {
+        // JPA requires a default constructor
+    }
 }

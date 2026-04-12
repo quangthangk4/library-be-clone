@@ -1,0 +1,22 @@
+package com.library.catalog.dto.request.publication;
+
+import com.library.catalog.domain.enums.FacultyTarget;
+
+public record UpdatePublicationRequest(
+        String title,
+        String subtitle,
+        String description,
+        String language,
+        Integer numberOfPages,
+        Integer publicationYear,
+        Integer edition,
+        String coverImageUrl,
+        String size,
+        Double weight,
+        FacultyTarget aiTargetAudience,
+        Long publisherId,
+        Long[] authorIds,
+        Long[] categoryIds,
+        Long[] tagIds
+) {
+}

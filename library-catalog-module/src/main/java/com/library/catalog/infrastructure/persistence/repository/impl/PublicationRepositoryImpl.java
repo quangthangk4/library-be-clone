@@ -1,130 +1,280 @@
 package com.library.catalog.infrastructure.persistence.repository.impl;
 
-import com.library.catalog.application.dto.request.GetAllPublicationForLibrarian;
-import com.library.catalog.domain.entities.Publication;
-import com.library.catalog.domain.repository.PublicationRepository;
-import com.library.catalog.domain.valueobject.*;
-import com.library.catalog.infrastructure.persistence.mapper.PublicationEntityMapper;
-import com.library.catalog.infrastructure.persistence.repository.PublicationJpaRepository;
-import com.library.catalog.infrastructure.persistence.specification.PublicationSpecification;
+import com.library.catalog.domain.enums.FacultyTarget;
+import com.library.catalog.dto.response.author.AuthorOverviewResponse;
+import com.library.catalog.dto.response.category.CategoryOverviewResponse;
+import com.library.catalog.dto.response.item.ItemOverviewResponse;
+import com.library.catalog.dto.response.publication.LibrarianPublicationDetailResponse;
+import com.library.catalog.dto.response.publication.LibrarianPublicationListResponse;
+import com.library.catalog.dto.response.publication.PublicationResponse;
+import com.library.catalog.dto.response.publisher.PublisherOverviewResponse;
+import com.library.catalog.dto.response.tag.TagResponse;
+import com.library.catalog.infrastructure.persistence.repository.PublicationRepositoryCustom;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+// PublicationRepositoryImpl.java
 @Repository
 @RequiredArgsConstructor
-public class PublicationRepositoryImpl implements PublicationRepository {
+public class PublicationRepositoryImpl implements PublicationRepositoryCustom {
 
-    private final PublicationJpaRepository jpaRepository;
-    private final PublicationEntityMapper entityMapper;
+    private final EntityManager em;
+    private final JdbcTemplate jdbc;
 
     @Override
-    public Publication save(Publication publication) {
-        var entity = entityMapper.toEntity(publication);
-        var saved = jpaRepository.save(entity);
-        return entityMapper.toDomainModel(saved);
+    public Page<LibrarianPublicationListResponse> findPublicationsForLibrarian(
+            String keyword, Long categoryId, Integer year, Boolean hasItems, Pageable pageable) {
+
+        StringBuilder where = new StringBuilder("WHERE 1=1 ");
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        if (keyword != null && !keyword.isBlank()) {
+            where.append("AND LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ");
+            params.put("keyword", keyword);
+        }
+        if (categoryId != null) {
+            where.append("AND pc.category_id = :categoryId ");
+            params.put("categoryId", categoryId);
+        }
+        if (year != null) {
+            where.append("AND p.publication_year = :year ");
+            params.put("year", year);
+        }
+        if (Boolean.TRUE.equals(hasItems)) {
+            where.append("AND EXISTS (SELECT 1 FROM items ii WHERE ii.publication_id = p.id) ");
+        } else if (Boolean.FALSE.equals(hasItems)) {
+            where.append("AND NOT EXISTS (SELECT 1 FROM items ii WHERE ii.publication_id = p.id) ");
+        }
+
+        String joins = """
+        FROM publications p
+        LEFT JOIN publication_authors pa    ON pa.publication_id = p.id
+        LEFT JOIN authors a                 ON a.id = pa.author_id
+        LEFT JOIN publication_categories pc ON pc.publication_id = p.id
+        LEFT JOIN items i                   ON i.publication_id  = p.id
+        """;
+
+        String dataSQL = "SELECT p.id, p.title, p.subtitle, p.cover_image_url, "
+                + "p.publication_year, p.created_at, "
+                + "STRING_AGG(DISTINCT a.name, ',') AS author_names, "
+                + "COUNT(DISTINCT i.id) AS total_items "
+                + joins + where
+                + "GROUP BY p.id, p.title, p.subtitle, p.cover_image_url, p.publication_year, p.created_at";
+
+        String countSQL = "SELECT COUNT(*) FROM (SELECT p.id " + joins + where + "GROUP BY p.id) sub";
+
+        Query dataQuery = em.createNativeQuery(dataSQL)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
+
+        Query countQuery = em.createNativeQuery(countSQL);
+
+        // bind chỉ những param thực sự có trong query
+        params.forEach((k, v) -> {
+            dataQuery.setParameter(k, v);
+            countQuery.setParameter(k, v);
+        });
+
+        List<Object[]> rows = dataQuery.getResultList();
+        long total = ((Number) countQuery.getSingleResult()).longValue();
+
+        List<LibrarianPublicationListResponse> content = rows.stream()
+                .map(this::mapRow)
+                .toList();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override
-    public Optional<Publication> findById(PublicationId id) {
-        return jpaRepository.findById(id.getValue())
-            .map(entityMapper::toDomainModel);
+    public Optional<LibrarianPublicationDetailResponse> findPublicationDetailForLibrarian(Long id) {
+
+        // ── 1. Publication + Publisher ──────────────────────────────────────
+        String pubSQL = """
+            SELECT
+                p.id, p.isbn, p.title, p.subtitle, p.description, p.language,
+                p.number_of_pages, p.ai_summary, p.ai_target_audience, p.file_url,
+                p.publication_year, p.edition, p.cover_image_url, p.size, p.weight,
+                pb.id   AS publisher_id,
+                pb.name AS publisher_name
+            FROM publications p
+            LEFT JOIN publishers pb ON pb.id = p.publisher_id
+            WHERE p.id = ?
+            """;
+
+        List<Map<String, Object>> pubRows = jdbc.queryForList(pubSQL, id);
+        if (pubRows.isEmpty()) return Optional.empty();
+
+        Map<String, Object> pub = pubRows.get(0);
+
+        PublicationResponse publication = PublicationResponse.builder()
+                .id(toLong(pub.get("id")))
+                .isbn((String) pub.get("isbn"))
+                .title((String) pub.get("title"))
+                .subtitle((String) pub.get("subtitle"))
+                .description((String) pub.get("description"))
+                .language((String) pub.get("language"))
+                .numberOfPages(toInt(pub.get("number_of_pages")))
+                .aiSummary((String) pub.get("ai_summary"))
+                .aiTargetAudience(toEnum(pub.get("ai_target_audience"), FacultyTarget.class))
+                .fileUrl((String) pub.get("file_url"))
+                .publicationYear(toInt(pub.get("publication_year")))
+                .edition(toInt(pub.get("edition")))
+                .coverImageUrl((String) pub.get("cover_image_url"))
+                .size((String) pub.get("size"))
+                .weight(toDouble(pub.get("weight")))
+                .build();
+
+        PublisherOverviewResponse publisher = null;
+        if (pub.get("publisher_id") != null) {
+            publisher = PublisherOverviewResponse.builder()
+                    .id(toLong(pub.get("publisher_id")))
+                    .name((String) pub.get("publisher_name"))
+                    .build();
+        }
+
+        // ── 2. Authors ──────────────────────────────────────────────────────
+        String authorSQL = """
+            SELECT a.id, a.name
+            FROM authors a
+            JOIN publication_authors pa ON pa.author_id = a.id
+            WHERE pa.publication_id = ?
+            """;
+
+        List<AuthorOverviewResponse> authors = jdbc.query(authorSQL,
+                (rs, rowNum) -> AuthorOverviewResponse.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .build(),
+                id);
+
+        // ── 3. Tags ─────────────────────────────────────────────────────────
+        String tagSQL = """
+            SELECT t.id, t.name
+            FROM tags t
+            JOIN publication_tags pt ON pt.tag_id = t.id
+            WHERE pt.publication_id = ?
+            """;
+
+        List<TagResponse> tags = jdbc.query(tagSQL,
+                (rs, rowNum) -> TagResponse.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .build(),
+                id);
+
+        // ── 4. Categories ───────────────────────────────────────────────────
+        String categorySQL = """
+            SELECT c.id, c.name
+            FROM categories c
+            JOIN publication_categories pc ON pc.category_id = c.id
+            WHERE pc.publication_id = ?
+            """;
+
+        List<CategoryOverviewResponse> categories = jdbc.query(categorySQL,
+                (rs, rowNum) -> CategoryOverviewResponse.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .build(),
+                id);
+
+        // ── 5. Ratings overview ─────────────────────────────────────────────
+        String ratingSQL = """
+            SELECT ROUND(AVG(star)::numeric, 1) AS average_rating,
+                   COUNT(*)                      AS total_ratings
+            FROM ratings
+            WHERE publication_id = ?
+            """;
+
+        LibrarianPublicationDetailResponse.RatingOverviewResponse ratings = jdbc.queryForObject(ratingSQL,
+                (rs, rowNum) -> LibrarianPublicationDetailResponse.RatingOverviewResponse.builder()
+                        .averageRating(rs.getObject("average_rating") != null
+                                ? rs.getDouble("average_rating") : null)
+                        .totalRatings(rs.getInt("total_ratings"))
+                        .build(),
+                id);
+
+        // ── 6. Items overview ───────────────────────────────────────────────
+        String itemSQL = """
+            SELECT
+                COUNT(*)                                           AS total_items,
+                COUNT(*) FILTER (WHERE status = 'AVAILABLE')      AS total_available,
+                COUNT(*) FILTER (WHERE status = 'BORROWED')       AS total_borrowed
+            FROM items
+            WHERE publication_id = ?
+            """;
+
+        ItemOverviewResponse items = jdbc.queryForObject(itemSQL,
+                (rs, rowNum) -> ItemOverviewResponse.builder()
+                        .totalItems(rs.getInt("total_items"))
+                        .totalAvailableItems(rs.getInt("total_available"))
+                        .totalBorrowedItems(rs.getInt("total_borrowed"))
+                        .build(),
+                id);
+
+        return Optional.of(LibrarianPublicationDetailResponse.builder()
+                .publication(publication)
+                .publisher(publisher)
+                .authors(authors)
+                .tags(tags)
+                .categories(categories)
+                .ratings(ratings)
+                .items(items)
+                .build());
     }
 
-    @Override
-    public Optional<Publication> findByISBN(ISBN isbn) {
-        return jpaRepository.findByIsbn(isbn.getValue())
-            .map(entityMapper::toDomainModel);
+    private LibrarianPublicationListResponse mapRow(Object[] row) {
+        Instant createdAt = null;
+        if (row[5] != null) {
+            if (row[5] instanceof java.time.OffsetDateTime odt) {
+                createdAt = odt.toInstant();
+            } else if (row[5] instanceof java.sql.Timestamp ts) {
+                createdAt = ts.toInstant();
+            } else if (row[5] instanceof Instant instant) {
+                createdAt = instant;
+            }
+        }
+
+        return LibrarianPublicationListResponse.builder()
+                .publicationId(((Number) row[0]).longValue())
+                .title((String) row[1])
+                .subtitle((String) row[2])
+                .coverImageUrl((String) row[3])
+                .publicationYear(row[4] != null ? ((Number) row[4]).intValue() : null)
+                .createdAt(createdAt)
+                .authorNames(row[6] != null
+                        ? Arrays.asList(((String) row[6]).split(","))
+                        : List.of())
+                .totalItems(((Number) row[7]).longValue())
+                .build();
     }
 
-    @Override
-    public List<Publication> findAll() {
-        return jpaRepository.findAll().stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
+    private Long toLong(Object val) {
+        return val instanceof Number n ? n.longValue() : null;
     }
 
-    @Override
-    public Page<Publication> findAll(Pageable pageable) {
-        return jpaRepository.findAll(pageable)
-            .map(entityMapper::toDomainModel);
+    private Integer toInt(Object val) {
+        return val instanceof Number n ? n.intValue() : null;
     }
 
-    @Override
-    public List<Publication> findByAuthorId(AuthorId authorId) {
-        return jpaRepository.findByAuthorId(authorId.getValue()).stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
+    private Double toDouble(Object val) {
+        return val instanceof Number n ? n.doubleValue() : null;
     }
 
-    @Override
-    public List<Publication> findByCategoryId(CategoryId categoryId) {
-        return jpaRepository.findByCategoryId(categoryId.getValue()).stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
+    private <E extends Enum<E>> E toEnum(Object val, Class<E> type) {
+        return val instanceof String s ? Enum.valueOf(type, s) : null;
     }
 
-    @Override
-    public List<Publication> findByPublisherId(PublisherId publisherId) {
-        return jpaRepository.findByPublisherId(publisherId.getValue()).stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean existsByISBN(ISBN isbn) {
-        return jpaRepository.existsByIsbn(isbn.getValue());
-    }
-
-    @Override
-    public void delete(Publication publication) {
-        jpaRepository.deleteById(publication.getId().getValue());
-    }
-
-    @Override
-    public void deleteById(PublicationId id) {
-        jpaRepository.deleteById(id.getValue());
-    }
-
-    @Override
-    public long count() {
-        return jpaRepository.count();
-    }
-
-    @Override
-    public List<Publication> findByIds(List<PublicationId> ids) {
-        List<Long> longIds = ids.stream()
-            .map(PublicationId::getValue)
-            .collect(Collectors.toList());
-        return jpaRepository.findAllById(longIds).stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Publication> findByTagId(TagId tagId) {
-        return jpaRepository.findByTagId(tagId.getValue()).stream()
-            .map(entityMapper::toDomainModel)
-            .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public Page<Publication> getAllPublicationForLibrarian(GetAllPublicationForLibrarian request, Pageable pageable) {
-        return jpaRepository.findAll(
-                PublicationSpecification.buildSpecification(request),
-                pageable
-            )
-            .map(entityMapper::toDomainModel);
-    }
-
-    @Override
-    public boolean existsById(PublicationId id) {
-        return jpaRepository.existsById(id.getValue());
-    }
 }

@@ -1,22 +1,25 @@
 package com.library.catalog.infrastructure.persistence.entity;
 
 import com.library.shared.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "tags", indexes = {
-    @Index(name = "idx_tag_name", columnList = "tagName", unique = true)
+    @Index(name = "idx_tag_name", columnList = "name", unique = true)
 })
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class TagEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true, length = 50)
-    private String tagName;
+    private String name;
+
+    protected TagEntity() {}
 }

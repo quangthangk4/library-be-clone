@@ -1,7 +1,9 @@
 package com.library.user.domain.entities;
 
 import com.library.shared.exception.AppException;
+import com.library.shared.exception.DomainException;
 import com.library.shared.exception.ErrorCode;
+import com.library.user.domain.enums.FacultyEnum;
 import com.library.user.domain.event.UserCreatedEvent;
 import com.library.user.domain.event.UserStatusChangedEvent;
 import com.library.user.domain.port.IPasswordHasher;
@@ -18,13 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
-/**
- * User Aggregate Root - Core entity in User bounded context
- * Manages user data, roles
- */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
@@ -36,15 +33,14 @@ public class User {
     private UserStatus status;
     private boolean aiPersonalizationEnabled;
     private LocalDateTime lastLoginAt;
+    private String studentId;
+    private FacultyEnum faculty;
     private final String provider;
     private final String providerId;
     private int creditScore;
 
     // Domain events
     private final List<Object> domainEvents = new ArrayList<>();
-    /**
-     * Factory method to create a new user
-     */
 
     public static User createForMapper(UserId id,
                               Email email,
@@ -55,10 +51,12 @@ public class User {
                               boolean aiPersonalizationEnabled,
                               LocalDateTime lastLoginAt,
                               String provider,
+                              String studentId,
+                              FacultyEnum faculty,
                               String providerId,
                                int creditScore) {
         return new User(id, email, passwordHash, profile,
-                roles, status, aiPersonalizationEnabled, lastLoginAt, provider, providerId, creditScore);
+                roles, status, aiPersonalizationEnabled, lastLoginAt,studentId, faculty, provider, providerId, creditScore);
     }
 
     public static User create(
@@ -75,7 +73,8 @@ public class User {
         }
 
         User user = new User(id, email, passwordHash, profile,
-            roles, UserStatus.INACTIVE, true, null, null, null, 100);
+            roles, UserStatus.INACTIVE, true, null, null,null,null
+                , null, 100);
 
         user.addDomainEvent(new UserCreatedEvent(id, email.getValue()));
 
@@ -97,7 +96,20 @@ public class User {
         }
 
         return new User(id, email, null, profile,
-                roles, UserStatus.ACTIVE, true, null, provider, providerId, 100);
+                roles, UserStatus.ACTIVE, true, null,null,null
+                , provider, providerId, 100);
+    }
+
+    // onboarding profile
+    public void completeOnboardingProfile(String studentId, FacultyEnum faculty) {
+        if (studentId == null || studentId.trim().isEmpty()) {
+            throw new DomainException("Student ID cannot be null or empty");
+        }
+        if (faculty == null) {
+            throw new DomainException("Faculty cannot be null");
+        }
+        this.studentId = studentId;
+        this.faculty = faculty;
     }
 
     // ============== Role Management ==============
@@ -113,29 +125,6 @@ public class User {
         this.roles.add(role);
     }
 
-    /**
-     * Business logic: Remove a role from user
-     */
-    public void removeRole(Role role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Role cannot be null");
-        }
-
-        if (!this.roles.contains(role)) {
-            throw new IllegalStateException("User does not have this role");
-        }
-
-        // Ensure user has at least one role
-        if (this.roles.size() == 1) {
-            throw new IllegalStateException("User must have at least one role");
-        }
-
-        this.roles.remove(role);
-    }
-
-    /**
-     * Business logic: Check if a user has a specific role
-     */
     public boolean hasRole(String roleName) {
         return this.roles.stream()
             .anyMatch(role -> role.getRoleName().equalsIgnoreCase(roleName));
@@ -164,70 +153,13 @@ public class User {
         addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.ACTIVE));
     }
 
-    /**
-     * Business logic: Deactivate user
-     */
-    public void deactivate() {
-        if (this.status == UserStatus.BANNED) {
-            throw new IllegalStateException("User is already deactivated");
+    public void updateFaculty(FacultyEnum faculty) {
+        if (faculty == null) {
+            throw new DomainException("Faculty cannot be null");
         }
-
-        UserStatus oldStatus = this.status;
-        this.status = UserStatus.BANNED;
-        addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.BANNED));
+        this.faculty = faculty;
     }
 
-    /**
-     * Business logic: Suspend user
-     */
-    public void suspend() {
-        if (this.status == UserStatus.LOCKED) {
-            throw new IllegalStateException("User is already suspended");
-        }
-
-        UserStatus oldStatus = this.status;
-        this.status = UserStatus.LOCKED;
-
-        addDomainEvent(new UserStatusChangedEvent(this.id, oldStatus, UserStatus.LOCKED));
-    }
-
-    // ============== Business Rules ==============
-
-    /**
-     * Business logic: Check if user is active
-     */
-    public boolean isActive() {
-        return this.status == UserStatus.ACTIVE;
-    }
-
-    /**
-     * Business logic: Check if user can borrow books
-     */
-    public boolean canBorrowBooks() {
-        return this.status == UserStatus.ACTIVE
-//                && hasPermission("BORROW_BOOK")
-                ;
-    }
-
-    /**
-     * Business logic: Check if the user can perform librarian operations
-     */
-    public boolean isLibrarian() {
-        return hasRole("LIBRARIAN");
-    }
-
-    /**
-     * Business logic: Check if user is admin
-     */
-    public boolean isAdmin() {
-        return hasRole("ADMIN");
-    }
-
-    // ============== Profile Management ==============
-
-    /**
-     * Business logic: Update user profile
-     */
     public void updateProfile(UserProfile newProfile) {
         if (newProfile == null) {
             throw new IllegalArgumentException("Profile cannot be null");
@@ -280,19 +212,6 @@ public class User {
         }
     }
 
-    /**
-     * Business logic: Record login
-     */
-    public void recordLogin() {
-        if (!isActive()) {
-            throw new IllegalStateException("Cannot login - user account is not active");
-        }
-        this.lastLoginAt = LocalDateTime.now();
-    }
-
-    /**
-     * Business logic: Toggle AI personalization
-     */
     public void toggleAIPersonalization(boolean enabled) {
         this.aiPersonalizationEnabled = enabled;
     }
@@ -307,17 +226,5 @@ public class User {
         List<Object> events = new ArrayList<>(this.domainEvents);
         this.domainEvents.clear();
         return events;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User that)) return false;
-        return Objects.equals(id, that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }

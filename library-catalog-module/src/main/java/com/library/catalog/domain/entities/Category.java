@@ -8,73 +8,27 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Category {
-    private final CategoryId id;
-    private String categoryName;
-    private CategoryId parentCategoryId; // null for root categories
+    private CategoryId id;
+    private String name;
+    private String bio;
+    private CategoryId parentId; // null for root categories
 
-    /**
-     * Factory method to create a root category (no parent).
-     */
-    public static Category createRoot(String categoryName) {
+    public static Category createRoot(String categoryName, String bio) {
         validateCategoryName(categoryName);
-        return new Category(CategoryId.generate(), categoryName.trim(), null);
+        return new Category(CategoryId.generate(), categoryName.trim(), bio, null);
     }
 
-    /**
-     * Factory method to create a child category.
-     */
-    public static Category createChild(String categoryName, CategoryId parentCategoryId) {
+    public static Category createChild(String categoryName, CategoryId parentCategoryId, String bio) {
         validateCategoryName(categoryName);
         if (parentCategoryId == null) {
             throw new IllegalArgumentException("Parent category ID cannot be null for child category");
         }
-        return new Category(CategoryId.generate(), categoryName.trim(), parentCategoryId);
+        return new Category(CategoryId.generate(), categoryName.trim(),bio, parentCategoryId);
     }
 
-    /**
-     * Factory method for mapper (when loading from a database).
-     */
-    public static Category of(CategoryId id, String categoryName, CategoryId parentCategoryId) {
+    public static Category of(CategoryId id, String categoryName,String bio, CategoryId parentCategoryId) {
         validateCategoryName(categoryName);
-        return new Category(id, categoryName.trim(), parentCategoryId);
-    }
-
-    /**
-     * Renames the category.
-     */
-    public void rename(String newCategoryName) {
-        validateCategoryName(newCategoryName);
-        this.categoryName = newCategoryName.trim();
-    }
-
-    public void changeParent(CategoryId parentCategoryId){
-        this.parentCategoryId = parentCategoryId;
-    }
-
-    /**
-     * Moves category to a different parent.
-     * Pass null to make it a root category.
-     */
-    public void moveToParent(CategoryId newParentId) {
-        // Business rule: Cannot set a parent to itself
-        if (newParentId != null && newParentId.equals(this.id)) {
-            throw new IllegalArgumentException("Category cannot be its own parent");
-        }
-        this.parentCategoryId = newParentId;
-    }
-
-    /**
-     * Checks if this is a root category (no parent).
-     */
-    public boolean isRoot() {
-        return parentCategoryId == null;
-    }
-
-    /**
-     * Checks if this category has a parent.
-     */
-    public boolean hasParent() {
-        return parentCategoryId != null;
+        return new Category(id, categoryName.trim(),bio, parentCategoryId);
     }
 
     private static void validateCategoryName(String name) {

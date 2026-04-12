@@ -1,23 +1,27 @@
 package com.library.catalog.infrastructure.persistence.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "publication_tags")
-@IdClass(PublicationTagId.class)
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class PublicationTagEntity {
-
     @Id
+    private Long id;
+
+    @Column(name = "publication_id", nullable = false)
     private Long publicationId;
 
-    @Id
+    @Column(name = "tag_id", nullable = false)
     private Long tagId;
+
+    protected PublicationTagEntity() {}
 }

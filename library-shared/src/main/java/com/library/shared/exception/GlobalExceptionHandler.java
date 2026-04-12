@@ -1,10 +1,12 @@
 package com.library.shared.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.library.shared.dto.ApiResponseApp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,6 +22,32 @@ public class GlobalExceptionHandler {
                 .status(errorCode.getStatus())
                 .body(ApiResponseApp.error(errorCode.getCode(), errorCode.getMessage()));
     }
+
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ApiResponseApp<?>> handleDomainException(DomainException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponseApp.error(400,e.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponseApp<?>> handleInvalidFormatException(HttpMessageNotReadableException e) {
+        String errorDetails = "Invalid JSON format";
+
+        if (e.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException ife = (InvalidFormatException) e.getCause();
+            errorDetails = String.format("Giá trị '%s' không đúng định dạng cho kiểu dữ liệu %s",
+                    ife.getValue(), ife.getTargetType().getSimpleName());
+        } else {
+            errorDetails = e.getMostSpecificCause().getMessage();
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponseApp.error(HttpStatus.BAD_REQUEST.value(), errorDetails));
+    }
+
+
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponseApp<?>> handleIllegalArgumentException(IllegalArgumentException e) {
@@ -59,7 +87,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponseApp.error(
                     HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "An unexpected error occurred. Please contact support."
+                    e.getMessage() != null? e.getMessage() : "An unexpected error occurred. Please contact support."
                 ));
     }
 }

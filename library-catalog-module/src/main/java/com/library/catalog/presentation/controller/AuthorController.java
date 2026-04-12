@@ -1,105 +1,49 @@
 package com.library.catalog.presentation.controller;
 
-import com.library.catalog.application.dto.request.CreateAuthorRequest;
-import com.library.catalog.application.dto.request.UpdateAuthorRequest;
-import com.library.catalog.application.dto.response.AuthorResponse;
-import com.library.catalog.application.usecase.author.CreateAuthorUseCase;
-import com.library.catalog.application.usecase.author.DeleteAuthorUseCase;
-import com.library.catalog.application.usecase.author.GetAllAuthorsUseCase;
-import com.library.catalog.application.usecase.author.GetAuthorByIdUseCase;
-import com.library.catalog.application.usecase.author.UpdateAuthorUseCase;
+import com.library.catalog.dto.response.author.AuthorOverviewResponse;
+import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
-import jakarta.validation.Valid;
+import com.library.shared.util.RequiresRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * REST Controller for Author management
- * Follows RESTFUL API design principles
- */
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/authors")
 @RequiredArgsConstructor
 public class AuthorController {
 
-    private final CreateAuthorUseCase createAuthorUseCase;
-    private final GetAuthorByIdUseCase getAuthorByIdUseCase;
-    private final GetAllAuthorsUseCase getAllAuthorsUseCase;
-    private final UpdateAuthorUseCase updateAuthorUseCase;
-    private final DeleteAuthorUseCase deleteAuthorUseCase;
-
-    /**
-     * Create a new author
-     * POST /api/v1/authors
-     */
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponseApp<AuthorResponse> createAuthor(@Valid @RequestBody CreateAuthorRequest request) {
-        log.info("REST request to create author: {}", request.authorName());
-        AuthorResponse response = createAuthorUseCase.execute(request);
-        return ApiResponseApp.created("create author successfully", response);
-    }
-
-    /**
-     * Get author by ID
-     * GET /api/v1/authors/{id}
-     */
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<AuthorResponse> getAuthorById(@PathVariable("id") Long id) {
-        log.info("REST request to get author by ID: {}", id);
-        AuthorResponse response = getAuthorByIdUseCase.execute(id);
-        return ApiResponseApp.success(response);
-    }
-
-    /**
-     * Get all authors
-     * GET /api/v1/authors
-     */
+    // not finish
+    // limit 10
+    @RequiresRole(RoleConstants.LIBRARIAN)
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<List<AuthorResponse>> getAllAuthors() {
-        log.info("REST request to get all authors");
-        List<AuthorResponse> responses = getAllAuthorsUseCase.execute();
-        return ApiResponseApp.success(responses);
+    public ApiResponseApp<List<AuthorOverviewResponse>> searchAuthor(@RequestParam("keyword") String keyword) {
+        log.info("Search author with keyword: {}", keyword);
+        if ("thangvip123".contains(keyword.toLowerCase()))
+            return ApiResponseApp.success(List.of(
+                    AuthorOverviewResponse.builder().id(55L).name("Thang").build(),
+                    AuthorOverviewResponse.builder().id(2L).name("ThangVip123").build(),
+                    AuthorOverviewResponse.builder().id(3L).name("test1").build(),
+                    AuthorOverviewResponse.builder().id(4L).name("test2").build()
+            ));
+        return ApiResponseApp.success(null);
     }
 
-    /**
-     * Update author
-     * PUT /api/v1/authors/{id}
-     */
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<AuthorResponse> updateAuthor(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody UpdateAuthorRequest request) {
-        log.info("REST request to update author ID: {}", id);
-        AuthorResponse response = updateAuthorUseCase.execute(id, request);
-        return ApiResponseApp.success(response);
-    }
 
-    /**
-     * Delete author
-     * DELETE /api/v1/authors/{id}
-     */
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponseApp<Void> deleteAuthor(@PathVariable("id") Long id) {
-        log.info("REST request to delete author ID: {}", id);
-        deleteAuthorUseCase.execute(id);
+    // not finish
+    @PostMapping
+    @RequiresRole(RoleConstants.LIBRARIAN)
+    public ApiResponseApp<Void> createAuthor(@RequestBody String name) {
+        log.info("Create author: {}", name);
         return ApiResponseApp.success(null);
     }
 }

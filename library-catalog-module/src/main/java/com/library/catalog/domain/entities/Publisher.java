@@ -5,19 +5,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Publisher entity - represents a book publisher/publishing house.
- */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Publisher {
-    private final PublisherId id;
-    private String publisherName;
+    private PublisherId id;
+    private String name;
     private String address;
 
-    /**
-     * Factory method to create a new Publisher.
-     */
     public static Publisher create(String publisherName, String address) {
         validatePublisherName(publisherName);
         return new Publisher(
@@ -27,21 +21,15 @@ public class Publisher {
         );
     }
 
-    /**
-     * Factory method for mapper (when loading from a database).
-     */
     public static Publisher of(PublisherId id, String publisherName, String address) {
         validatePublisherName(publisherName);
         return new Publisher(id, publisherName.trim(), address);
     }
 
-    /**
-     * Updates publisher information.
-     */
     public void updateInfo(String newName, String newAddress) {
         if (newName != null && !newName.isBlank()) {
             validatePublisherName(newName);
-            this.publisherName = newName.trim();
+            this.name = newName.trim();
         }
         if (newAddress != null) {
             this.address = newAddress.trim();

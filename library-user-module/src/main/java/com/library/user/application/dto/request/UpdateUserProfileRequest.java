@@ -1,5 +1,6 @@
 package com.library.user.application.dto.request;
 
+import com.library.user.domain.enums.FacultyEnum;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -24,6 +25,8 @@ public record UpdateUserProfileRequest (
 
     String address,
 
-    boolean aiPersonalizationEnabled
+    boolean aiPersonalizationEnabled,
+
+    FacultyEnum faculty
 )
 {}

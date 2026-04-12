@@ -1,28 +1,36 @@
 package com.library.recommendation.infrastructure.persistence.entity;
 
 import com.library.shared.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
 
 /**
  * JPA Entity for user wish lists.
  */
 @Entity
-@Table(name = "wish_lists", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_wish_list_user_publication", columnNames = {"userId", "publicationId"})
-}, indexes = {
-    @Index(name = "idx_wish_list_user_id", columnList = "userId")
-})
+@Table(name = "wish_lists")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class WishListEntity extends BaseEntity {
-
-    @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
-    private Long publicationId;
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JoinColumn(name = "wish_list_id")
+    private List<WishListItemEntity> items;
 }

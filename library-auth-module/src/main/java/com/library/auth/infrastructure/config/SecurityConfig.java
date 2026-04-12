@@ -34,7 +34,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/webjars/**",
             "/actuator/**",
-            "/auth/**",
+            "/api/v1/auth/**",
             "/test/**",
     };
 
@@ -44,7 +44,7 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/**").permitAll()
+            .requestMatchers(whiteList).permitAll()
             .anyRequest().authenticated()
         );
         http.oauth2ResourceServer(oauth2 -> oauth2
@@ -62,8 +62,8 @@ public class SecurityConfig {
     @Bean
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://marg-astonishing-matthias.ngrok-free.dev"));
-        configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

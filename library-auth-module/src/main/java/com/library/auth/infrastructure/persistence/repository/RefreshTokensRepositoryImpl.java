@@ -61,4 +61,15 @@ public class RefreshTokensRepositoryImpl implements RefreshTokensRepository {
     public RefreshTokens findById(String uuidToken) {
         return refreshTokensJpaRepository.findById(uuidToken).map(refreshTokensEntityMapper::toDomain).orElse(null);
     }
+
+    @Override
+    public void upsertRefreshToken(RefreshTokens refreshTokens) {
+        refreshTokensJpaRepository.upsertRefreshToken(
+                refreshTokens.getUserId(),
+                refreshTokens.getDeviceId(),
+                refreshTokens.getId().getValue(),
+                refreshTokens.getExpiryDate()
+        );
+    }
+
 }

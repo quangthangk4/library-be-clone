@@ -23,4 +23,7 @@ public interface RefreshTokensRepository {
     void revokeToken(String uuidToken);
 
     RefreshTokens findById(String uuidToken);
+
+    void upsertRefreshToken(RefreshTokens refreshTokens);
+
 }

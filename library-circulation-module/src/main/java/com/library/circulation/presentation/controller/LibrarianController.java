@@ -1,0 +1,136 @@
+package com.library.circulation.presentation.controller;
+
+import com.library.circulation.dto.enums.DashboardPeriod;
+import com.library.circulation.dto.response.DashboardChartsResponse;
+import com.library.circulation.dto.response.DashboardSummaryResponse;
+import com.library.circulation.dto.response.RiskyUserResponse;
+import com.library.shared.constant.RoleConstants;
+import com.library.shared.dto.ApiResponseApp;
+import com.library.shared.dto.PageResponse;
+import com.library.shared.util.RequiresRole;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/v1/librarians")
+@RequiredArgsConstructor
+public class LibrarianController {
+
+    @GetMapping("/dashboard/summary")
+    @RequiresRole(RoleConstants.LIBRARIAN)
+    public ApiResponseApp<DashboardSummaryResponse> getDashboardSummary() {
+        DashboardSummaryResponse dummy = DashboardSummaryResponse.builder()
+                .overview(DashboardSummaryResponse.Overview.builder()
+                        .totalUsers(1240)
+                        .activeUsers(980)
+                        .totalPublications(3500)
+                        .totalItems(8200)
+                        .availableItems(5100)
+                        .build())
+                .todayActivity(DashboardSummaryResponse.TodayActivity.builder()
+                        .borrowedToday(34)
+                        .returnedToday(28)
+                        .damagedToday(2)
+                        .overdueCount(15)
+                        .build())
+                .pendingActions(DashboardSummaryResponse.PendingActions.builder()
+                        .waitingForPickup(12)
+                        .overdueTransactions(15)
+                        .reservationsPending(8)
+                        .build())
+                .fines(DashboardSummaryResponse.FinesResponse.builder()
+                        .totalUnpaid(47)
+                        .totalUnpaidAmount(new BigDecimal("2350000"))
+                        .collectedToday(new BigDecimal("450000"))
+                        .build())
+                .build();
+
+        return ApiResponseApp.success(dummy);
+    }
+
+    @GetMapping("/dashboard/charts")
+    @RequiresRole(RoleConstants.LIBRARIAN)
+    public ApiResponseApp<DashboardChartsResponse> getCharts(
+            @RequestParam(name = "period") DashboardPeriod period) {
+
+        DashboardChartsResponse dummy = DashboardChartsResponse.builder()
+                .weeklyBorrowReturnTrend(List.of(
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-02").borrowed(30).returned(25).build(),
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-03").borrowed(18).returned(20).build(),
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-04").borrowed(22).returned(19).build(),
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-05").borrowed(15).returned(18).build(),
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-06").borrowed(28).returned(24).build(),
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-07").borrowed(34).returned(28).build(),
+                        DashboardChartsResponse.TrendPoint.builder().date("2025-04-08").borrowed(12).returned(10).build()
+                ))
+                .itemStatusDistribution(DashboardChartsResponse.ItemStatusDistribution.builder()
+                        .available(5100)
+                        .borrowed(2400)
+                        .reserved(300)
+                        .inMaintenance(150)
+                        .lost(250)
+                        .build())
+                .topBorrowedPublications(List.of(
+                        DashboardChartsResponse.TopBorrowedPublication.builder().publicationId(101).title("Clean Code").borrowCount(42).coverImageUrl("https://picsum.photos/100").build(),
+                        DashboardChartsResponse.TopBorrowedPublication.builder().publicationId(205).title("Design Patterns").borrowCount(38).coverImageUrl("https://picsum.photos/100").build(),
+                        DashboardChartsResponse.TopBorrowedPublication.builder().publicationId(310).title("The Pragmatic Programmer").borrowCount(31).coverImageUrl("https://picsum.photos/100").build()
+                ))
+                .fineTypeDistribution(DashboardChartsResponse.FineTypeDistribution.builder()
+                        .overdueReturn(30)
+                        .damagedBook(12)
+                        .lostBook(5)
+                        .build())
+                .build();
+
+        return ApiResponseApp.success(dummy);
+    }
+
+    @GetMapping("/dashboard/risky-users")
+    @RequiresRole(RoleConstants.LIBRARIAN)
+    public ApiResponseApp<PageResponse<RiskyUserResponse>> getRiskyUsers(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "sortBy", defaultValue = "creditScore") String sortBy,
+            @RequestParam(name = "sortDir", defaultValue = "ASC") String sortDir) {
+
+        List<RiskyUserResponse> dummyList = List.of(
+                RiskyUserResponse.builder()
+                        .userId(1L).fullName("Nguyễn Văn A").email("a@hcmut.edu.vn")
+                        .phoneNumber("0901234567").creditScore(20)
+                        .riskyMetrics(RiskyUserResponse.RiskyMetrics.builder()
+                                .overdueCount(3).unpaidFineCount(2)
+                                .totalUnpaidAmount(new BigDecimal("150000")).damagedCount(1)
+                                .build())
+                        .build(),
+                RiskyUserResponse.builder()
+                        .userId(2L).fullName("Trần Thị B").email("b@hcmut.edu.vn")
+                        .phoneNumber("0907654321").creditScore(35)
+                        .riskyMetrics(RiskyUserResponse.RiskyMetrics.builder()
+                                .overdueCount(1).unpaidFineCount(3)
+                                .totalUnpaidAmount(new BigDecimal("300000")).damagedCount(0)
+                                .build())
+                        .build()
+        );
+
+        PageResponse<RiskyUserResponse> dummy = PageResponse.<RiskyUserResponse>builder()
+                .content(dummyList)
+                .currentPage(0)
+                .pageSize(20)
+                .totalElements(2)
+                .totalPages(1)
+                .isFirst(true)
+                .isLast(true)
+                .build();
+
+        return ApiResponseApp.success(dummy);
+    }
+
+}

@@ -1,6 +1,5 @@
 package com.library.user.infrastructure.persistence.repository;
 
-import com.library.user.domain.entities.User;
 import com.library.user.infrastructure.persistence.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
