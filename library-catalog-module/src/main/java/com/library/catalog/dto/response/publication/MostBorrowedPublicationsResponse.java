@@ -9,15 +9,17 @@ import lombok.Data;
 
 @Data
 @Builder
-public class LibrarianPublicationListResponse {
+public class MostBorrowedPublicationsResponse {
 
   @JsonSerialize(using = ToStringSerializer.class)
   private Long publicationId;
   private String title;
-  private String subtitle;
   private String coverImageUrl;
-  private List<String> authorNames;
   private Integer publicationYear;
-  private Long totalItems;
   private Instant createdAt;
+  private Integer availableItems;
+  private List<String> authorNames;
+  private Double ratingAverage;
+  private Integer ratingCount;
+  private Long borrowCount;
 }

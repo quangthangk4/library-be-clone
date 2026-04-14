@@ -6,18 +6,34 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BorrowingTransactionJpaRepository extends JpaRepository<BorrowingTransactionEntity, Long> {
+public interface BorrowingTransactionJpaRepository extends
+    JpaRepository<BorrowingTransactionEntity, Long> {
 
-    @Query(value = """
-        SELECT new com.library.circulation.dto.response.TransactionListResponse(
-            t.id, u.id, u.fullName, u.studentId, f.fineAmount, t.borrowedDate, t.dueDate, t.returnedDate, t.status
-        )
-        FROM BorrowingTransactionEntity t left join UserEntity u on t.userId = u.id
-            left join FineEntity f on t.id = f.transactionId
-    """,
-    countQuery = "SELECT count(t) FROM BorrowingTransactionEntity t")
-    Page<TransactionListResponse> getAllTransactionWithPagination(Pageable pageable);
+  @Query(value = """
+          SELECT new com.library.circulation.dto.response.TransactionListResponse(
+              t.id, u.id, u.fullName, u.studentId, f.fineAmount, t.borrowedDate, t.dueDate, t.returnedDate, t.status
+          )
+          FROM BorrowingTransactionEntity t left join UserEntity u on t.userId = u.id
+              left join FineEntity f on t.id = f.transactionId
+      """,
+      countQuery = "SELECT count(t) FROM BorrowingTransactionEntity t")
+  Page<TransactionListResponse> getAllTransactionWithPagination(Pageable pageable);
+
+
+  @Query(value = """
+          SELECT new com.library.circulation.dto.response.TransactionListResponse(
+              t.id, u.id, u.fullName, u.studentId, f.fineAmount, t.borrowedDate, t.dueDate, t.returnedDate, t.status
+          )
+          FROM BorrowingTransactionEntity t left join UserEntity u on t.userId = u.id
+              left join FineEntity f on t.id = f.transactionId
+          where t.itemId = :itemId
+      """,
+      countQuery = "SELECT count(t) FROM BorrowingTransactionEntity t")
+  Page<TransactionListResponse> getAllTransactionByItemId(
+      @Param("itemId") Long itemId,
+      Pageable pageable);
 }

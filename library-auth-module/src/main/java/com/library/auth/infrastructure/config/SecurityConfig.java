@@ -1,8 +1,10 @@
 package com.library.auth.infrastructure.config;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,69 +17,79 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    private final CustomAuthenticationConverter customAuthenticationConverter;
-    private final CustomJwtDecoder customJwtDecoder;
+  private final CustomAccessDeniedHandler accessDeniedHandler;
+  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+  private final CustomAuthenticationConverter customAuthenticationConverter;
+  private final CustomJwtDecoder customJwtDecoder;
 
-    private final String[] whiteList = {
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/webjars/**",
-            "/actuator/**",
-            "/api/v1/auth/**",
-            "/test/**",
-    };
+  public static final String[] PUBLIC_ENDPOINTS = {
+      "/api/v1/publications/newest",
+      "/api/v1/publications/{id}",
+      "/api/v1/publications/{id}/items",
+      "/api/v1/publications/most-borrowed",
+      "/api/v1/authors/**",
+  };
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(whiteList).permitAll()
-            .anyRequest().authenticated()
-        );
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                        .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(customAuthenticationConverter)
-                )
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-                .accessDeniedHandler(accessDeniedHandler)
-        );
+  public static final String[] SWAGGER_ENDPOINTS = {
+      "/v3/api-docs/**",
+      "/swagger-ui/**",
+      "/swagger-ui.html",
+      "/webjars/**",
+  };
 
-        return http.build();
-    }
+  public static final String[] AUTH_ENDPOINTS = {
+      "/api/v1/auth/**",
+  };
 
-    @Bean
-    UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable);
+    http.sessionManagement(
+        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+    http.authorizeHttpRequests(auth -> auth
+        .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
+        .requestMatchers(AUTH_ENDPOINTS).permitAll()
+        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+        .anyRequest().authenticated()
+    );
+    http.oauth2ResourceServer(oauth2 -> oauth2
+        .jwt(jwt -> jwt
+            .decoder(customJwtDecoder)
+            .jwtAuthenticationConverter(customAuthenticationConverter)
+        )
+        .authenticationEntryPoint(customAuthenticationEntryPoint)
+        .accessDeniedHandler(accessDeniedHandler)
+    );
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public WebClient webClient(WebClient.Builder builder) {
-        return builder.build();
-    }
+  @Bean
+  UrlBasedCorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOriginPatterns(List.of("*"));
+    configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowCredentials(true);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public WebClient webClient(WebClient.Builder builder) {
+    return builder.build();
+  }
 }

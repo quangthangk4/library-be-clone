@@ -1,10 +1,13 @@
 package com.library.user.application.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-public record UserResponse (
+public record UserResponse(
+    @JsonSerialize(using = ToStringSerializer.class)
     Long id,
     String email,
     String fullName,
@@ -19,4 +22,6 @@ public record UserResponse (
     boolean aiPersonalizationEnabled,
     LocalDateTime lastLoginAt,
     Long creditScore
-){}
+) {
+
+}

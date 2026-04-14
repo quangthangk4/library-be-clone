@@ -26,33 +26,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ItemController {
 
-    private final GetListItemWithFilterUseCase getListItemWithFilterUseCase;
-    private final GetItemByIdUseCase getItemByIdUseCase;
-    private final CreateItemUseCase createItemUseCase;
+  private final GetListItemWithFilterUseCase getListItemWithFilterUseCase;
+  private final GetItemByIdUseCase getItemByIdUseCase;
+  private final CreateItemUseCase createItemUseCase;
 
-    @RequiresRole(RoleConstants.LIBRARIAN)
-    @GetMapping
-    public ApiResponseApp<PageResponse<ItemDetailResponse>> findAllItemWithFilter(
-            @ModelAttribute ItemSearchRequest request
-    ) {
-        log.info("Find all item with filter: {}", request);
-        return ApiResponseApp.success(getListItemWithFilterUseCase.execute(request));
-    }
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  @GetMapping
+  public ApiResponseApp<PageResponse<ItemDetailResponse>> findAllItemWithFilter(
+      @ModelAttribute ItemSearchRequest request
+  ) {
+    log.info("Find all item with filter: {}", request);
+    return ApiResponseApp.success(getListItemWithFilterUseCase.execute(request));
+  }
 
+  @GetMapping("/{id}")
+  public ApiResponseApp<ItemDetailResponse> findItemById(
+      @PathVariable("id") Long id
+  ) {
+    log.info("Find item by id: {}", id);
+    return ApiResponseApp.success(getItemByIdUseCase.execute(id));
+  }
 
-    @GetMapping("/{id}")
-    public ApiResponseApp<ItemDetailResponse> findItemById(
-            @PathVariable("id") Long id
-    ) {
-        log.info("Find item by id: {}", id);
-        return ApiResponseApp.success(getItemByIdUseCase.execute(id));
-    }
-
-    @RequiresRole(RoleConstants.LIBRARIAN)
-    @PostMapping
-    public ApiResponseApp<Void> createItem(@RequestBody CreateItemRequest request) {
-        log.info("Create item with request: {}", request);
-        createItemUseCase.execute(request);
-        return ApiResponseApp.success("create item success");
-    }
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  @PostMapping
+  public ApiResponseApp<Void> createItem(@RequestBody CreateItemRequest request) {
+    log.info("Create item with request: {}", request);
+    createItemUseCase.execute(request);
+    return ApiResponseApp.success("create item success");
+  }
 }
