@@ -310,7 +310,8 @@ CREATE TABLE ratings (
                          verified_borrow BOOLEAN NULL,
                          CONSTRAINT ratings_pkey PRIMARY KEY (id),
                          CONSTRAINT fk_rating_publication FOREIGN KEY (publication_id) REFERENCES publications(id),
-                         CONSTRAINT fk_rating_user        FOREIGN KEY (user_id)        REFERENCES users(id)
+                         CONSTRAINT fk_rating_user        FOREIGN KEY (user_id)        REFERENCES users(id),
+                         CONSTRAINT uk_user_publication UNIQUE (user_id, publication_id)
 );
 
 CREATE INDEX idx_rating_publication_id ON ratings USING btree (publication_id);

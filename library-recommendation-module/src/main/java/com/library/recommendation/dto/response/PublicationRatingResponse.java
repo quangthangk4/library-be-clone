@@ -2,6 +2,8 @@ package com.library.recommendation.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.library.user.domain.enums.FacultyEnum;
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,7 +18,12 @@ public class PublicationRatingResponse {
   private int helpfulCount;
 
   private String fullName;
-  private String avatarUrl;
+  private String profilePictureUrl;
   private String studentId;
-  private String faculty;
+  private FacultyEnum faculty;
+  private Instant createdAt;
+
+  public String getFaculty() {
+    return faculty != null ? faculty.getName() : null;
+  }
 }

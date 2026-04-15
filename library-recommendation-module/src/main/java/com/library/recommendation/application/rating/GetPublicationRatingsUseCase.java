@@ -1,4 +1,9 @@
 package com.library.recommendation.application.rating;
 
-public interface getPublicationRatings {
+import com.library.recommendation.dto.response.PublicationRatingResponse;
+import com.library.shared.dto.PageResponse;
+
+public interface GetPublicationRatingsUseCase {
+
+  PageResponse<PublicationRatingResponse> execute(Long publicationId, int page, int size);
 }

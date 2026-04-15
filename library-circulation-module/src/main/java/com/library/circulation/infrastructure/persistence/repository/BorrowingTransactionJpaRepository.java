@@ -36,4 +36,17 @@ public interface BorrowingTransactionJpaRepository extends
   Page<TransactionListResponse> getAllTransactionByItemId(
       @Param("itemId") Long itemId,
       Pageable pageable);
+
+
+  @Query("""
+          SELECT COUNT(t) > 0
+          FROM BorrowingTransactionEntity t
+          JOIN ItemEntity i ON t.itemId = i.id
+          WHERE t.userId = :userId
+            AND i.publicationId = :publicationId
+      """)
+  boolean existsByUserIdAndPublicationId(
+      @Param("userId") Long userId,
+      @Param("publicationId") Long publicationId
+  );
 }

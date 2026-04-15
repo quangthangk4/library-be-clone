@@ -1,8 +1,15 @@
 package com.library.recommendation.infrastructure.persistence.entity;
 
 import com.library.shared.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * JPA Entity for book reviews.
@@ -20,21 +27,21 @@ import lombok.*;
 @Builder
 public class RatingEntity extends BaseEntity {
 
-    @Column(nullable = false)
-    private Long userId;
+  @Column(nullable = false)
+  private Long userId;
 
-    @Column(nullable = false)
-    private Long publicationId;
+  @Column(nullable = false)
+  private Long publicationId;
 
-    @Column(nullable = false)
-    private int star;
+  @Column(nullable = false)
+  private int star;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+  @Column(columnDefinition = "TEXT")
+  private String comment;
 
-    @Builder.Default
-    private int helpfulCount = 0;
+  @Builder.Default
+  private int helpfulCount = 0;
 
-    @Builder.Default
-    private Boolean verifiedBorrow = false;
+  @Builder.Default
+  private Boolean verifiedBorrow = true;
 }
