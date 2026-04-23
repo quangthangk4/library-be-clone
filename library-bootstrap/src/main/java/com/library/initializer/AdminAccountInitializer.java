@@ -69,7 +69,7 @@ public class AdminAccountInitializer implements CommandLineRunner {
             "role not found. Ensure RoleDataInitializer runs before AccountInitializer."
         ));
 
-    UserProfile profile = UserProfile.create(fullName, null, null, null);
+    UserProfile profile = UserProfile.create(fullName, null, null, null, null, null);
 
     // Hash the password
     PasswordHash passwordHash = PasswordHash.createFromRaw(password, passwordHasher);

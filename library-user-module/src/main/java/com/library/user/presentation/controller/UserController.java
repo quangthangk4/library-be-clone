@@ -1,14 +1,11 @@
 package com.library.user.presentation.controller;
 
-import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
 import com.library.shared.util.RequiresAuthentication;
-import com.library.shared.util.RequiresRole;
 import com.library.shared.util.SecurityEvaluator;
 import com.library.user.application.dto.request.ChangePasswordRequest;
 import com.library.user.application.dto.request.UpdateUserProfileRequest;
 import com.library.user.application.dto.response.UserResponse;
-import com.library.user.application.usecase.user.AssignRoleToUserUseCase;
 import com.library.user.application.usecase.user.ChangePasswordUseCase;
 import com.library.user.application.usecase.user.GetUserByIdUseCase;
 import com.library.user.application.usecase.user.SignUpUseCase;
@@ -19,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,7 +35,6 @@ public class UserController {
   private final GetUserByIdUseCase getUserByIdUseCase;
   private final UpdateUserProfileUseCase updateUserProfileUseCase;
   private final ChangePasswordUseCase changePasswordUseCase;
-  private final AssignRoleToUserUseCase assignRoleToUserUseCase;
   private final SecurityEvaluator security;
 
   @GetMapping("/my-profile")
@@ -74,16 +68,5 @@ public class UserController {
     log.info("REST request to change password for user ID: {}", userId);
     changePasswordUseCase.execute(request, userId);
     return ApiResponseApp.success("Change password successfully");
-  }
-
-  @PostMapping("/{userId}/roles/{roleId}")
-  @Operation(summary = "Assign a role to a user")
-  @RequiresRole(RoleConstants.ADMIN)
-  public ApiResponseApp<UserResponse> assignRoleToUser(
-      @PathVariable Long userId,
-      @PathVariable Long roleId) {
-    log.info("REST request to assign role {} to user {}", roleId, userId);
-    UserResponse response = assignRoleToUserUseCase.execute(userId, roleId);
-    return ApiResponseApp.success(response);
   }
 }

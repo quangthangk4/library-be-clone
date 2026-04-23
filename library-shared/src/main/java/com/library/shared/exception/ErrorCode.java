@@ -22,6 +22,7 @@ public enum ErrorCode {
   USER_NOT_ACTIVE(1107, "User account is not active", HttpStatus.FORBIDDEN),
   USER_SUSPENDED(1108, "User account is suspended", HttpStatus.FORBIDDEN),
   EMAIL_OR_PASSWORD_INCORRECT(1109, "Email or password is incorrect", HttpStatus.BAD_REQUEST),
+  VERIFY_EMAIL_FAILED(1110, "Email verification failed", HttpStatus.BAD_REQUEST),
 
   // Role errors (1200-1299)
   ROLE_NOT_FOUND(1200, "Role not found", HttpStatus.NOT_FOUND),

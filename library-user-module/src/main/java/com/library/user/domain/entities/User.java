@@ -110,7 +110,7 @@ public class User {
         .creditScore(DEFAULT_SCORE)
         .build();
 
-    user.domainEvents.add(new UserRegisteredEvent(user.getId(), user.getEmail().getValue(),
+    user.addDomainEvent(new UserRegisteredEvent(user.getId(), user.getEmail().getValue(),
         user.getProfile().getFullName()));
 
     return user;
@@ -167,6 +167,13 @@ public class User {
 
   public Set<Role> getRoles() {
     return Collections.unmodifiableSet(roles);
+  }
+
+  public void activeAccount() {
+    if (this.status == UserStatus.ACTIVE) {
+      throw new DomainException("User is already active");
+    }
+    this.status = UserStatus.ACTIVE;
   }
 
   public void validateStatus() {

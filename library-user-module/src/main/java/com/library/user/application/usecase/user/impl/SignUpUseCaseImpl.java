@@ -1,6 +1,7 @@
 package com.library.user.application.usecase.user.impl;
 
 import com.library.shared.constant.RoleConstants;
+import java.util.List;
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
 import com.library.user.application.dto.request.RegisterUserCommand;
@@ -43,20 +44,21 @@ public class SignUpUseCaseImpl implements SignUpUseCase {
         .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
     UserProfile profile = UserProfile.of(request.fullName(), null, null, null, null,
-        request.fullName(), request.faculty());
+        request.studentId(), request.faculty());
 
     PasswordHash passwordHash = PasswordHash.createFromRaw(request.password(), passwordHasher);
 
     User user = User.registerUser(email, passwordHash, profile, role);
+    List<Object> events = user.pollDomainEvents();
 
-    User savedUser = userRepository.save(user);
+    userRepository.save(user);
 
-    savedUser.pollDomainEvents().forEach(event -> {
+    events.forEach(event -> {
       if (event instanceof UserRegisteredEvent registeredEvent) {
         userEventPublisher.publish(registeredEvent);
       }
     });
 
-    log.info("Successfully created user with ID: {}", savedUser.getId().getValue());
+    log.info("Successfully created user with ID: {}", user.getId().getValue());
   }
 }

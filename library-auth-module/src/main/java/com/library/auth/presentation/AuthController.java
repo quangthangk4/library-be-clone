@@ -6,6 +6,7 @@ import com.library.auth.application.LoginUseCase;
 import com.library.auth.application.LogoutUseCase;
 import com.library.auth.application.OnboardingProfileUseCase;
 import com.library.auth.application.RefreshAccessTokenUseCase;
+import com.library.auth.application.VerifyEmailUseCase;
 import com.library.auth.dto.response.TokenResponse;
 import com.library.auth.infrastructure.config.Oauth2UrlBuilder;
 import com.library.shared.dto.ApiResponseApp;
@@ -21,9 +22,12 @@ import com.library.user.application.usecase.user.SignUpUseCase;
 import com.library.user.domain.valueobject.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,12 +53,18 @@ public class AuthController {
   private final SecurityEvaluator securityEvaluator;
   private final OnboardingProfileUseCase onboardingProfileUseCase;
   private final SignUpUseCase signUpUseCase;
+  private final VerifyEmailUseCase verifyEmailUseCase;
 
+  @Value("${base.frontend-url}")
+  private String frontendUrl;
+
+  @Operation(summary = "Login", description = "Login user and generate access and refresh tokens")
   @PostMapping("/login")
   public ApiResponseApp<TokenResponse> login(@RequestBody LoginRequest request) {
     return ApiResponseApp.success("Login successful", loginUseCase.execute(request));
   }
 
+  @Operation(summary = "Logout", description = "Logout user and invalidate refresh token")
   @PostMapping("/logout")
   public ApiResponseApp<Void> logout(@RequestHeader("re-token") String refreshToken) {
     logoutUseCase.execute(refreshToken);
@@ -69,7 +79,19 @@ public class AuthController {
     return ApiResponseApp.success("Register successful");
   }
 
-  // not finish
+  @Operation(description = "Verify email", summary = "Verify email and enable account")
+  @GetMapping("/verify-email")
+  public void verifyEmailAndEnableAccount(@RequestParam("token") String token,
+      HttpServletResponse response) throws IOException {
+    try {
+      verifyEmailUseCase.execute(token);
+      response.sendRedirect(frontendUrl + "/#/publicpage/verify-success");
+    } catch (Exception e) {
+      response.sendRedirect(frontendUrl + "/#/publicpage/verify-failed");
+    }
+  }
+
+  @Operation(summary = "Onboarding profile", description = "Complete onboarding profile")
   @PostMapping("/onboarding-profile")
   @RequiresAuthentication()
   public ApiResponseApp<Void> onboardingProfile(
@@ -89,6 +111,7 @@ public class AuthController {
 
   }
 
+  @Operation(summary = "Refresh access token", description = "Refresh access token using refresh token")
   @PostMapping("/refresh-accesstoken")
   public ApiResponseApp<TokenResponse> refreshToken(
       @RequestHeader("re-token") String refreshToken) {
@@ -98,11 +121,7 @@ public class AuthController {
     );
   }
 
-  @PostMapping("/hash")
-  public String hash(@RequestParam("hash") String hash) {
-    return passwordHasher.hash(hash);
-  }
-
+  @Operation(summary = "Social login", description = "Start social login process")
   @GetMapping("/login-with-social")
   public ApiResponseApp<String> socialLogin(@RequestParam("loginType") String loginType,
       HttpServletRequest request) {
@@ -112,11 +131,12 @@ public class AuthController {
     );
   }
 
+  @Operation(summary = "Social login callback", description = "Callback URL for social login")
   @PostMapping("/social-callback/{registrationId}")
   public ApiResponseApp<TokenResponse> oauth2CallBack(
       @PathVariable("registrationId") String loginType,
       @RequestParam("code") String code
-//                                                     @RequestParam ("deviceId") String deviceId
+      //@RequestParam ("deviceId") String deviceId
   ) {
     return ApiResponseApp.success(
         "OAuth2 login successful",

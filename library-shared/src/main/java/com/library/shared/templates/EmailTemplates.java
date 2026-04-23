@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum EmailTemplates {
   VERIFY_EMAIL_TEMPLATE(
-      "Xác minh email để kích hoạt tài khoản",
+      "[Thư viện HCMUT] Xác nhận địa chỉ email của bạn",
       """
           <html>
           <head>
@@ -50,18 +50,20 @@ public enum EmailTemplates {
           <body>
               <div class="container">
                   <p>Xin chào <b>%s</b>,</p>
-                  <p>Cảm ơn bạn đã đăng ký. Vui lòng xác minh email bằng cách nhấn nút bên dưới:</p>
-                  <a class="verify-button" href="%s">Xác minh email</a>
-                  <p style="margin-top: 15px;">
-                  Hoặc copy link sau vào trình duyệt:
+                  <p>Chào mừng bạn đến với hệ thống Thư viện Trực tuyến HCMUT.</p>
+                  <p>Để hoàn tất đăng ký và kích hoạt tài khoản, vui lòng xác nhận địa chỉ email bằng cách nhấn vào nút bên dưới:</p>
+                  <a class="verify-button" href="%s">Xác nhận email</a>
+                  <p style="margin-top: 20px; font-size: 14px; color: #888888;">
+                  Nếu nút trên không hoạt động, bạn có thể copy và dán đường dẫn sau vào trình duyệt:
                   <br/>
-                  <a href="%s">%s</a>
+                  <a href="%s" style="color: #007bff; word-break: break-all;">%s</a>
                   </p>
                   <p style="font-size: 14px;">
-                  Link có hiệu lực trong <b>24 giờ</b>.
+                  Đường dẫn có hiệu lực trong <b>24 giờ</b> kể từ khi nhận được email này.
                   </p>
-                  <p style="font-size: 12px;">
-                  Nếu bạn không thực hiện đăng ký, hãy bỏ qua email này.
+                  <hr style="border: none; border-top: 1px solid #eeeeee; margin: 20px 0;" />
+                  <p style="font-size: 12px; color: #aaaaaa;">
+                  Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ bộ phận hỗ trợ nếu cần thiết.
                   </p>
               </div>
           </body>

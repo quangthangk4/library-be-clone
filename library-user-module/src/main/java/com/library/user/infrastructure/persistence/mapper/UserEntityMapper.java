@@ -30,6 +30,7 @@ public class UserEntityMapper {
         .address(user.getProfile().getAddress())
         .profilePictureUrl(user.getProfile().getProfilePictureUrl())
         .status(user.getStatus())
+        .studentId(user.getProfile().getStudentId())
         .lastLoginAt(user.getLastLoginAt())
         .aiPersonalizationEnabled(user.isAiPersonalizationEnabled())
         .faculty(user.getProfile().getFaculty())

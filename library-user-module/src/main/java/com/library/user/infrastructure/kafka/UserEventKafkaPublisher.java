@@ -1,6 +1,7 @@
 package com.library.user.infrastructure.kafka;
 
 import com.library.shared.kafka.KafkaTopics;
+import com.library.shared.kafka.event.UserRegisteredMessage;
 import com.library.user.application.port.UserEventPublisher;
 import com.library.user.domain.event.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,12 @@ public class UserEventKafkaPublisher implements UserEventPublisher {
 
   @Override
   public void publish(UserRegisteredEvent event) {
-    kafkaTemplate.send(KafkaTopics.USER_REGISTERED, event.getUserId().getValue().toString(), event);
-    log.info("Published UserRegisteredEvent for userId={}", event.getUserId().getValue());
+    UserRegisteredMessage message = new UserRegisteredMessage(
+        event.getUserId().getValue(),
+        event.getEmail(),
+        event.getFullName()
+    );
+    kafkaTemplate.send(KafkaTopics.USER_REGISTERED, String.valueOf(message.userId()), message);
+    log.info("Published UserRegisteredEvent for userId={}", message.userId());
   }
 }

@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
   private String from;
 
   @Override
-  public void sendEmail(String to, String link, EmailTemplates emailTemplates)
+  public void sendEmail(String to, String fullName, String link, EmailTemplates emailTemplates)
       throws MessagingException, UnsupportedEncodingException {
     log.info("Sending email verification to {}", to);
     MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
     messageHelper.setFrom(from, "Library Management System");
     messageHelper.setSubject(emailTemplates.getSubject());
 
-    String content = emailTemplates.formatContent(to, link);
+    String content = emailTemplates.formatContent(fullName, link, link, link);
     messageHelper.setText(content, true);
     mailSender.send(mimeMessage);
     log.info("Sending email to {} with subject: {}", to, emailTemplates.getSubject());

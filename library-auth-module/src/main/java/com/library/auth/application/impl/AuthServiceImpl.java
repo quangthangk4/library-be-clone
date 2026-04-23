@@ -187,7 +187,7 @@ public class AuthServiceImpl implements AuthService {
     // Here you would typically generate a JWT token or similar
     String accessTokenResponse = generateToken(user, PurposeToken.ACCESS);
     String refreshToken = generateToken(user, PurposeToken.REFRESH);
-    boolean isNewUser = user.getStudentId() == null;
+    boolean isNewUser = user.getProfile().getStudentId() == null;
 
 //        loginAttemptsService.loginSucceeded(user.getId());
     return TokenResponse.builder()

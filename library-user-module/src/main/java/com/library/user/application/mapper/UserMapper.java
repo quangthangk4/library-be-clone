@@ -23,6 +23,8 @@ public interface UserMapper {
   @Mapping(target = "phoneNumber", source = "profile.phoneNumber")
   @Mapping(target = "address", source = "profile.address")
   @Mapping(target = "profilePictureUrl", source = "profile.profilePictureUrl")
+  @Mapping(target = "studentId", source = "profile.studentId")
+  @Mapping(target = "faculty", source = "profile.faculty")
   @Mapping(target = "status", source = "status")
   @Mapping(target = "roles", source = "roles")
   @Mapping(target = "creditScore", source = "creditScore")
