@@ -210,6 +210,17 @@ public class User {
     this.passwordHash = PasswordHash.createFromRaw(newPassword, hasher);
   }
 
+  public void resetPassword(String newPassword, String confirmPassword, PasswordHasher hasher) {
+    if (newPassword == null || newPassword.trim().isEmpty()) {
+      throw new DomainException("New password cannot be null or empty");
+    }
+    if (!newPassword.equals(confirmPassword)) {
+      throw new DomainException("New password and confirm password do not match");
+    }
+    this.passwordHash = PasswordHash.createFromRaw(newPassword, hasher);
+  }
+
+
   public void verifyPassword(String newPassword, PasswordHasher hasher) {
     if (newPassword == null || newPassword.trim().isEmpty()) {
       throw new DomainException("Password cannot be null or empty");

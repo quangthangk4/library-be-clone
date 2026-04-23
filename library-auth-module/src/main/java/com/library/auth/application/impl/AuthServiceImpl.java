@@ -120,10 +120,10 @@ public class AuthServiceImpl implements AuthService {
 
   private long getExpirationSeconds(PurposeToken purpose) {
     return switch (purpose) {
-      case ACCESS -> expirationTime;
-      case VERIFY_EMAIL -> 86400; // 1 day
-      case RESET_PASSWORD -> 30 * 60; // 30 minutes
-      case REFRESH -> refreshExpTime;
+      case ACCESS -> expirationTime;      // default 1h (config: EXP_TOKEN)
+      case VERIFY_EMAIL -> 24 * 60 * 60; // 24 hours
+      case RESET_PASSWORD -> 15 * 60;    // 15 minutes
+      case REFRESH -> refreshExpTime;    // default 7 days (config: EXP_REFRESH_TOKEN)
     };
   }
 

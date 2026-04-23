@@ -88,7 +88,7 @@ jwt:
   rsa-private-key: classpath:certs/privateKey.pem
   rsa-public-key: classpath:certs/publicKey.pem
   key-id: ${JWT_KEY_ID:library-key}
-  expirationTime: ${EXP_TOKEN:86400} # 1 day in seconds
+  expirationTime: ${EXP_TOKEN:3600} # 1 hour in seconds
   refreshExpTime: ${EXP_REFRESH_TOKEN:604800} # 7 days in seconds
 
 base:

@@ -2,11 +2,15 @@ package com.library.auth.presentation;
 
 
 import com.library.auth.application.AuthService;
+import com.library.auth.application.ForgotPasswordUseCase;
 import com.library.auth.application.LoginUseCase;
 import com.library.auth.application.LogoutUseCase;
 import com.library.auth.application.OnboardingProfileUseCase;
 import com.library.auth.application.RefreshAccessTokenUseCase;
+import com.library.auth.application.ResetPasswordUseCase;
 import com.library.auth.application.VerifyEmailUseCase;
+import com.library.auth.dto.request.ForgotPasswordRequest;
+import com.library.auth.dto.request.ResetPasswordRequest;
 import com.library.auth.dto.response.TokenResponse;
 import com.library.auth.infrastructure.config.Oauth2UrlBuilder;
 import com.library.shared.dto.ApiResponseApp;
@@ -51,6 +55,8 @@ public class AuthController {
   private final OnboardingProfileUseCase onboardingProfileUseCase;
   private final SignUpUseCase signUpUseCase;
   private final VerifyEmailUseCase verifyEmailUseCase;
+  private final ForgotPasswordUseCase forgotPasswordUseCase;
+  private final ResetPasswordUseCase resetPasswordUseCase;
 
   @Value("${base.frontend-url}")
   private String frontendUrl;
@@ -97,6 +103,20 @@ public class AuthController {
     // update profile -> sau khi tạo tk với google xong thì bắt nhập studentId và faculty
     onboardingProfileUseCase.execute(UserId.of(userId), request);
     return ApiResponseApp.success("Onboarding profile successful");
+  }
+
+  @Operation(summary = "Forgot password", description = "Send reset password email")
+  @PostMapping("/forgot-password")
+  public ApiResponseApp<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    forgotPasswordUseCase.execute(request);
+    return ApiResponseApp.success("Reset password email sent");
+  }
+
+  @Operation(summary = "Reset password", description = "Reset password using token from email")
+  @PostMapping("/reset-password")
+  public ApiResponseApp<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    resetPasswordUseCase.execute(request);
+    return ApiResponseApp.success("Password reset successfully");
   }
 
   @Operation(summary = "Refresh access token", description = "Refresh access token using refresh token")
