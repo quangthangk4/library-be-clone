@@ -219,6 +219,17 @@ public class User {
     }
   }
 
+  public void updateProfile(UserProfile profile) {
+    if (profile == null) {
+      throw new DomainException("Profile cannot be null");
+    }
+    this.profile = profile;
+  }
+
+  public void toggleAIPersonalization(boolean aiPersonalizationEnabled) {
+    this.aiPersonalizationEnabled = aiPersonalizationEnabled;
+  }
+
   // ============== Domain Events ==============
 
   private void addDomainEvent(Object event) {

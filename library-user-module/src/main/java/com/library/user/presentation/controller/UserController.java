@@ -4,11 +4,10 @@ import com.library.shared.dto.ApiResponseApp;
 import com.library.shared.util.RequiresAuthentication;
 import com.library.shared.util.SecurityEvaluator;
 import com.library.user.application.dto.request.ChangePasswordRequest;
-import com.library.user.application.dto.request.UpdateUserProfileRequest;
+import com.library.user.application.dto.request.UpdateUserProfileCommand;
 import com.library.user.application.dto.response.UserResponse;
 import com.library.user.application.usecase.user.ChangePasswordUseCase;
 import com.library.user.application.usecase.user.GetUserByIdUseCase;
-import com.library.user.application.usecase.user.SignUpUseCase;
 import com.library.user.application.usecase.user.UpdateUserProfileUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final SignUpUseCase signUpUseCase;
   private final GetUserByIdUseCase getUserByIdUseCase;
   private final UpdateUserProfileUseCase updateUserProfileUseCase;
   private final ChangePasswordUseCase changePasswordUseCase;
@@ -51,7 +49,7 @@ public class UserController {
   @Operation(summary = "Update current user profile")
   @ResponseStatus(HttpStatus.OK)
   public ApiResponseApp<UserResponse> updateUserProfile(
-      @Valid @RequestBody UpdateUserProfileRequest request) {
+      @Valid @RequestBody UpdateUserProfileCommand request) {
     Long id = security.getCurrentUserId();
     log.info("REST request to update profile for user ID: {}", id);
     UserResponse response = updateUserProfileUseCase.execute(id, request);

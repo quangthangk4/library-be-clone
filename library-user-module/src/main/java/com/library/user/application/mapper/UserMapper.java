@@ -1,6 +1,6 @@
 package com.library.user.application.mapper;
 
-import com.library.user.application.dto.request.UpdateUserProfileRequest;
+import com.library.user.application.dto.request.UpdateUserProfileCommand;
 import com.library.user.application.dto.response.RoleResponse;
 import com.library.user.application.dto.response.UserResponse;
 import com.library.user.domain.entities.Role;
@@ -37,7 +37,7 @@ public interface UserMapper {
    * Helper method to create UserProfile from update
    */
   default UserProfile mergeAndMapToUserProfile(UserProfile currentProfile,
-      UpdateUserProfileRequest request) {
+      UpdateUserProfileCommand request) {
     if (request == null) {
       return null;
     }

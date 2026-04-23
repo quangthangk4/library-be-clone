@@ -12,12 +12,10 @@ import com.library.auth.infrastructure.config.Oauth2UrlBuilder;
 import com.library.shared.dto.ApiResponseApp;
 import com.library.shared.util.RequiresAuthentication;
 import com.library.shared.util.SecurityEvaluator;
-import com.library.user.application.dto.request.ChangePasswordRequest;
 import com.library.user.application.dto.request.LoginRequest;
 import com.library.user.application.dto.request.OnboardingProfileRequest;
 import com.library.user.application.dto.request.RegisterUserCommand;
 import com.library.user.application.port.PasswordHasher;
-import com.library.user.application.usecase.user.ChangePasswordUseCase;
 import com.library.user.application.usecase.user.SignUpUseCase;
 import com.library.user.domain.valueobject.UserId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,7 +47,6 @@ public class AuthController {
   private final AuthService authService;
   private final LogoutUseCase logoutUseCase;
   private final RefreshAccessTokenUseCase refreshAccessTokenUseCase;
-  private final ChangePasswordUseCase changePasswordUseCase;
   private final SecurityEvaluator securityEvaluator;
   private final OnboardingProfileUseCase onboardingProfileUseCase;
   private final SignUpUseCase signUpUseCase;
@@ -100,15 +97,6 @@ public class AuthController {
     // update profile -> sau khi tạo tk với google xong thì bắt nhập studentId và faculty
     onboardingProfileUseCase.execute(UserId.of(userId), request);
     return ApiResponseApp.success("Onboarding profile successful");
-  }
-
-  @PostMapping("/change-password")
-  @RequiresAuthentication()
-  public ApiResponseApp<Void> changePassword(@RequestBody ChangePasswordRequest request) {
-    Long userId = securityEvaluator.getCurrentUserId();
-    changePasswordUseCase.execute(request, userId);
-    return ApiResponseApp.success("Change password successful", null);
-
   }
 
   @Operation(summary = "Refresh access token", description = "Refresh access token using refresh token")

@@ -4,17 +4,12 @@ import com.library.user.domain.enums.FacultyEnum;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
 import java.time.LocalDate;
 
-/**
- * DTO for updating a user profile
- */
-
-public record UpdateUserProfileRequest (
+public record UpdateUserProfileCommand(
 
     @Pattern(regexp = "^[\\p{L}\\s]*$", message = "Full name must contain only letters")
-    @Size(max = 50, message = "Full name must be between 2 and 50 characters")
+    @Size(min = 2, max = 50, message = "Full name must be between 2 and 50 characters")
     String fullName,
 
     @Past(message = "Date of birth must be in the past")
@@ -23,10 +18,12 @@ public record UpdateUserProfileRequest (
     @Pattern(regexp = "^[+]?\\d{10,15}$", message = "Phone number must be valid")
     String phoneNumber,
 
+    @Size(max = 200, message = "Address must not exceed 200 characters")
     String address,
 
-    boolean aiPersonalizationEnabled,
+    Boolean aiPersonalizationEnabled,
 
     FacultyEnum faculty
-)
-{}
+) {
+
+}
