@@ -1,39 +1,40 @@
 package com.library.user.domain.valueobject;
 
+import com.library.shared.exception.DomainException;
+import java.util.regex.Pattern;
+import lombok.Getter;
 import lombok.Value;
 
-import java.util.regex.Pattern;
 
-/**
- * Email value object
- * Encapsulates email with validation logic
- */
 @Value
+@Getter
 public class Email {
-    private static final Pattern EMAIL_PATTERN =
-        Pattern.compile("^[A-Za-z0-9+_.-]+@hcmut.edu.vn$");
 
-    String value;
+  private static final Pattern EMAIL_PATTERN =
+      Pattern.compile("^[A-Za-z0-9+_.-]+@hcmut.edu.vn$");
 
-    private Email(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty");
-        }
-        if (!EMAIL_PATTERN.matcher(value).matches()) {
-            throw new IllegalArgumentException("Invalid email format: " + value + ", expected domain: hcmut.edu.vn");
-        }
-        this.value = value.toLowerCase();
+  String value;
+
+  private Email(String value) {
+    if (value == null || value.trim().isEmpty()) {
+      throw new DomainException("Email cannot be null or empty");
     }
-
-    public static Email of(String value) {
-        return new Email(value);
+    if (!EMAIL_PATTERN.matcher(value).matches()) {
+      throw new DomainException(
+          "Invalid email format: " + value + ", expected domain: hcmut.edu.vn");
     }
+    this.value = value.toLowerCase();
+  }
 
-    public String getDomain() {
-        return value.substring(value.indexOf('@') + 1);
-    }
+  public static Email of(String value) {
+    return new Email(value);
+  }
 
-    public String getLocalPart() {
-        return value.substring(0, value.indexOf('@'));
-    }
+  public String getDomain() {
+    return value.substring(value.indexOf('@') + 1);
+  }
+
+  public String getLocalPart() {
+    return value.substring(0, value.indexOf('@'));
+  }
 }

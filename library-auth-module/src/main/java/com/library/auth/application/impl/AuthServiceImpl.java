@@ -1,5 +1,10 @@
 package com.library.auth.application.impl;
 
+import static com.library.shared.util.StaticVariable.CLIENT_ID;
+import static com.library.shared.util.StaticVariable.CLIENT_SECRET;
+import static com.library.shared.util.StaticVariable.DEFAULT_AVATAR;
+import static com.library.shared.util.StaticVariable.REDIRECT_URI;
+
 import com.library.auth.application.AuthService;
 import com.library.auth.application.enums.AttributeLoginType;
 import com.library.auth.application.enums.PurposeToken;
@@ -29,6 +34,11 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import io.hypersistence.tsid.TSID;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
@@ -44,215 +54,213 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.library.shared.util.StaticVariable.CLIENT_ID;
-import static com.library.shared.util.StaticVariable.CLIENT_SECRET;
-import static com.library.shared.util.StaticVariable.DEFAULT_AVATAR;
-import static com.library.shared.util.StaticVariable.REDIRECT_URI;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final RSAKeyRecord rsaKeyRecord;
-    private final RefreshTokensRepository refreshTokensRepository;
-    private final ClientRegistrationRepository clientRegistrationRepository;
-    private final WebClient webClient;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
-    @Value("${jwt.expirationTime}")
-    @NonFinal
-    private long expirationTime;
+  private final RSAKeyRecord rsaKeyRecord;
+  private final RefreshTokensRepository refreshTokensRepository;
+  private final ClientRegistrationRepository clientRegistrationRepository;
+  private final WebClient webClient;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
 
-    @Value("${jwt.refreshExpTime}")
-    @NonFinal
-    private long refreshExpTime;
+  @Value("${jwt.expirationTime}")
+  @NonFinal
+  private long expirationTime;
 
-    @Value("${base.url}")
-    private String baseUrl;
+  @Value("${jwt.refreshExpTime}")
+  @NonFinal
+  private long refreshExpTime;
 
-    @Override
-    public String generateToken(User user, PurposeToken purpose) {
-        // Header
-        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
-                .keyID(rsaKeyRecord.keyId())
-                .type(JOSEObjectType.JWT)
-                .build();
-        // Payload
-        long expireSeconds = getExpirationSeconds(purpose);
-        String jwtId = TSID.Factory.getTsid().toString();
+  @Value("${base.url}")
+  private String baseUrl;
 
-        JWTClaimsSet claimsSet = buildClaims(user, purpose, jwtId, expireSeconds);
-        Payload payload = new Payload(claimsSet.toJSONObject());
+  @Override
+  public String generateToken(User user, PurposeToken purpose) {
+    // Header
+    JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+        .keyID(rsaKeyRecord.keyId())
+        .type(JOSEObjectType.JWT)
+        .build();
+    // Payload
+    long expireSeconds = getExpirationSeconds(purpose);
+    String jwtId = TSID.Factory.getTsid().toString();
 
-        JWSObject object = new JWSObject(header, payload);
-        // Signature
-        try {
-            if (rsaKeyRecord.rsaPrivateKey() == null) {
-                throw new IllegalStateException("Private key is not initialized");
-            }
-            JWSSigner signer = new RSASSASigner(rsaKeyRecord.rsaPrivateKey());
-            object.sign(signer);
-        } catch (JOSEException e) {
-            log.error("Failed to sign JWT", e);
-            throw new AppException(ErrorCode.TOKEN_GENERATION_FAILED);
-        }
+    JWTClaimsSet claimsSet = buildClaims(user, purpose, jwtId, expireSeconds);
+    Payload payload = new Payload(claimsSet.toJSONObject());
 
-        // save refresh token if purpose is REFRESH
-        if (purpose == PurposeToken.REFRESH) {
-            RefreshTokens refreshToken = new RefreshTokens(UUIDToken.of(jwtId),
-                    "deviceId",
-                    user.getId().getValue(),
-                    Instant.now().plusSeconds(expireSeconds)
-            );
-
-            refreshTokensRepository.upsertRefreshToken(refreshToken);
-        }
-        return object.serialize();
+    JWSObject object = new JWSObject(header, payload);
+    // Signature
+    try {
+      if (rsaKeyRecord.rsaPrivateKey() == null) {
+        throw new IllegalStateException("Private key is not initialized");
+      }
+      JWSSigner signer = new RSASSASigner(rsaKeyRecord.rsaPrivateKey());
+      object.sign(signer);
+    } catch (JOSEException e) {
+      log.error("Failed to sign JWT", e);
+      throw new AppException(ErrorCode.TOKEN_GENERATION_FAILED);
     }
 
+    // save refresh token if purpose is REFRESH
+    if (purpose == PurposeToken.REFRESH) {
+      RefreshTokens refreshToken = new RefreshTokens(UUIDToken.of(jwtId),
+          "deviceId",
+          user.getId().getValue(),
+          Instant.now().plusSeconds(expireSeconds)
+      );
 
-    private long getExpirationSeconds(PurposeToken purpose) {
-        return switch (purpose) {
-            case ACCESS -> expirationTime;
-            case VERIFY_EMAIL -> 86400; // 1 day
-            case RESET_PASSWORD -> 30 * 60; // 30 minutes
-            case REFRESH -> refreshExpTime;
-        };
+      refreshTokensRepository.upsertRefreshToken(refreshToken);
+    }
+    return object.serialize();
+  }
+
+
+  private long getExpirationSeconds(PurposeToken purpose) {
+    return switch (purpose) {
+      case ACCESS -> expirationTime;
+      case VERIFY_EMAIL -> 86400; // 1 day
+      case RESET_PASSWORD -> 30 * 60; // 30 minutes
+      case REFRESH -> refreshExpTime;
+    };
+  }
+
+  private JWTClaimsSet buildClaims(User user, PurposeToken purpose, String jwtId,
+      long expireSeconds) {
+    return new JWTClaimsSet.Builder()
+        .issuer("library-hcmut.com")
+        .subject(user.getId().getValue().toString())
+        .issueTime(Date.from(Instant.now()))
+        .expirationTime(Date.from(Instant.now().plusSeconds(expireSeconds)))
+        .jwtID(jwtId)
+        .claim("scope", buildScopes(user.getRoles()))
+        .claim(StaticVariable.PURPOSE, purpose)
+        .audience("uni.com")
+        .build();
+  }
+
+  private List<String> buildScopes(Set<Role> roles) {
+    return roles.stream().map(Role::getRoleName).toList();
+  }
+
+
+  @Override
+  @Transactional
+  public TokenResponse oauth2CallBack(String loginType, String code, String deviceId) {
+    // load client registration
+    ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(
+        loginType);
+    String accessToken = exchangeToken(loginType, code, clientRegistration);
+    log.info("tokenResponse: {}", accessToken);
+    Map<String, Object> userInfo = fetchUserInfo(accessToken, clientRegistration);
+
+    AttributeLoginType varName = AttributeLoginType.valueOf(loginType.toUpperCase());
+
+    log.info("userInfo: {}", userInfo.toString());
+    String providerId = userInfo.get(varName.getSub()).toString();
+    String email = userInfo.get("email") != null ? userInfo.get("email").toString()
+        : loginType + "_" + providerId + "@dummy.com";
+
+    if (!email.endsWith("@hcmut.edu.vn")) {
+      throw new AppException(ErrorCode.INVALID_EMAIL);
     }
 
-    private JWTClaimsSet buildClaims(User user, PurposeToken purpose, String jwtId, long expireSeconds) {
-        return new JWTClaimsSet.Builder()
-                .issuer("library-hcmut.com")
-                .subject(user.getId().getValue().toString())
-                .issueTime(Date.from(Instant.now()))
-                .expirationTime(Date.from(Instant.now().plusSeconds(expireSeconds)))
-                .jwtID(jwtId)
-                .claim("scope", buildScopes(user.getRoles()))
-                .claim(StaticVariable.PURPOSE, purpose)
-                .audience("uni.com")
-                .build();
+    String fullName = userInfo.get("name") != null ? userInfo.get("name").toString() : null;
+    String avatarUrl = DEFAULT_AVATAR;
+    if (loginType.equals("google")) {
+      avatarUrl =
+          userInfo.get("picture") != null ? userInfo.get("picture").toString() : DEFAULT_AVATAR;
     }
 
-    private List<String> buildScopes(Set<Role> roles) {
-        return roles.stream().map(Role::getRoleName).toList();
+    // onboard User
+    User user = userRepository.findByProviderAndProviderId(loginType, providerId).orElse(null);
+    if (user == null) {
+      if (!userRepository.findByEmail(Email.of(email)).isPresent()) {
+        user = onBoardUserFromOauth2(email, fullName, avatarUrl, loginType, providerId);
+      } else {
+        user = userRepository.findByEmail(Email.of(email)).orElse(null);
+      }
     }
 
-
-
-    @Override
-    @Transactional
-    public TokenResponse oauth2CallBack(String loginType, String code, String deviceId) {
-        // load client registration
-        ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(loginType);
-        String accessToken = exchangeToken(loginType, code, clientRegistration);
-        log.info("tokenResponse: {}", accessToken);
-        Map<String, Object> userInfo = fetchUserInfo(accessToken, clientRegistration);
-
-        AttributeLoginType varName = AttributeLoginType.valueOf(loginType.toUpperCase());
-
-        log.info("userInfo: {}", userInfo.toString());
-        String providerId = userInfo.get(varName.getSub()).toString();
-        String email = userInfo.get("email") != null ? userInfo.get("email").toString() : loginType + "_" + providerId + "@dummy.com";
-
-        if (!email.endsWith("@hcmut.edu.vn")) {
-            throw new AppException(ErrorCode.INVALID_EMAIL);
-        }
-
-        String fullName = userInfo.get("name") != null ? userInfo.get("name").toString() : null;
-        String avatarUrl = DEFAULT_AVATAR;
-        if (loginType.equals("google")){
-            avatarUrl = userInfo.get("picture") != null ? userInfo.get("picture").toString() : DEFAULT_AVATAR;
-        }
-
-        // onboard User
-        User user = userRepository.findByProviderAndProviderId(loginType, providerId).orElse(null);
-        if (user == null) {
-            if (!userRepository.findByEmail(Email.of(email)).isPresent()) {
-                user = onBoardUserFromOauth2(email, fullName, avatarUrl, loginType, providerId);
-            }
-            else user = userRepository.findByEmail(Email.of(email)).orElse(null);
-        }
-
-        // Here you would typically generate a JWT token or similar
-        String accessTokenResponse = generateToken(user, PurposeToken.ACCESS);
-        String refreshToken = generateToken(user, PurposeToken.REFRESH);
-        boolean isNewUser = user.getStudentId() == null;
+    // Here you would typically generate a JWT token or similar
+    String accessTokenResponse = generateToken(user, PurposeToken.ACCESS);
+    String refreshToken = generateToken(user, PurposeToken.REFRESH);
+    boolean isNewUser = user.getStudentId() == null;
 
 //        loginAttemptsService.loginSucceeded(user.getId());
-        return TokenResponse.builder()
-                .accessToken(accessTokenResponse)
-                .refreshToken(refreshToken)
-                .isNewUser(isNewUser)
-                .build();
+    return TokenResponse.builder()
+        .accessToken(accessTokenResponse)
+        .refreshToken(refreshToken)
+        .isNewUser(isNewUser)
+        .build();
 
+  }
+
+  @Override
+  public User getUserFromClaims(JWTClaimsSet claimsSet) {
+    Long userId = Long.valueOf(claimsSet.getSubject());
+    return userRepository.findById(UserId.of(userId)).orElseThrow(
+        () -> new AppException(ErrorCode.USER_NOT_FOUND)
+    );
+  }
+
+  public String exchangeToken(String loginType, String code,
+      ClientRegistration clientRegistration) {
+    String tokenUri = clientRegistration.getProviderDetails().getTokenUri();
+    String clientId = clientRegistration.getClientId();
+    String redirectUri = clientRegistration.getRedirectUri();
+    String clientSecret = clientRegistration.getClientSecret();
+
+    // Case 3: Google or others (POST + JSON response)
+    if ("google".equalsIgnoreCase(loginType)) {
+      MultiValueMap<String, String> linkedValues = new LinkedMultiValueMap<>();
+      linkedValues.add("code", code);
+      linkedValues.add(CLIENT_ID, clientId);
+      linkedValues.add(REDIRECT_URI, redirectUri);
+      linkedValues.add(CLIENT_SECRET, clientSecret);
+      linkedValues.add("grant_type", "authorization_code");
+
+      ExchangeTokenResponse response = webClient.post()
+          .uri(tokenUri)
+          .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+          .body(BodyInserters.fromFormData(linkedValues))
+          .retrieve()
+          .bodyToMono(ExchangeTokenResponse.class)
+          .block();
+
+      return response != null ? response.getAccessToken() : null;
     }
+    return null;
+  }
 
-    @Override
-    public User getUserFromClaims(JWTClaimsSet claimsSet) {
-        Long userId = Long.valueOf(claimsSet.getSubject());
-        return userRepository.findById(UserId.of(userId)).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_FOUND)
-        );
-    }
-
-    public String exchangeToken(String loginType, String code, ClientRegistration clientRegistration) {
-        String tokenUri = clientRegistration.getProviderDetails().getTokenUri();
-        String clientId = clientRegistration.getClientId();
-        String redirectUri = clientRegistration.getRedirectUri();
-        String clientSecret = clientRegistration.getClientSecret();
-
-        // Case 3: Google or others (POST + JSON response)
-        if ("google".equalsIgnoreCase(loginType)) {
-            MultiValueMap<String, String> linkedValues = new LinkedMultiValueMap<>();
-            linkedValues.add("code", code);
-            linkedValues.add(CLIENT_ID, clientId);
-            linkedValues.add(REDIRECT_URI, redirectUri);
-            linkedValues.add(CLIENT_SECRET, clientSecret);
-            linkedValues.add("grant_type", "authorization_code");
-
-            ExchangeTokenResponse response = webClient.post()
-                    .uri(tokenUri)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(BodyInserters.fromFormData(linkedValues))
-                    .retrieve()
-                    .bodyToMono(ExchangeTokenResponse.class)
-                    .block();
-
-            return response != null ? response.getAccessToken() : null;
-        }
-        return null;
-    }
-
-    public Map<String, Object> fetchUserInfo(String accessToken, ClientRegistration clientRegistration) {
-        return webClient.get()
-                .uri(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
-                .headers(headers -> headers.setBearerAuth(accessToken))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                .block(); // Blocking for Spring Web
-    }
+  public Map<String, Object> fetchUserInfo(String accessToken,
+      ClientRegistration clientRegistration) {
+    return webClient.get()
+        .uri(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
+        .headers(headers -> headers.setBearerAuth(accessToken))
+        .retrieve()
+        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block(); // Blocking for Spring Web
+  }
 
 
-    public User onBoardUserFromOauth2(String email, String fullName, String avatarUrl, String provider, String providerId) {
-        Role role = roleRepository.findByName("STUDENT").orElseThrow(
-                () -> new AppException(ErrorCode.ROLE_NOT_FOUND)
-        );
-        User user = User.createWithOauth2(
-                Email.of(email),
-                UserProfile.createWithAvatar(fullName,avatarUrl),
-                provider,
-                providerId,
-                role
-        );
+  public User onBoardUserFromOauth2(String email, String fullName, String avatarUrl,
+      String provider, String providerId) {
+    Role role = roleRepository.findByName("STUDENT").orElseThrow(
+        () -> new AppException(ErrorCode.ROLE_NOT_FOUND)
+    );
+    User user = User.createByOauth2(
+        Email.of(email),
+        UserProfile.createByOauth2(fullName, avatarUrl),
+        provider,
+        providerId,
+        role
+    );
 
-        user = userRepository.save(user);
-        return user;
-    }
+    user = userRepository.save(user);
+    return user;
+  }
 }

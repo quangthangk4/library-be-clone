@@ -14,10 +14,12 @@ import com.library.shared.util.SecurityEvaluator;
 import com.library.user.application.dto.request.ChangePasswordRequest;
 import com.library.user.application.dto.request.LoginRequest;
 import com.library.user.application.dto.request.OnboardingProfileRequest;
-import com.library.user.application.dto.request.SignUpRequest;
+import com.library.user.application.dto.request.RegisterUserCommand;
+import com.library.user.application.port.PasswordHasher;
 import com.library.user.application.usecase.user.ChangePasswordUseCase;
-import com.library.user.domain.port.IPasswordHasher;
+import com.library.user.application.usecase.user.SignUpUseCase;
 import com.library.user.domain.valueobject.UserId;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,83 +39,88 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final LoginUseCase loginUseCase;
-    private final IPasswordHasher iPasswordHasher;
-    private final Oauth2UrlBuilder oauth2UrlBuilder;
-    private final AuthService authService;
-    private final LogoutUseCase logoutUseCase;
-    private final RefreshAccessTokenUseCase refreshAccessTokenUseCase;
-    private final ChangePasswordUseCase changePasswordUseCase;
-    private final SecurityEvaluator securityEvaluator;
-    private final OnboardingProfileUseCase onboardingProfileUseCase;
+  private final LoginUseCase loginUseCase;
+  private final PasswordHasher passwordHasher;
+  private final Oauth2UrlBuilder oauth2UrlBuilder;
+  private final AuthService authService;
+  private final LogoutUseCase logoutUseCase;
+  private final RefreshAccessTokenUseCase refreshAccessTokenUseCase;
+  private final ChangePasswordUseCase changePasswordUseCase;
+  private final SecurityEvaluator securityEvaluator;
+  private final OnboardingProfileUseCase onboardingProfileUseCase;
+  private final SignUpUseCase signUpUseCase;
 
-    @PostMapping("/login")
-    public ApiResponseApp<TokenResponse> login(@RequestBody LoginRequest request) {
-        return ApiResponseApp.success("Login successful", loginUseCase.execute(request));
-    }
+  @PostMapping("/login")
+  public ApiResponseApp<TokenResponse> login(@RequestBody LoginRequest request) {
+    return ApiResponseApp.success("Login successful", loginUseCase.execute(request));
+  }
 
-    @PostMapping("/logout")
-    public ApiResponseApp<Void> logout(@RequestHeader("re-token") String refreshToken) {
-        logoutUseCase.execute(refreshToken);
-        return ApiResponseApp.success("Logout successful", null);
-    }
+  @PostMapping("/logout")
+  public ApiResponseApp<Void> logout(@RequestHeader("re-token") String refreshToken) {
+    logoutUseCase.execute(refreshToken);
+    return ApiResponseApp.success("Logout successful", null);
+  }
 
-    // not finish
-    @PostMapping("/register")
-    public ApiResponseApp<Void> register(@Valid @RequestBody SignUpRequest request) {
-        // register -> send email -> active account
-        //service
-        return ApiResponseApp.success("Register successful");
-    }
+  // not finish
+  @Operation(summary = "Register a new user account")
+  @PostMapping("/register")
+  public ApiResponseApp<Void> register(@Valid @RequestBody RegisterUserCommand request) {
+    signUpUseCase.execute(request);
+    return ApiResponseApp.success("Register successful");
+  }
 
-    // not finish
-    @PostMapping("/onboarding-profile")
-    @RequiresAuthentication()
-    public ApiResponseApp<Void> onboardingProfile(@Valid @RequestBody OnboardingProfileRequest request) {
-        Long userId = securityEvaluator.getCurrentUserId();
-        // update profile -> sau khi tạo tk với google xong thì bắt nhập studentId và faculty
-        onboardingProfileUseCase.execute(UserId.of(userId), request);
-        return ApiResponseApp.success("Onboarding profile successful");
-    }
+  // not finish
+  @PostMapping("/onboarding-profile")
+  @RequiresAuthentication()
+  public ApiResponseApp<Void> onboardingProfile(
+      @Valid @RequestBody OnboardingProfileRequest request) {
+    Long userId = securityEvaluator.getCurrentUserId();
+    // update profile -> sau khi tạo tk với google xong thì bắt nhập studentId và faculty
+    onboardingProfileUseCase.execute(UserId.of(userId), request);
+    return ApiResponseApp.success("Onboarding profile successful");
+  }
 
-    @PostMapping("/change-password")
-    @RequiresAuthentication()
-    public ApiResponseApp<Void> changePassword(@RequestBody ChangePasswordRequest request) {
-        Long userId = securityEvaluator.getCurrentUserId();
-        changePasswordUseCase.execute(request, userId);
-        return ApiResponseApp.success("Change password successful", null);
+  @PostMapping("/change-password")
+  @RequiresAuthentication()
+  public ApiResponseApp<Void> changePassword(@RequestBody ChangePasswordRequest request) {
+    Long userId = securityEvaluator.getCurrentUserId();
+    changePasswordUseCase.execute(request, userId);
+    return ApiResponseApp.success("Change password successful", null);
 
-    }
+  }
 
-    @PostMapping("/refresh-accesstoken")
-    public ApiResponseApp<TokenResponse> refreshToken(@RequestHeader("re-token") String refreshToken) {
-        return ApiResponseApp.success(
-                "Refresh access Token successful",
-                refreshAccessTokenUseCase.execute(refreshToken)
-        );
-    }
+  @PostMapping("/refresh-accesstoken")
+  public ApiResponseApp<TokenResponse> refreshToken(
+      @RequestHeader("re-token") String refreshToken) {
+    return ApiResponseApp.success(
+        "Refresh access Token successful",
+        refreshAccessTokenUseCase.execute(refreshToken)
+    );
+  }
 
-    @PostMapping("/hash")
-    public String hash(@RequestParam("hash") String hash) {
-        return iPasswordHasher.hash(hash);
-    }
+  @PostMapping("/hash")
+  public String hash(@RequestParam("hash") String hash) {
+    return passwordHasher.hash(hash);
+  }
 
-    @GetMapping("/login-with-social")
-    public ApiResponseApp<String> socialLogin(@RequestParam("loginType") String loginType, HttpServletRequest request){
-        return ApiResponseApp.success(
-                "Social login successful",
-                oauth2UrlBuilder.buildAuthorizationUrl(request,loginType.toLowerCase())
-        );
-    }
+  @GetMapping("/login-with-social")
+  public ApiResponseApp<String> socialLogin(@RequestParam("loginType") String loginType,
+      HttpServletRequest request) {
+    return ApiResponseApp.success(
+        "Social login successful",
+        oauth2UrlBuilder.buildAuthorizationUrl(request, loginType.toLowerCase())
+    );
+  }
 
-    @PostMapping("/social-callback/{registrationId}")
-    public ApiResponseApp<TokenResponse> oauth2CallBack(@PathVariable("registrationId") String loginType,
-                                                     @RequestParam ("code") String code
+  @PostMapping("/social-callback/{registrationId}")
+  public ApiResponseApp<TokenResponse> oauth2CallBack(
+      @PathVariable("registrationId") String loginType,
+      @RequestParam("code") String code
 //                                                     @RequestParam ("deviceId") String deviceId
-    ){
-        return ApiResponseApp.success(
-                "OAuth2 login successful",
-                authService.oauth2CallBack(loginType.toLowerCase(), code, "deviceId")
-        );
-    }
+  ) {
+    return ApiResponseApp.success(
+        "OAuth2 login successful",
+        authService.oauth2CallBack(loginType.toLowerCase(), code, "deviceId")
+    );
+  }
 }

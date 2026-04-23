@@ -15,33 +15,27 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RoleDataInitializer implements CommandLineRunner {
 
-    private final RoleRepository roleRepository;
+  private final RoleRepository roleRepository;
 
-    @Override
-    public void run(String... args) {
-        log.info("Starting role data initialization...");
+  @Override
+  public void run(String... args) {
+    log.info("Starting role data initialization...");
 
-        initializeRole("STUDENT", "Student role - can borrow books and make reservations");
-        initializeRole("LIBRARIAN", "Librarian role - can manage books, transactions, and users");
-        initializeRole("ADMIN", "Administrator role - has full access to all system features");
+    initializeRole("STUDENT", "Student role - can borrow books and make reservations");
+    initializeRole("LIBRARIAN", "Librarian role - can manage books, transactions, and users");
+    initializeRole("ADMIN", "Administrator role - has full access to all system features");
 
-        log.info("Role data initialization completed.");
+    log.info("Role data initialization completed.");
+  }
+
+  private void initializeRole(String roleName, String description) {
+    if (roleRepository.existsByName(roleName)) {
+      log.debug("Role '{}' already exists, skipping initialization.", roleName);
+      return;
     }
 
-    /**
-     * Initialize a role if it doesn't exist.
-     *
-     * @param roleName the role name
-     * @param description the role description
-     */
-    private void initializeRole(String roleName, String description) {
-        if (roleRepository.existsByName(roleName)) {
-            log.debug("Role '{}' already exists, skipping initialization.", roleName);
-            return;
-        }
-
-        Role role = Role.create(roleName, description);
-        roleRepository.save(role);
-        log.info("Created system role: {} (ID: {})", roleName, role.getId().getValue());
-    }
+    Role role = Role.create(roleName, description);
+    roleRepository.save(role);
+    log.info("Created system role: {} (ID: {})", roleName, role.getId().getValue());
+  }
 }

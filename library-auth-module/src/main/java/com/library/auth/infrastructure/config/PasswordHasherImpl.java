@@ -1,24 +1,25 @@
 package com.library.auth.infrastructure.config;
 
-import com.library.user.domain.port.IPasswordHasher;
+import com.library.user.application.port.PasswordHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PasswordHasherImpl implements IPasswordHasher {
-    private final PasswordEncoder passwordEncoder;
+public class PasswordHasherImpl implements PasswordHasher {
 
-    public PasswordHasherImpl(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public String hash(String password) {
-        return passwordEncoder.encode(password);
-    }
+  public PasswordHasherImpl(PasswordEncoder passwordEncoder) {
+    this.passwordEncoder = passwordEncoder;
+  }
 
-    @Override
-    public boolean matches(String passwordRaw, String passwordHash) {
-        return passwordEncoder.matches(passwordRaw, passwordHash);
-    }
+  @Override
+  public String hash(String password) {
+    return passwordEncoder.encode(password);
+  }
+
+  @Override
+  public boolean matches(String passwordRaw, String passwordHash) {
+    return passwordEncoder.matches(passwordRaw, passwordHash);
+  }
 }
