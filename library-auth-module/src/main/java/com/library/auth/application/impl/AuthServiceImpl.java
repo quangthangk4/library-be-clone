@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
@@ -177,7 +178,7 @@ public class AuthServiceImpl implements AuthService {
     // onboard User
     User user = userRepository.findByProviderAndProviderId(loginType, providerId).orElse(null);
     if (user == null) {
-      if (!userRepository.findByEmail(Email.of(email)).isPresent()) {
+      if (userRepository.findByEmail(Email.of(email)).isEmpty()) {
         user = onBoardUserFromOauth2(email, fullName, avatarUrl, loginType, providerId);
       } else {
         user = userRepository.findByEmail(Email.of(email)).orElse(null);
@@ -187,7 +188,7 @@ public class AuthServiceImpl implements AuthService {
     // Here you would typically generate a JWT token or similar
     String accessTokenResponse = generateToken(user, PurposeToken.ACCESS);
     String refreshToken = generateToken(user, PurposeToken.REFRESH);
-    boolean isNewUser = user.getProfile().getStudentId() == null;
+    boolean isNewUser = Objects.requireNonNull(user).getProfile().getStudentId() == null;
 
 //        loginAttemptsService.loginSucceeded(user.getId());
     return TokenResponse.builder()

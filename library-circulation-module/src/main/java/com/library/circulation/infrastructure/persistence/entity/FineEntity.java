@@ -3,11 +3,20 @@ package com.library.circulation.infrastructure.persistence.entity;
 import com.library.circulation.domain.enums.PaymentStatus;
 import com.library.shared.entity.BaseEntity;
 import com.library.user.domain.enums.ViolationType;
-import jakarta.persistence.*;
-import lombok.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * JPA Entity for Fine table.
@@ -19,25 +28,25 @@ import java.time.Instant;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class FineEntity extends BaseEntity {
 
-    @Column(name = "transaction_id", nullable = false, unique = true)
-    private Long transactionId;
+  @Column(name = "transaction_id", nullable = false, unique = true)
+  private Long transactionId;
 
-    @Column(nullable = false, precision = 15, scale = 0)
-    private BigDecimal fineAmount;
+  @Column(nullable = false, precision = 15, scale = 0)
+  private BigDecimal fineAmount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  @Builder.Default
+  private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
 
-    private Instant paidDate;
+  private Instant paidDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 30)
-    private ViolationType type;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 30)
+  private ViolationType type;
 
-    protected FineEntity() { }
 }
