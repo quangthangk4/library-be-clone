@@ -25,7 +25,7 @@ library-shared/              — Shared: EmailService, KafkaTopics, Kafka DTOs, 
 library-auth-module/         — JWT, Login, OAuth2, VerifyEmail, ForgotPassword, ResetPassword
 library-user-module/         — User domain, SignUp, UpdateProfile, ChangePassword, Kafka consumers
 library-catalog-module/      — (chưa làm)
-library-circulation-module/  — (chưa làm)
+library-circulation-module/  — Dashboard librarian (dummy), GetAllTransactions, GetTransactionsByItem
 library-recommendation-module/ — (chưa làm)
 ```
 
@@ -120,6 +120,43 @@ Kafka group-id: `library-group`
 | PUT | `/my-profile` | Required | Cập nhật profile, trả về `UserResponse` |
 | PUT | `/my-profile/change-password` | Required | Đổi mật khẩu (min 8 ký tự) |
 
+### Librarian — `/api/v1/librarians` (LIBRARIAN role)
+
+| Method | Path | Response | Trạng thái |
+|--------|------|----------|-----------|
+| GET | `/dashboard/summary` | `DashboardSummaryResponse` | dummy data — **đang làm** |
+| GET | `/dashboard/charts?period=` | `DashboardChartsResponse` | dummy data |
+| GET | `/dashboard/risky-users?page&size&sortBy&sortDir` | `PageResponse<RiskyUserResponse>` | dummy data |
+
+`DashboardPeriod` enum: `WEEKLY, MONTHLY, SIX_MONTHS, YEARLY`
+
+**DashboardSummaryResponse structure:**
+```
+Overview:       totalUsers, activeUsers, totalPublications, totalItems, availableItems
+TodayActivity:  borrowedToday, returnedToday, damagedToday, overdueCount  ← overdueCount trùng với PendingActions, cần thảo luận
+PendingActions: waitingForPickup, overdueTransactions, reservationsPending
+FinesResponse:  totalUnpaid (count), totalUnpaidAmount, collectedToday
+```
+
+**DashboardChartsResponse structure:**
+```
+weeklyBorrowReturnTrend: List<TrendPoint(date, borrowed, returned)>
+itemStatusDistribution:  available, borrowed, reserved, inMaintenance, lost
+topBorrowedPublications: List<TopBorrowedPublication(publicationId, title, borrowCount, coverImageUrl)>
+fineTypeDistribution:    overdueReturn, damagedBook, lostBook
+```
+
+**RiskyUserResponse:** userId, fullName, email, phoneNumber, profilePictureUrl, creditScore, RiskyMetrics(overdueCount, unpaidFineCount, totalUnpaidAmount, damagedCount)
+
+### Transactions — `/api/v1/transactions` (LIBRARIAN role)
+
+| Method | Path | Mô tả |
+|--------|------|-------|
+| GET | `?page&size` | Tất cả giao dịch có phân trang |
+| GET | `/items/{id}?page&size` | Giao dịch theo item |
+
+`TransactionListResponse`: transactionId, userId, fullName, studentId, fineAmount, borrowedDate, dueDate, returnedDate, status
+
 ---
 
 ## Flyway Migrations
@@ -183,7 +220,7 @@ spring:
 
 ---
 
-## Trạng thái hiện tại (cập nhật: 2026-04-24)
+## Trạng thái hiện tại (cập nhật: 2026-04-24, worktree đã clean)
 
 **Đã hoàn thành:**
 - [x] Kafka infrastructure (Docker Compose, config, topics)
@@ -191,11 +228,18 @@ spring:
 - [x] ForgotPassword + ResetPassword flow (UUID token, Kafka async email)
 - [x] UpdateProfile, ChangePassword
 - [x] OAuth2 Google login + Onboarding
+- [x] GetAllTransactions, GetTransactionsByItem (circulation)
+- [x] Dashboard DTOs skeleton: DashboardSummaryResponse, DashboardChartsResponse, RiskyUserResponse (dummy data)
+
+**Đang làm:**
+- [x] `GET /api/v1/librarians/dashboard/summary` — real data, done
 
 **Chưa làm:**
+- [ ] Dashboard charts real data (`/dashboard/charts`)
+- [ ] Dashboard risky-users real data (`/dashboard/risky-users`)
 - [ ] library-catalog-module (quản lý sách, tìm kiếm)
-- [ ] library-circulation-module (mượn/trả sách)
 - [ ] library-recommendation-module (AI gợi ý)
+- [ ] Borrow/Return/Reserve flows
 
 ---
 

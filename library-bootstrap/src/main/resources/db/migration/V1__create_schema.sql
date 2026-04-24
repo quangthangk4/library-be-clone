@@ -235,21 +235,6 @@ CREATE TABLE refresh_tokens (
 
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens USING btree (user_id);
 
-CREATE TABLE activities (
-                            id         BIGINT NOT NULL,
-                            book_title TEXT NULL,
-                            created_at TIMESTAMPTZ(6) NOT NULL,
-                            type       VARCHAR(20) NOT NULL,
-                            user_id    BIGINT NOT NULL,
-                            CONSTRAINT activities_pkey PRIMARY KEY (id),
-                            CONSTRAINT activities_type_check CHECK (type IN (
-                                                                             'BORROWED', 'RETURNED', 'DAMAGED', 'LOST', 'RENEWED'
-                                )),
-                            CONSTRAINT fk_activities_user FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE INDEX idx_activity_created_at ON activities USING btree (created_at);
-CREATE INDEX idx_activity_user       ON activities USING btree (user_id);
 
 CREATE TABLE search_history (
                                 id           BIGINT NOT NULL,
@@ -415,3 +400,16 @@ CREATE INDEX idx_fine_transaction_id ON fines USING btree (transaction_id);
 ALTER TABLE categories
     ADD CONSTRAINT fk_category_parent
         FOREIGN KEY (parent_category_id) REFERENCES categories(id);
+
+-- ============================================================
+-- PASSWORD RESET TOKENS
+-- ============================================================
+
+CREATE TABLE password_reset_tokens (
+    token       VARCHAR(36)  NOT NULL,
+    user_id     BIGINT       NOT NULL,
+    expires_at  TIMESTAMPTZ  NOT NULL,
+    CONSTRAINT password_reset_tokens_pkey PRIMARY KEY (token)
+);
+
+CREATE INDEX idx_password_reset_tokens_user_id ON password_reset_tokens (user_id);

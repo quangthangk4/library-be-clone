@@ -1,18 +1,17 @@
 package com.library.circulation.dto.response;
 
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Data;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder
 public class DashboardSummaryResponse {
 
     private Overview overview;
-    private TodayActivity todayActivity;
+    private TodayTransaction todayTransaction;
     private PendingActions pendingActions;
-    private FinesResponse fines;
+    private FineSummary fineSummary;
 
     @Data
     @Builder
@@ -26,11 +25,12 @@ public class DashboardSummaryResponse {
 
     @Data
     @Builder
-    public static class TodayActivity {
+    public static class TodayTransaction {
         private long borrowedToday;
         private long returnedToday;
         private long damagedToday;
-        private long overdueCount;
+        private long lostToday;
+        private long newlyOverdueToday;
     }
 
     @Data
@@ -43,8 +43,8 @@ public class DashboardSummaryResponse {
 
     @Data
     @Builder
-    public static class FinesResponse {
-        private long totalUnpaid;
+    public static class FineSummary {
+        private long unpaidFineCount;
         private BigDecimal totalUnpaidAmount;
         private BigDecimal collectedToday;
     }

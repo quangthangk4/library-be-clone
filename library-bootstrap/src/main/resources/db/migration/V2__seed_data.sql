@@ -124,11 +124,22 @@ INSERT INTO publication_tags (id, publication_id, tag_id) VALUES
 -- ITEMS (bản sao vật lý)
 -- ============================================================
 INSERT INTO items (id, created_at, updated_at, barcode, publication_id, status, condition, branch, shelf) VALUES
-                                                                                                              (1, NOW(), NOW(), 'BK-CC-001', 1, 'AVAILABLE',     'NEW', 'Cơ sở 1 - Dĩ An',    'A1-01'),
-                                                                                                              (2, NOW(), NOW(), 'BK-CC-002', 1, 'BORROWED',      'OLD', 'Cơ sở 1 - Dĩ An',    'A1-01'),
-                                                                                                              (3, NOW(), NOW(), 'BK-DDD-001',2, 'AVAILABLE',     'NEW', 'Cơ sở 2 - Lý Thường Kiệt', 'B2-05'),
-                                                                                                              (4, NOW(), NOW(), 'BK-DB-001', 4, 'AVAILABLE',     'NEW', 'Cơ sở 1 - Dĩ An',    'C3-02'),
-                                                                                                              (5, NOW(), NOW(), 'BK-JAVA-001',5,'IN_MAINTENANCE','OLD', 'Cơ sở 2 - Lý Thường Kiệt', 'B1-10');
+    (1,  NOW(), NOW(), 'BK-CC-001',   1, 'RESERVED',      'NEW', 'Cơ sở 1 - Dĩ An',          'A1-01'),
+    (2,  NOW(), NOW(), 'BK-CC-002',   1, 'BORROWED',      'OLD', 'Cơ sở 1 - Dĩ An',          'A1-01'),
+    (3,  NOW(), NOW(), 'BK-DDD-001',  2, 'AVAILABLE',     'NEW', 'Cơ sở 2 - Lý Thường Kiệt', 'B2-05'),
+    (4,  NOW(), NOW(), 'BK-DB-001',   4, 'BORROWED',      'NEW', 'Cơ sở 1 - Dĩ An',          'C3-02'),
+    (5,  NOW(), NOW(), 'BK-JAVA-001', 5, 'IN_MAINTENANCE','OLD', 'Cơ sở 2 - Lý Thường Kiệt', 'B1-10'),
+    -- thêm bản sao để hỗ trợ nhiều giao dịch hơn
+    (6,  NOW(), NOW(), 'BK-REF-001',  3, 'BORROWED',      'NEW', 'Cơ sở 1 - Dĩ An',          'A2-03'),
+    (7,  NOW(), NOW(), 'BK-REF-002',  3, 'BORROWED',      'OLD', 'Cơ sở 1 - Dĩ An',          'A2-03'),
+    (8,  NOW(), NOW(), 'BK-DDD-002',  2, 'AVAILABLE',     'NEW', 'Cơ sở 2 - Lý Thường Kiệt', 'B2-06'),
+    (9,  NOW(), NOW(), 'BK-CC-003',   1, 'AVAILABLE',     'OLD', 'Cơ sở 1 - Dĩ An',          'A1-03'),
+    (10, NOW(), NOW(), 'BK-DB-002',   4, 'BORROWED',      'NEW', 'Cơ sở 1 - Dĩ An',          'C3-04'),
+    (11, NOW(), NOW(), 'BK-JAVA-002', 5, 'BORROWED',      'NEW', 'Cơ sở 2 - Lý Thường Kiệt', 'B1-11'),
+    (12, NOW(), NOW(), 'BK-DDD-003',  2, 'BORROWED',      'OLD', 'Cơ sở 2 - Lý Thường Kiệt', 'B2-07'),
+    (13, NOW(), NOW(), 'BK-CC-004',   1, 'BORROWED',      'OLD', 'Cơ sở 1 - Dĩ An',          'A1-04'),
+    (14, NOW(), NOW(), 'BK-REF-003',  3, 'RESERVED',      'NEW', 'Cơ sở 1 - Dĩ An',          'A2-04'),
+    (15, NOW(), NOW(), 'BK-DB-003',   4, 'RESERVED',      'NEW', 'Cơ sở 1 - Dĩ An',          'C3-05');
 
 -- ============================================================
 -- USERS
@@ -217,15 +228,45 @@ INSERT INTO borrowing_transactions (id, created_at, updated_at, item_id, user_id
                                                                               (5, NOW(), NOW(), 3, 4, 3, 3,
                                                                                NOW() - INTERVAL '45 days', (NOW() - INTERVAL '31 days')::date,
                                                                                NOW() - INTERVAL '44 days',
-                                                                               NOW() - INTERVAL '32 days', 1, 'RETURNED');
+                                                                               NOW() - INTERVAL '32 days', 1, 'RETURNED'),
+
+    -- borrowed TODAY → borrowedToday = 2
+    (6,  NOW(), NOW(), 6,  4, 2, NULL, NOW(), (CURRENT_DATE + INTERVAL '14 days')::date, NOW() - INTERVAL '1 hour', NULL, 0, 'BORROWING'),
+    (7,  NOW(), NOW(), 7,  5, 3, NULL, NOW(), (CURRENT_DATE + INTERVAL '14 days')::date, NOW() - INTERVAL '1 hour', NULL, 0, 'BORROWING'),
+
+    -- returned TODAY → returnedToday = 2
+    -- tx 8: trả đúng hạn, không phạt
+    (8,  NOW(), NOW(), 8,  4, 2, 3,   NOW() - INTERVAL '14 days', (CURRENT_DATE + INTERVAL '1 day')::date,  NOW() - INTERVAL '13 days', NOW(), 0, 'RETURNED'),
+    -- tx 9: trả TODAY nhưng trễ 1 ngày → có phạt PAID hôm nay
+    (9,  NOW(), NOW(), 9,  5, 2, 3,   NOW() - INTERVAL '15 days', (CURRENT_DATE - INTERVAL '1 day')::date,  NOW() - INTERVAL '14 days', NOW(), 0, 'RETURNED'),
+
+    -- due_date = CURRENT_DATE, chưa trả → newlyOverdueToday = 2
+    (10, NOW(), NOW(), 10, 4, 3, NULL, NOW() - INTERVAL '14 days', CURRENT_DATE, NOW() - INTERVAL '13 days', NULL, 0, 'OVERDUE'),
+    (11, NOW(), NOW(), 11, 5, 2, NULL, NOW() - INTERVAL '14 days', CURRENT_DATE, NOW() - INTERVAL '13 days', NULL, 0, 'OVERDUE'),
+
+    -- OVERDUE từ trước → chỉ tính overdueTransactions, không tính newlyOverdueToday
+    (12, NOW(), NOW(), 12, 4, 3, NULL, NOW() - INTERVAL '18 days', (CURRENT_DATE - INTERVAL '4 days')::date, NOW() - INTERVAL '17 days', NULL, 0, 'OVERDUE'),
+    (13, NOW(), NOW(), 13, 5, 2, NULL, NOW() - INTERVAL '25 days', (CURRENT_DATE - INTERVAL '11 days')::date,NOW() - INTERVAL '24 days', NULL, 1, 'OVERDUE'),
+
+    -- WAITING_FOR_PICKUP → waitingForPickup
+    (14, NOW(), NOW(), 14, 4, 2, NULL, NULL, (CURRENT_DATE + INTERVAL '3 days')::date, NOW() + INTERVAL '1 day',  NULL, 0, 'WAITING_FOR_PICKUP'),
+    (15, NOW(), NOW(), 15, 5, 3, NULL, NULL, (CURRENT_DATE + INTERVAL '3 days')::date, NOW() + INTERVAL '2 days', NULL, 0, 'WAITING_FOR_PICKUP');
 
 -- ============================================================
 -- FINES
 -- ============================================================
 INSERT INTO fines (id, created_at, updated_at, transaction_id, fine_amount, payment_status, type, paid_date) VALUES
-                                                                                                                 (1, NOW(), NOW(), 3, 50000,  'UNPAID', 'OVERDUE_RETURN', NULL),
-                                                                                                                 (2, NOW(), NOW(), 5, 30000,  'PAID',   'OVERDUE_RETURN', NOW() - INTERVAL '30 days'),
-                                                                                                                 (3, NOW(), NOW(), 2, 100000, 'PAID',   'DAMAGED_BOOK',   NOW() - INTERVAL '6 days');
+    (1, NOW(), NOW(), 3,  50000,  'UNPAID', 'OVERDUE_RETURN', NULL),
+    (2, NOW(), NOW(), 5,  30000,  'PAID',   'OVERDUE_RETURN', NOW() - INTERVAL '30 days'),
+    (3, NOW(), NOW(), 2,  100000, 'PAID',   'DAMAGED_BOOK',   NOW() - INTERVAL '6 days'),
+    -- tx 9: trả trễ 1 ngày, đã thanh toán phạt HÔM NAY → collectedToday
+    (4, NOW(), NOW(), 9,  40000,  'PAID',   'OVERDUE_RETURN', NOW()),
+    -- tx 10, 11: hết hạn hôm nay, chưa trả, chưa đóng phạt → unpaidFineCount
+    (5, NOW(), NOW(), 10, 50000,  'UNPAID', 'OVERDUE_RETURN', NULL),
+    (6, NOW(), NOW(), 11, 50000,  'UNPAID', 'OVERDUE_RETURN', NULL),
+    -- tx 12, 13: overdue từ trước, chưa đóng phạt
+    (7, NOW(), NOW(), 12, 80000,  'UNPAID', 'OVERDUE_RETURN', NULL),
+    (8, NOW(), NOW(), 13, 150000, 'UNPAID', 'OVERDUE_RETURN', NULL);
 
 -- ============================================================
 -- RESERVATIONS
@@ -284,16 +325,6 @@ INSERT INTO user_notifications (id, created_at, updated_at, user_id, notificatio
                                                                                                    (3, NOW(), NOW(), 4, 3, TRUE),
                                                                                                    (4, NOW(), NOW(), 5, 4, FALSE),
                                                                                                    (5, NOW(), NOW(), 5, 5, TRUE);
-
--- ============================================================
--- ACTIVITIES
--- ============================================================
-INSERT INTO activities (id, created_at, type, user_id, book_title) VALUES
-                                                                       (1, NOW() - INTERVAL '10 days', 'BORROWED',  4, 'Clean Code'),
-                                                                       (2, NOW() - INTERVAL '20 days', 'BORROWED',  5, 'Domain-Driven Design'),
-                                                                       (3, NOW() - INTERVAL '7 days',  'RETURNED',  5, 'Domain-Driven Design'),
-                                                                       (4, NOW() - INTERVAL '30 days', 'BORROWED',  4, 'Giáo Trình Cơ Sở Dữ Liệu'),
-                                                                       (5, NOW() - INTERVAL '2 days',  'RENEWED',   4, 'Giáo Trình Cơ Sở Dữ Liệu');
 
 -- ============================================================
 -- SEARCH_HISTORY

@@ -1,5 +1,6 @@
 package com.library.circulation.presentation.controller;
 
+import com.library.circulation.application.dashboard.DashboardSummaryUseCase;
 import com.library.circulation.dto.enums.DashboardPeriod;
 import com.library.circulation.dto.response.DashboardChartsResponse;
 import com.library.circulation.dto.response.DashboardSummaryResponse;
@@ -8,6 +9,8 @@ import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
 import com.library.shared.dto.PageResponse;
 import com.library.shared.util.RequiresRole;
+import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,45 +18,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/librarians")
 @RequiredArgsConstructor
 public class LibrarianController {
 
+    private final DashboardSummaryUseCase dashboardSummaryUseCase;
+
     @GetMapping("/dashboard/summary")
     @RequiresRole(RoleConstants.LIBRARIAN)
     public ApiResponseApp<DashboardSummaryResponse> getDashboardSummary() {
-        DashboardSummaryResponse dummy = DashboardSummaryResponse.builder()
-                .overview(DashboardSummaryResponse.Overview.builder()
-                        .totalUsers(1240)
-                        .activeUsers(980)
-                        .totalPublications(3500)
-                        .totalItems(8200)
-                        .availableItems(5100)
-                        .build())
-                .todayActivity(DashboardSummaryResponse.TodayActivity.builder()
-                        .borrowedToday(34)
-                        .returnedToday(28)
-                        .damagedToday(2)
-                        .overdueCount(15)
-                        .build())
-                .pendingActions(DashboardSummaryResponse.PendingActions.builder()
-                        .waitingForPickup(12)
-                        .overdueTransactions(15)
-                        .reservationsPending(8)
-                        .build())
-                .fines(DashboardSummaryResponse.FinesResponse.builder()
-                        .totalUnpaid(47)
-                        .totalUnpaidAmount(new BigDecimal("2350000"))
-                        .collectedToday(new BigDecimal("450000"))
-                        .build())
-                .build();
-
-        return ApiResponseApp.success(dummy);
+        return ApiResponseApp.success(dashboardSummaryUseCase.execute());
     }
 
     @GetMapping("/dashboard/charts")
