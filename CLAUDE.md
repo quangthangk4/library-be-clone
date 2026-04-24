@@ -20,12 +20,12 @@
 ## Module Structure
 
 ```
-library-bootstrap/           — Entry point, application.yml, Flyway migrations
-library-shared/              — Shared: EmailService, KafkaTopics, Kafka DTOs, exceptions, utils
-library-auth-module/         — JWT, Login, OAuth2, VerifyEmail, ForgotPassword, ResetPassword
-library-user-module/         — User domain, SignUp, UpdateProfile, ChangePassword, Kafka consumers
-library-catalog-module/      — (chưa làm)
-library-circulation-module/  — Dashboard librarian (dummy), GetAllTransactions, GetTransactionsByItem
+library-bootstrap/             — Entry point, application.yml, Flyway migrations
+library-shared/                — EmailService, KafkaTopics, Kafka DTOs, exceptions, utils
+library-auth-module/           — JWT, Login, OAuth2, VerifyEmail, ForgotPassword, ResetPassword
+library-user-module/           — User domain, SignUp, UpdateProfile, ChangePassword, Kafka consumers
+library-catalog-module/        — Publications, Items, Authors, Categories (đã có skeleton)
+library-circulation-module/    — Dashboard librarian, BorrowingTransactions, Reservations, Fines
 library-recommendation-module/ — (chưa làm)
 ```
 
@@ -69,12 +69,18 @@ saved.pollDomainEvents(); // luôn trả về empty!
 - Ví dụ: `UserRegisteredMessage(Long userId, ...)` thay vì `UserRegisteredEvent(UserId userId, ...)`
 - Consumer cần `@Transactional` khi access lazy-loaded JPA fields
 
+### Dashboard / Reporting Queries
+- **KHÔNG** dùng nhiều JPA repository calls riêng lẻ cho dashboard
+- Dùng `NamedParameterJdbcTemplate` với native SQL — 1 round trip duy nhất
+- Lý do: dashboard là reporting concern, không phải domain operation — JPA overhead là không cần thiết
+- TimeZone: luôn dùng `ZoneId.of("Asia/Ho_Chi_Minh")` để tính "hôm nay" đúng giờ VN
+
 ---
 
 ## Kafka Topics
 
-| Topic | Class constant | Producer | Consumer |
-|-------|---------------|----------|----------|
+| Topic | Constant | Producer | Consumer |
+|-------|----------|----------|----------|
 | `user.registered` | `KafkaTopics.USER_REGISTERED` | `UserEventKafkaPublisher` | `UserRegisteredEventConsumer` |
 | `user.forgot-password` | `KafkaTopics.USER_FORGOT_PASSWORD` | `ForgotPasswordKafkaPublisher` | `ForgotPasswordEventConsumer` |
 
@@ -95,58 +101,58 @@ Kafka group-id: `library-group`
 
 ---
 
-## API Endpoints (đã hoàn thành)
+## API Endpoints
 
 ### Auth — `/api/v1/auth`
 
 | Method | Path | Mô tả |
 |--------|------|-------|
-| POST | `/register` | Đăng ký tài khoản, gửi email verify qua Kafka |
+| POST | `/register` | Đăng ký, gửi email verify qua Kafka |
 | POST | `/login` | Đăng nhập username/password |
 | POST | `/logout` | Header: `re-token` |
 | GET | `/verify-email?token=` | Verify email, redirect FE |
 | POST | `/forgot-password` | Body: `{email}`, gửi reset link qua Kafka |
 | POST | `/reset-password` | Body: `{token, newPassword, confirmPassword}` |
 | POST | `/refresh-accesstoken` | Header: `re-token` |
-| GET | `/login-with-social` | Param: `loginType` |
+| GET | `/login-with-social?loginType=` | Bắt đầu OAuth2 |
 | POST | `/social-callback/{registrationId}` | OAuth2 callback |
-| POST | `/onboarding-profile` | Sau OAuth2 đăng nhập lần đầu |
+| POST | `/onboarding-profile` | Hoàn thiện profile sau OAuth2 lần đầu |
 
 ### User — `/api/v1/users`
 
-| Method | Path | Auth | Mô tả |
-|--------|------|------|-------|
-| GET | `/my-profile` | Required | Lấy profile hiện tại |
-| PUT | `/my-profile` | Required | Cập nhật profile, trả về `UserResponse` |
-| PUT | `/my-profile/change-password` | Required | Đổi mật khẩu (min 8 ký tự) |
+| Method | Path | Mô tả |
+|--------|------|-------|
+| GET | `/my-profile` | Lấy profile hiện tại |
+| PUT | `/my-profile` | Cập nhật profile, trả về `UserResponse` |
+| PUT | `/my-profile/change-password` | Đổi mật khẩu (min 8 ký tự) |
 
 ### Librarian — `/api/v1/librarians` (LIBRARIAN role)
 
-| Method | Path | Response | Trạng thái |
-|--------|------|----------|-----------|
-| GET | `/dashboard/summary` | `DashboardSummaryResponse` | dummy data — **đang làm** |
-| GET | `/dashboard/charts?period=` | `DashboardChartsResponse` | dummy data |
-| GET | `/dashboard/risky-users?page&size&sortBy&sortDir` | `PageResponse<RiskyUserResponse>` | dummy data |
+| Method | Path | Trạng thái |
+|--------|------|-----------|
+| GET | `/dashboard/summary` | Hoàn thành — real data |
+| GET | `/dashboard/charts?period=` | Hoàn thành — real data |
+| GET | `/dashboard/risky-users?page&size&sortBy&sortDir` | Dummy data |
 
-`DashboardPeriod` enum: `WEEKLY, MONTHLY, SIX_MONTHS, YEARLY`
-
-**DashboardSummaryResponse structure:**
+**`DashboardSummaryResponse`:**
 ```
-Overview:       totalUsers, activeUsers, totalPublications, totalItems, availableItems
-TodayActivity:  borrowedToday, returnedToday, damagedToday, overdueCount  ← overdueCount trùng với PendingActions, cần thảo luận
-PendingActions: waitingForPickup, overdueTransactions, reservationsPending
-FinesResponse:  totalUnpaid (count), totalUnpaidAmount, collectedToday
+overview:        totalUsers, activeUsers, totalPublications, totalItems, availableItems
+todayTransaction: borrowedToday, returnedToday, damagedToday, lostToday, newlyOverdueToday
+pendingActions:  waitingForPickup, overdueTransactions, reservationsPending
+fineSummary:     unpaidFineCount, totalUnpaidAmount, collectedToday
 ```
 
-**DashboardChartsResponse structure:**
+**`DashboardChartsResponse`:**
 ```
 weeklyBorrowReturnTrend: List<TrendPoint(date, borrowed, returned)>
-itemStatusDistribution:  available, borrowed, reserved, inMaintenance, lost
-topBorrowedPublications: List<TopBorrowedPublication(publicationId, title, borrowCount, coverImageUrl)>
-fineTypeDistribution:    overdueReturn, damagedBook, lostBook
+  - WEEKLY/MONTHLY   → date format "yyyy-MM-dd", generate_series theo ngày
+  - SIX_MONTHS/YEARLY → date format "yyyy-MM",   generate_series theo tháng
+itemStatusDistribution:  available, borrowed, reserved, inMaintenance, lost  (snapshot, không theo period)
+topBorrowedPublications: List<(publicationId, title, borrowCount, coverImageUrl)>  top 5 theo period
+fineTypeDistribution:    overdueReturn, damagedBook, lostBook  (theo period)
 ```
 
-**RiskyUserResponse:** userId, fullName, email, phoneNumber, profilePictureUrl, creditScore, RiskyMetrics(overdueCount, unpaidFineCount, totalUnpaidAmount, damagedCount)
+`DashboardPeriod` enum: `WEEKLY, MONTHLY, SIX_MONTHS, YEARLY`
 
 ### Transactions — `/api/v1/transactions` (LIBRARIAN role)
 
@@ -155,15 +161,19 @@ fineTypeDistribution:    overdueReturn, damagedBook, lostBook
 | GET | `?page&size` | Tất cả giao dịch có phân trang |
 | GET | `/items/{id}?page&size` | Giao dịch theo item |
 
-`TransactionListResponse`: transactionId, userId, fullName, studentId, fineAmount, borrowedDate, dueDate, returnedDate, status
-
 ---
 
 ## Flyway Migrations
 
-- `V1__create_schema.sql` — tạo toàn bộ schema
-- `V2__seed_data.sql` — seed roles, data ban đầu
-- `V3__add_password_reset_tokens.sql` — bảng `password_reset_tokens(token VARCHAR(36) PK, user_id BIGINT, expires_at TIMESTAMPTZ)`
+- `V1__create_schema.sql` — toàn bộ schema, bao gồm `password_reset_tokens`
+- `V2__seed_data.sql` — seed data: roles, users, publications, items (15), transactions (15), fines (8), reservations
+
+**Không còn V3** — `password_reset_tokens` đã được gộp vào V1.
+
+Seed data coverage cho dashboard test:
+- `borrowedToday`: 2, `returnedToday`: 2, `newlyOverdueToday`: 2
+- `overdueTransactions`: 5, `waitingForPickup`: 3, `reservationsPending`: 2
+- `unpaidFineCount`: 5, `collectedToday`: 40.000đ
 
 ---
 
@@ -176,11 +186,11 @@ jwt:
 
 base:
   url: ${BASE_URL_WEBSITE:http://localhost:8080}
-  frontend-url: ${FRONTEND_URL:http://localhost:3000}  # dùng cho redirect verify/reset
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
 
 spring:
   jpa:
-    open-in-view: false   # quan trọng: phải @Transactional khi lazy load
+    open-in-view: false   # phải @Transactional khi lazy load
   kafka:
     consumer:
       properties:
@@ -216,40 +226,36 @@ spring:
 | `failed to lazily initialize a collection` ở Kafka consumer | Consumer thread không có JPA session | Thêm `@Transactional` trên method consumer |
 | `Format specifier '%s'` ở EmailService | Template có 4 `%s` nhưng chỉ truyền 2 args | `formatContent(fullName, link, link, link)` |
 | `ConflictingBeanDefinitionException: kafkaTopicConfig` | Hai module cùng tên class `KafkaTopicConfig` | Đổi auth-module thành `AuthKafkaTopicConfig` |
-| Domain events lost after save | `pollDomainEvents()` gọi trên object trả về từ repo (object mới) | Poll từ object gốc TRƯỚC khi gọi `save()` |
+| Domain events lost after save | `pollDomainEvents()` gọi trên object trả về từ repo | Poll từ object gốc TRƯỚC khi gọi `save()` |
 
 ---
 
-## Trạng thái hiện tại (cập nhật: 2026-04-24, worktree đã clean)
+## Trạng thái hiện tại (cập nhật: 2026-04-24)
 
-**Đã hoàn thành:**
+**Hoàn thành:**
 - [x] Kafka infrastructure (Docker Compose, config, topics)
-- [x] RegisterUser + VerifyEmail flow (JWT, Kafka async email)
-- [x] ForgotPassword + ResetPassword flow (UUID token, Kafka async email)
+- [x] RegisterUser + VerifyEmail flow
+- [x] ForgotPassword + ResetPassword flow
 - [x] UpdateProfile, ChangePassword
 - [x] OAuth2 Google login + Onboarding
-- [x] GetAllTransactions, GetTransactionsByItem (circulation)
-- [x] Dashboard DTOs skeleton: DashboardSummaryResponse, DashboardChartsResponse, RiskyUserResponse (dummy data)
-
-**Đang làm:**
-- [x] `GET /api/v1/librarians/dashboard/summary` — real data, done
+- [x] GetAllTransactions, GetTransactionsByItem
+- [x] `GET /dashboard/summary` — `NamedParameterJdbcTemplate`, 1 native query
+- [x] `GET /dashboard/charts?period=` — `NamedParameterJdbcTemplate`, `generate_series` PostgreSQL
 
 **Chưa làm:**
-- [ ] Dashboard charts real data (`/dashboard/charts`)
-- [ ] Dashboard risky-users real data (`/dashboard/risky-users`)
-- [ ] library-catalog-module (quản lý sách, tìm kiếm)
+- [ ] `GET /dashboard/risky-users` — real data
+- [ ] Borrow / Return / Reserve flows
 - [ ] library-recommendation-module (AI gợi ý)
-- [ ] Borrow/Return/Reserve flows
 
 ---
 
 ## Chạy local
 
 ```bash
-# Start Kafka + PostgreSQL
-docker compose up -d
+# Start Kafka + PostgreSQL (lần đầu hoặc sau khi đổi schema)
+docker compose down -v && docker compose up -d
 
-# Build & run (từ root)
+# Build & run
 ./mvnw spring-boot:run -pl library-bootstrap
 
 # IntelliJ: Ctrl+F9 để hot-reload khi sửa code
