@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 public class RiskyUserResponse {
 
     private long userId;
+    private String studentId;
     private String fullName;
     private String email;
     private String phoneNumber;

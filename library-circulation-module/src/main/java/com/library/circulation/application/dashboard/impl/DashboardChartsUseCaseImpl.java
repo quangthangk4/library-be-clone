@@ -101,7 +101,7 @@ public class DashboardChartsUseCaseImpl implements DashboardChartsUseCase {
         WHERE bt.borrowed_date >= :start AND bt.borrowed_date < :end
         GROUP BY p.id, p.title, p.cover_image_url
         ORDER BY borrow_count DESC
-        LIMIT 5
+        LIMIT 3
         """;
 
     private static final String FINE_DISTRIBUTION_SQL = """

@@ -132,7 +132,7 @@ Kafka group-id: `library-group`
 |--------|------|-----------|
 | GET | `/dashboard/summary` | Hoàn thành — real data |
 | GET | `/dashboard/charts?period=` | Hoàn thành — real data |
-| GET | `/dashboard/risky-users?page&size&sortBy&sortDir` | Dummy data |
+| GET | `/dashboard/risky-users?page&size&sortBy&sortDir` | Hoàn thành — real data |
 
 **`DashboardSummaryResponse`:**
 ```
@@ -148,7 +148,7 @@ weeklyBorrowReturnTrend: List<TrendPoint(date, borrowed, returned)>
   - WEEKLY/MONTHLY   → date format "yyyy-MM-dd", generate_series theo ngày
   - SIX_MONTHS/YEARLY → date format "yyyy-MM",   generate_series theo tháng
 itemStatusDistribution:  available, borrowed, reserved, inMaintenance, lost  (snapshot, không theo period)
-topBorrowedPublications: List<(publicationId, title, borrowCount, coverImageUrl)>  top 5 theo period
+topBorrowedPublications: List<(publicationId, title, borrowCount, coverImageUrl)>  top 3 theo period
 fineTypeDistribution:    overdueReturn, damagedBook, lostBook  (theo period)
 ```
 
@@ -243,7 +243,7 @@ spring:
 - [x] `GET /dashboard/charts?period=` — `NamedParameterJdbcTemplate`, `generate_series` PostgreSQL
 
 **Chưa làm:**
-- [ ] `GET /dashboard/risky-users` — real data
+- [x] `GET /dashboard/risky-users` — `NamedParameterJdbcTemplate`, HAVING filter + dynamic ORDER BY
 - [ ] Borrow / Return / Reserve flows
 - [ ] library-recommendation-module (AI gợi ý)
 
