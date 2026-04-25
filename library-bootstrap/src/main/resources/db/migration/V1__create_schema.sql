@@ -53,16 +53,20 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE notifications (
-                               id         BIGINT NOT NULL,
-                               created_at TIMESTAMPTZ(6) NULL,
-                               updated_at TIMESTAMPTZ(6) NULL,
-                               link       VARCHAR(255) NULL,
-                               message    TEXT NOT NULL,
-                               type       VARCHAR(30) NOT NULL,
+                               id           BIGINT NOT NULL,
+                               created_at   TIMESTAMPTZ(6) NULL,
+                               updated_at   TIMESTAMPTZ(6) NULL,
+                               title        VARCHAR(255) NOT NULL DEFAULT '',
+                               message      TEXT NOT NULL,
+                               link         VARCHAR(255) NULL,
+                               reference_id BIGINT NULL,
+                               type         VARCHAR(30) NOT NULL,
                                CONSTRAINT notifications_pkey PRIMARY KEY (id),
                                CONSTRAINT notifications_type_check CHECK (type IN (
-                                                                                   'BOOK_RESERVED', 'BOOK_AVAILABLE', 'BORROW_SUCCESS'
-                                   ))
+                                   'BOOK_RESERVED', 'BOOK_AVAILABLE', 'BORROW_SUCCESS',
+                                   'BORROW_CANCELLED_EXPIRED', 'OVERDUE_WARNING',
+                                   'FINE_ISSUED', 'SYSTEM_MAINTENANCE', 'RETURN_REMINDER'
+                               ))
 );
 
 -- ============================================================
@@ -253,6 +257,7 @@ CREATE TABLE user_notifications (
                                     created_at      TIMESTAMPTZ(6) NULL,
                                     updated_at      TIMESTAMPTZ(6) NULL,
                                     is_read         BOOLEAN NOT NULL,
+                                    read_at         TIMESTAMPTZ NULL,
                                     notification_id BIGINT NOT NULL,
                                     user_id         BIGINT NOT NULL,
                                     CONSTRAINT user_notifications_pkey PRIMARY KEY (id),

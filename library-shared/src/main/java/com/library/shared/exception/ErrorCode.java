@@ -122,7 +122,10 @@ public enum ErrorCode {
   RATING_ALREADY_EXISTS(2700, "User already has a rating for this publication",
       HttpStatus.CONFLICT),
   USER_NOT_BORROWED_PUBLICATION(2701, "User has not borrowed this publication and cannot rate it",
-      HttpStatus.FORBIDDEN);
+      HttpStatus.FORBIDDEN),
+
+  // Notification errors (3100-3199)
+  NOTIFICATION_NOT_FOUND(3100, "Notification not found", HttpStatus.NOT_FOUND);
 
   private final int code;
   private final String message;

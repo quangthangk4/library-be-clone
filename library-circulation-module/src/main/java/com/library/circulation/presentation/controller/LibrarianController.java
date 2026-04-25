@@ -11,6 +11,7 @@ import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
 import com.library.shared.dto.PageResponse;
 import com.library.shared.util.RequiresRole;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,12 +31,14 @@ public class LibrarianController {
 
   @GetMapping("/dashboard/summary")
   @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Get summary data for the dashboard")
   public ApiResponseApp<DashboardSummaryResponse> getDashboardSummary() {
     return ApiResponseApp.success(dashboardSummaryUseCase.execute());
   }
 
   @GetMapping("/dashboard/charts")
   @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Get charts for the dashboard")
   public ApiResponseApp<DashboardChartsResponse> getCharts(
       @RequestParam(name = "period") DashboardPeriod period) {
     return ApiResponseApp.success(dashboardChartsUseCase.execute(period));
@@ -43,6 +46,7 @@ public class LibrarianController {
 
   @GetMapping("/dashboard/risky-users")
   @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Get a list of risky users")
   public ApiResponseApp<PageResponse<RiskyUserResponse>> getRiskyUsers(
       @RequestParam(name = "page", defaultValue = "0") int page,
       @RequestParam(name = "size", defaultValue = "5") int size,

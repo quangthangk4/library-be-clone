@@ -46,6 +46,10 @@ public class SecurityConfig {
       "/webjars/**",
   };
 
+  public static final String[] WEBSOCKET_ENDPOINTS = {
+      "/ws/**",
+  };
+
   public static final String[] AUTH_ENDPOINTS = {
       "/api/v1/auth/**",
   };
@@ -59,6 +63,7 @@ public class SecurityConfig {
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
         .requestMatchers(AUTH_ENDPOINTS).permitAll()
+        .requestMatchers(WEBSOCKET_ENDPOINTS).permitAll()
         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
         .anyRequest().authenticated()
     );

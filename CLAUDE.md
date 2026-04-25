@@ -244,8 +244,33 @@ spring:
 
 **Chưa làm:**
 - [x] `GET /dashboard/risky-users` — `NamedParameterJdbcTemplate`, HAVING filter + dynamic ORDER BY
+- [x] Notification system — WebSocket + Kafka + REST APIs
 - [ ] Borrow / Return / Reserve flows
 - [ ] library-recommendation-module (AI gợi ý)
+
+---
+
+## Notification System
+
+**Flow:** Kafka topic `notification.send` → `NotificationEventConsumer` → lưu DB + push WebSocket
+
+**WebSocket:**
+- Endpoint: `/ws` (SockJS)
+- Auth: STOMP CONNECT header `Authorization: Bearer <token>` — validated bởi `WebSocketAuthChannelInterceptor` qua `JwtUserExtractor` port (impl ở `library-auth-module`)
+- Client subscribe: `/user/queue/notifications`
+- Server push: `convertAndSendToUser(userId, "/queue/notifications", payload)`
+
+**Kafka DTO:** `NotificationMessage(userId, type, title, message, link, referenceId)` — `library-shared`
+
+**`NotificationType`:** `BOOK_RESERVED`, `BOOK_AVAILABLE`, `BORROW_SUCCESS`, `BORROW_CANCELLED_EXPIRED`, `OVERDUE_WARNING`, `FINE_ISSUED`, `SYSTEM_MAINTENANCE`, `RETURN_REMINDER`
+
+**APIs — `/api/v1/users/notifications`:**
+- `GET ?page&size` — danh sách có phân trang
+- `GET /unread-count` — số chưa đọc
+- `PUT /{id}/read` — đánh dấu 1 đã đọc
+- `PUT /read-all` — đánh dấu tất cả đã đọc
+
+**V3 migration:** thêm `title`, `reference_id` vào `notifications`; thêm `read_at` vào `user_notifications`; mở rộng `type` constraint
 
 ---
 
