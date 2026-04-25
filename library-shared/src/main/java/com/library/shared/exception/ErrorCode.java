@@ -23,6 +23,9 @@ public enum ErrorCode {
   USER_SUSPENDED(1108, "User account is suspended", HttpStatus.FORBIDDEN),
   EMAIL_OR_PASSWORD_INCORRECT(1109, "Email or password is incorrect", HttpStatus.BAD_REQUEST),
   VERIFY_EMAIL_FAILED(1110, "Email verification failed", HttpStatus.BAD_REQUEST),
+  INVALID_FILE_TYPE(1111, "Only image files are allowed (jpeg, png, gif, webp)", HttpStatus.BAD_REQUEST),
+  FILE_TOO_LARGE(1112, "File size exceeds the 5MB limit", HttpStatus.BAD_REQUEST),
+  FILE_UPLOAD_FAILED(1113, "Failed to upload file, please try again", HttpStatus.INTERNAL_SERVER_ERROR),
 
   // Role errors (1200-1299)
   ROLE_NOT_FOUND(1200, "Role not found", HttpStatus.NOT_FOUND),

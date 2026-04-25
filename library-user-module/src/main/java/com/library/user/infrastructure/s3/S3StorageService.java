@@ -1,0 +1,89 @@
+package com.library.user.infrastructure.s3;
+
+import com.library.shared.exception.AppException;
+import com.library.shared.exception.ErrorCode;
+import java.io.IOException;
+import java.util.Set;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class S3StorageService {
+
+  private static final long MAX_SIZE_BYTES = 5L * 1024 * 1024; // 5 MB
+  private static final Set<String> ALLOWED_CONTENT_TYPES =
+      Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+
+  private final S3Client s3Client;
+
+  @Value("${spring.aws.s3.bucket}")
+  private String bucket;
+
+  @Value("${spring.aws.region}")
+  private String region;
+
+  /**
+   * Validate, upload to S3, and return the public URL. Key: {folder}/{UUID}{.ext}
+   */
+  public String upload(MultipartFile file, String folder) {
+    validate(file);
+
+    String key = folder + "/" + generateKey(file.getOriginalFilename());
+
+    try {
+      s3Client.putObject(
+          PutObjectRequest.builder()
+              .bucket(bucket)
+              .key(key)
+              .contentType(file.getContentType())
+              .contentLength(file.getSize())
+              .build(),
+          RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+      );
+    } catch (IOException e) {
+      log.error("S3 upload failed for key={}: {}", key, e.getMessage());
+      throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);
+    }
+
+    String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, key);
+    log.info("Uploaded to S3: {}", url);
+    return url;
+  }
+
+  private void validate(MultipartFile file) {
+    if (file == null || file.isEmpty()) {
+      throw new AppException(ErrorCode.INVALID_REQUEST);
+    }
+    if (file.getSize() > MAX_SIZE_BYTES) {
+      throw new AppException(ErrorCode.FILE_TOO_LARGE);
+    }
+    String contentType = file.getContentType();
+    if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+      throw new AppException(ErrorCode.INVALID_FILE_TYPE);
+    }
+  }
+
+  // e.g. "my photo.PNG" → "my_photo_<uuid>.png"
+  private String generateKey(String originalFilename) {
+    String ext = "";
+    String base = "file";
+    if (originalFilename != null && originalFilename.contains(".")) {
+      int dot = originalFilename.lastIndexOf('.');
+      ext = originalFilename.substring(dot).toLowerCase();
+      base = originalFilename.substring(0, dot);
+    } else if (originalFilename != null) {
+      base = originalFilename;
+    }
+    String safeName = base.trim().replaceAll("[^a-zA-Z0-9._-]", "_");
+    return safeName + "_" + UUID.randomUUID() + ext;
+  }
+}

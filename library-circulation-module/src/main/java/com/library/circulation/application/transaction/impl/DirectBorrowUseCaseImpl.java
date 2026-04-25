@@ -9,17 +9,21 @@ import com.library.circulation.infrastructure.persistence.entity.BorrowingTransa
 import com.library.circulation.infrastructure.persistence.repository.BorrowingTransactionJpaRepository;
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
+import com.library.shared.kafka.KafkaTopics;
+import com.library.shared.kafka.event.NotificationMessage;
 import com.library.shared.port.ItemSnapshot;
 import com.library.shared.port.ItemStatusPort;
 import com.library.shared.util.TsIdGenerator;
 import com.library.user.domain.valueobject.UserId;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +35,7 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
     private static final int MAX_BORROW_LIMIT = 5;
     private static final int DUE_DAYS = 14;
     private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+    private static final DateTimeFormatter DUE_DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private static final String FIND_USER_SQL = """
         SELECT id FROM users
@@ -51,6 +56,7 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
     private final ItemStatusPort itemStatusPort;
     private final BorrowingTransactionJpaRepository transactionJpaRepository;
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     @Transactional
@@ -94,6 +100,16 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
         itemStatusPort.updateStatus(item.id(), "BORROWED");
         BorrowingTransactionEntity entity = toEntity(transaction);
         transactionJpaRepository.save(entity);
+
+        kafkaTemplate.send(KafkaTopics.NOTIFICATION_SEND, new NotificationMessage(
+            userId,
+            "PICKUP_CONFIRMED",
+            "Sách đã được giao",
+            String.format("Bạn đã mượn '%s' tại thư viện. Hạn trả: %s.",
+                item.publicationTitle(), dueDate.format(DUE_DATE_FMT)),
+            null,
+            entity.getId()
+        ));
 
         log.info("Direct borrow created: transactionId={}, userId={}, itemId={}, librarianId={}",
             entity.getId(), userId, item.id(), librarianId);

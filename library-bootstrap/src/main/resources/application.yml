@@ -16,6 +16,14 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
+  aws:
+    region: ap-southeast-1
+    s3:
+      bucket: cnpmnc-document-storage-hk252
+    credentials:
+      access-key: ${AWS_ACCESS_KEY:}
+      secret-key: ${AWS_SECRET_KEY:}
+
   application:
     name: library-management-system
 

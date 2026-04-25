@@ -50,7 +50,7 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     @RequiresAuthentication
     @Operation(summary = "Mark a notification as read")
-    public ApiResponseApp<Void> markAsRead(@PathVariable Long id) {
+    public ApiResponseApp<Void> markAsRead(@PathVariable("id") Long id) {
         Long userId = security.getCurrentUserId();
         markNotificationReadUseCase.execute(id, userId);
         return ApiResponseApp.success("Notification marked as read");

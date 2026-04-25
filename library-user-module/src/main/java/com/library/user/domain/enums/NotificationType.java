@@ -8,5 +8,6 @@ public enum NotificationType {
     OVERDUE_WARNING,
     FINE_ISSUED,
     SYSTEM_MAINTENANCE,
-    RETURN_REMINDER
+    RETURN_REMINDER,
+    PICKUP_CONFIRMED
 }

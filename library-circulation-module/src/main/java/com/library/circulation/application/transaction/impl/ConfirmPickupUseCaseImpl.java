@@ -12,11 +12,15 @@ import com.library.circulation.infrastructure.persistence.entity.BorrowingTransa
 import com.library.circulation.infrastructure.persistence.repository.BorrowingTransactionJpaRepository;
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
+import com.library.shared.kafka.KafkaTopics;
+import com.library.shared.kafka.event.NotificationMessage;
 import com.library.user.domain.valueobject.UserId;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +32,11 @@ public class ConfirmPickupUseCaseImpl implements ConfirmPickupUseCase {
     private static final int BORROW_DURATION_DAYS = 14;
     private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
+    private static final DateTimeFormatter DUE_DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private final BorrowingTransactionJpaRepository transactionJpaRepository;
     private final ItemStatusPort itemStatusPort;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     @Transactional
@@ -52,6 +59,18 @@ public class ConfirmPickupUseCaseImpl implements ConfirmPickupUseCase {
         itemStatusPort.updateStatus(entity.getItemId(), "BORROWED");
         applyToEntity(transaction, entity);
         transactionJpaRepository.save(entity);
+
+        // Publish in-app notification
+        kafkaTemplate.send(KafkaTopics.NOTIFICATION_SEND, new NotificationMessage(
+            entity.getUserId(),
+            "PICKUP_CONFIRMED",
+            "Sách đã được giao",
+            String.format("Bạn đã nhận '%s'. Hạn trả: %s.",
+                item.publicationTitle(),
+                entity.getDueDate().format(DUE_DATE_FMT)),
+            null,
+            entity.getId()
+        ));
 
         log.info("Pickup confirmed: transactionId={}, librarianId={}", transactionId, librarianId);
 
