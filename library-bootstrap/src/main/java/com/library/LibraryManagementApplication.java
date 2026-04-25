@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Main entry point for the Library Management System.
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  * - library-shared: Common utilities and shared components
  */
 @EnableJpaAuditing
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = "com.library")
 @ConfigurationPropertiesScan
 public class LibraryManagementApplication {

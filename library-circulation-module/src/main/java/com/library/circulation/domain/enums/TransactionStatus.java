@@ -4,5 +4,6 @@ public enum TransactionStatus {
   WAITING_FOR_PICKUP,
   BORROWING,
   RETURNED,
-  OVERDUE
+  OVERDUE,
+  CANCELLED
 }

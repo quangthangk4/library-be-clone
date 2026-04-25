@@ -1,0 +1,128 @@
+package com.library.circulation.application.transaction.impl;
+
+import com.library.catalog.domain.valueobject.ItemId;
+import com.library.circulation.application.transaction.DirectBorrowUseCase;
+import com.library.circulation.domain.entities.BorrowingTransaction;
+import com.library.circulation.dto.request.DirectBorrowCommand;
+import com.library.circulation.dto.response.BorrowTransactionResponse;
+import com.library.circulation.infrastructure.persistence.entity.BorrowingTransactionEntity;
+import com.library.circulation.infrastructure.persistence.repository.BorrowingTransactionJpaRepository;
+import com.library.shared.exception.AppException;
+import com.library.shared.exception.ErrorCode;
+import com.library.shared.port.ItemSnapshot;
+import com.library.shared.port.ItemStatusPort;
+import com.library.shared.util.TsIdGenerator;
+import com.library.user.domain.valueobject.UserId;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
+
+    private static final int MAX_BORROW_LIMIT = 5;
+    private static final int DUE_DAYS = 14;
+    private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+
+    private static final String FIND_USER_SQL = """
+        SELECT id FROM users
+        WHERE student_id = :studentId AND status = 'ACTIVE'
+        """;
+
+    private static final String COUNT_ACTIVE_BORROWS_SQL = """
+        SELECT COUNT(*) FROM borrowing_transactions
+        WHERE user_id = :userId AND status IN ('WAITING_FOR_PICKUP', 'BORROWING')
+        """;
+
+    private static final String COUNT_UNPAID_FINES_SQL = """
+        SELECT COUNT(*) FROM fines f
+        JOIN borrowing_transactions bt ON bt.id = f.transaction_id
+        WHERE bt.user_id = :userId AND f.payment_status = 'UNPAID'
+        """;
+
+    private final ItemStatusPort itemStatusPort;
+    private final BorrowingTransactionJpaRepository transactionJpaRepository;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Override
+    @Transactional
+    public BorrowTransactionResponse execute(Long librarianId, DirectBorrowCommand command) {
+        // 1. Find user by studentId
+        List<Map<String, Object>> users = jdbcTemplate.queryForList(
+            FIND_USER_SQL, Map.of("studentId", command.studentId()));
+        if (users.isEmpty()) throw new AppException(ErrorCode.USER_NOT_FOUND);
+        Long userId = ((Number) users.get(0).get("id")).longValue();
+
+        // 2. Lock item by barcode
+        ItemSnapshot item = itemStatusPort.lockAndGetByBarcode(command.barcode());
+
+        // 3. Cross-aggregate checks (same as web borrow)
+        if (!"AVAILABLE".equals(item.status())) {
+            throw new AppException(ErrorCode.ITEM_NOT_AVAILABLE);
+        }
+
+        Long activeBorrows = jdbcTemplate.queryForObject(
+            COUNT_ACTIVE_BORROWS_SQL, Map.of("userId", userId), Long.class);
+        if (activeBorrows != null && activeBorrows >= MAX_BORROW_LIMIT) {
+            throw new AppException(ErrorCode.USER_BORROW_LIMIT_EXCEEDED);
+        }
+
+        Long unpaidFines = jdbcTemplate.queryForObject(
+            COUNT_UNPAID_FINES_SQL, Map.of("userId", userId), Long.class);
+        if (unpaidFines != null && unpaidFines > 0) {
+            throw new AppException(ErrorCode.USER_HAS_UNPAID_FINES);
+        }
+
+        if (transactionJpaRepository.existsByUserIdAndPublicationId(userId, item.publicationId())) {
+            throw new AppException(ErrorCode.RESERVATION_ALREADY_EXISTS);
+        }
+
+        // 4. Domain: create direct borrow (status = BORROWING immediately)
+        LocalDate dueDate = LocalDate.now(ZONE).plusDays(DUE_DAYS);
+        BorrowingTransaction transaction = BorrowingTransaction.createDirectBorrow(
+            UserId.of(userId), ItemId.of(item.id()), UserId.of(librarianId), dueDate);
+
+        // 5. Infrastructure: update item + persist
+        itemStatusPort.updateStatus(item.id(), "BORROWED");
+        BorrowingTransactionEntity entity = toEntity(transaction);
+        transactionJpaRepository.save(entity);
+
+        log.info("Direct borrow created: transactionId={}, userId={}, itemId={}, librarianId={}",
+            entity.getId(), userId, item.id(), librarianId);
+
+        return BorrowTransactionResponse.builder()
+            .transactionId(entity.getId())
+            .itemId(item.id())
+            .barcode(item.barcode())
+            .publicationId(item.publicationId())
+            .publicationTitle(item.publicationTitle())
+            .branch(item.branch())
+            .shelf(item.shelf())
+            .dueDate(dueDate)
+            .status(entity.getStatus())
+            .build();
+    }
+
+    private BorrowingTransactionEntity toEntity(BorrowingTransaction domain) {
+        BorrowingTransactionEntity entity = BorrowingTransactionEntity.builder()
+            .userId(domain.getUserId().getValue())
+            .itemId(domain.getItemId().getValue())
+            .librarianIdIssue(domain.getLibrarianIdIssue().getValue())
+            .borrowedDate(domain.getBorrowedDate())
+            .pickedUpDeadline(domain.getPickedUpDeadline())
+            .dueDate(domain.getDueDate())
+            .status(domain.getStatus())
+            .renewalCount(domain.getRenewalCount())
+            .build();
+        entity.setId(domain.getId().getValue());
+        return entity;
+    }
+}

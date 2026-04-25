@@ -24,4 +24,12 @@ public class KafkaTopicConfig {
         .replicas(1)
         .build();
   }
+
+  @Bean
+  public NewTopic libraryEmailTopic() {
+    return TopicBuilder.name(KafkaTopics.LIBRARY_EMAIL)
+        .partitions(1)
+        .replicas(1)
+        .build();
+  }
 }

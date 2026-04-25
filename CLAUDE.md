@@ -245,7 +245,7 @@ spring:
 **Chưa làm:**
 - [x] `GET /dashboard/risky-users` — `NamedParameterJdbcTemplate`, HAVING filter + dynamic ORDER BY
 - [x] Notification system — WebSocket + Kafka + REST APIs
-- [ ] Borrow / Return / Reserve flows
+- [x] Borrow flow — BorrowRequest, ConfirmPickup, Lookup, ExpiredPickupScheduler
 - [ ] library-recommendation-module (AI gợi ý)
 
 ---

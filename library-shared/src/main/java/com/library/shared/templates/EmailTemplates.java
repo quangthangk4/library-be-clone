@@ -134,6 +134,69 @@ public enum EmailTemplates {
           </body>
           </html>
           """
+  ),
+
+  // args: fullName, publicationTitle, location, deadline
+  BORROW_PICKUP_REMINDER(
+      "[Thư viện HCMUT] Nhắc nhở lấy sách",
+      """
+          <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:600px;margin:0 auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+              <h2 style="color:#007bff;">📚 Sách của bạn đang chờ được lấy</h2>
+              <p>Xin chào <b>%s</b>,</p>
+              <p>Yêu cầu mượn sách <b>"%s"</b> của bạn đã được tạo thành công.</p>
+              <p>Vui lòng đến <b>%s</b> để nhận sách trước:</p>
+              <p style="font-size:18px;font-weight:bold;color:#d32f2f;">⏰ %s</p>
+              <p style="color:#888;font-size:13px;">Quá thời hạn trên, yêu cầu mượn sách sẽ bị tự động hủy.</p>
+          </div>
+          </body></html>
+          """
+  ),
+
+  // args: fullName, publicationTitle, dueDate
+  DUE_DATE_WARNING(
+      "[Thư viện HCMUT] Nhắc nhở trả sách",
+      """
+          <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:600px;margin:0 auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+              <h2 style="color:#ff9800;">⚠️ Sách sắp đến hạn trả</h2>
+              <p>Xin chào <b>%s</b>,</p>
+              <p>Sách <b>"%s"</b> của bạn sẽ đến hạn trả vào ngày <b>%s</b>.</p>
+              <p>Vui lòng trả sách đúng hạn để tránh phát sinh phí phạt.</p>
+              <p style="color:#888;font-size:13px;">Trân trọng, Thư viện HCMUT</p>
+          </div>
+          </body></html>
+          """
+  ),
+
+  // args: fullName, publicationTitle, returnDate
+  RETURN_CONFIRMED(
+      "[Thư viện HCMUT] Xác nhận trả sách",
+      """
+          <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:600px;margin:0 auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+              <h2 style="color:#4caf50;">✅ Trả sách thành công</h2>
+              <p>Xin chào <b>%s</b>,</p>
+              <p>Bạn đã trả sách <b>"%s"</b> thành công vào ngày <b>%s</b>.</p>
+              <p>Cảm ơn bạn đã sử dụng dịch vụ thư viện HCMUT.</p>
+          </div>
+          </body></html>
+          """
+  ),
+
+  // args: fullName, fineAmount, publicationTitle
+  FINE_PAID(
+      "[Thư viện HCMUT] Xác nhận thanh toán phí phạt",
+      """
+          <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:600px;margin:0 auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+              <h2 style="color:#4caf50;">✅ Thanh toán phí phạt thành công</h2>
+              <p>Xin chào <b>%s</b>,</p>
+              <p>Phí phạt <b>%s VNĐ</b> liên quan đến sách <b>"%s"</b> đã được thanh toán.</p>
+              <p>Cảm ơn bạn, Thư viện HCMUT.</p>
+          </div>
+          </body></html>
+          """
   );
 
   private final String subject;

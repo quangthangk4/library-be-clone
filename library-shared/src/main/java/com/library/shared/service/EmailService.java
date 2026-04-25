@@ -8,4 +8,7 @@ public interface EmailService {
 
   void sendEmail(String to, String fullName, String link, EmailTemplates emailTemplates)
       throws MessagingException, UnsupportedEncodingException;
+
+  void sendEmailWithArgs(String to, EmailTemplates template, Object... args)
+      throws MessagingException, UnsupportedEncodingException;
 }

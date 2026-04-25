@@ -42,4 +42,17 @@ public class EmailServiceImpl implements EmailService {
     mailSender.send(mimeMessage);
     log.info("Sending email to {} with subject: {}", to, emailTemplates.getSubject());
   }
+
+  @Override
+  public void sendEmailWithArgs(String to, EmailTemplates template, Object... args)
+      throws MessagingException, UnsupportedEncodingException {
+    MimeMessage mimeMessage = mailSender.createMimeMessage();
+    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+    messageHelper.setTo(to);
+    messageHelper.setFrom(from, "Library Management System");
+    messageHelper.setSubject(template.getSubject());
+    messageHelper.setText(template.formatContent(args), true);
+    mailSender.send(mimeMessage);
+    log.info("Sent email to {} with subject: {}", to, template.getSubject());
+  }
 }
