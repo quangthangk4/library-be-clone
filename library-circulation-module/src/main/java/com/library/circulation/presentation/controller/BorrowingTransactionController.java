@@ -5,12 +5,14 @@ import com.library.circulation.application.transaction.ConfirmPickupUseCase;
 import com.library.circulation.application.transaction.DirectBorrowUseCase;
 import com.library.circulation.application.transaction.GetAllBorrowingTransactionUseCase;
 import com.library.circulation.application.transaction.GetAllTransactionByItemUseCase;
+import com.library.circulation.application.transaction.GetMyTransactionsUseCase;
 import com.library.circulation.application.transaction.LookupForPickupUseCase;
 import com.library.circulation.dto.request.BorrowRequestCommand;
 import com.library.circulation.dto.request.DirectBorrowCommand;
 import com.library.circulation.dto.response.BorrowTransactionResponse;
 import com.library.circulation.dto.response.LookupTransactionResponse;
 import com.library.circulation.dto.response.TransactionListResponse;
+import com.library.circulation.dto.response.UserTransactionResponse;
 import com.library.shared.constant.RoleConstants;
 import com.library.shared.dto.ApiResponseApp;
 import com.library.shared.dto.PageResponse;
@@ -39,6 +41,7 @@ public class BorrowingTransactionController {
 
   private final GetAllBorrowingTransactionUseCase getAllBorrowingTransactionUseCase;
   private final GetAllTransactionByItemUseCase getAllTransactionByItemUseCase;
+  private final GetMyTransactionsUseCase getMyTransactionsUseCase;
   private final BorrowRequestUseCase borrowRequestUseCase;
   private final DirectBorrowUseCase directBorrowUseCase;
   private final ConfirmPickupUseCase confirmPickupUseCase;
@@ -66,6 +69,16 @@ public class BorrowingTransactionController {
         getAllTransactionByItemUseCase.execute(itemId, page, size));
   }
 
+  @GetMapping("/my-transactions")
+  @RequiresAuthentication
+  @Operation(summary = "Get current user's borrowing transactions")
+  public ApiResponseApp<PageResponse<UserTransactionResponse>> getMyTransactions(
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size) {
+    Long userId = security.getCurrentUserId();
+    return ApiResponseApp.success(getMyTransactionsUseCase.execute(userId, page, size));
+  }
+
   @PostMapping("/borrow")
   @RequiresAuthentication
   @ResponseStatus(HttpStatus.CREATED)
@@ -73,7 +86,7 @@ public class BorrowingTransactionController {
   public ApiResponseApp<BorrowTransactionResponse> borrowItem(
       @Valid @RequestBody BorrowRequestCommand command) {
     Long userId = security.getCurrentUserId();
-    return ApiResponseApp.success(borrowRequestUseCase.execute(userId, command));
+    return ApiResponseApp.created(borrowRequestUseCase.execute(userId, command));
   }
 
   @PostMapping("/borrow-direct")
@@ -83,7 +96,7 @@ public class BorrowingTransactionController {
   public ApiResponseApp<BorrowTransactionResponse> borrowDirect(
       @Valid @RequestBody DirectBorrowCommand command) {
     Long librarianId = security.getCurrentUserId();
-    return ApiResponseApp.success(directBorrowUseCase.execute(librarianId, command));
+    return ApiResponseApp.created(directBorrowUseCase.execute(librarianId, command));
   }
 
   @GetMapping("/lookup")

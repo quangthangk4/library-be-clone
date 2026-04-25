@@ -1,6 +1,7 @@
 package com.library.circulation.infrastructure.persistence.repository;
 
 import com.library.circulation.dto.response.TransactionListResponse;
+import com.library.circulation.dto.response.UserTransactionResponse;
 import com.library.circulation.infrastructure.persistence.entity.BorrowingTransactionEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,5 +49,22 @@ public interface BorrowingTransactionJpaRepository extends
   boolean existsByUserIdAndPublicationId(
       @Param("userId") Long userId,
       @Param("publicationId") Long publicationId
+  );
+
+  @Query(value = """
+          SELECT new com.library.circulation.dto.response.UserTransactionResponse(
+              t.id, p.id, p.title, i.barcode, i.branch, i.shelf,
+              t.pickedUpDeadline, t.borrowedDate, t.dueDate, t.returnedDate, t.status, f.fineAmount
+          )
+          FROM BorrowingTransactionEntity t
+          JOIN ItemEntity i ON t.itemId = i.id
+          JOIN PublicationEntity p ON i.publicationId = p.id
+          LEFT JOIN FineEntity f ON t.id = f.transactionId
+          WHERE t.userId = :userId
+      """,
+      countQuery = "SELECT COUNT(t) FROM BorrowingTransactionEntity t WHERE t.userId = :userId")
+  Page<UserTransactionResponse> getMyTransactions(
+      @Param("userId") Long userId,
+      Pageable pageable
   );
 }

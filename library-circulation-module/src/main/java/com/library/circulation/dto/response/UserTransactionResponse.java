@@ -3,27 +3,27 @@ package com.library.circulation.dto.response;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.library.circulation.domain.enums.TransactionStatus;
+import java.math.BigDecimal;
 import java.time.Instant;
-import lombok.Builder;
+import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
-public class LookupTransactionResponse {
+@AllArgsConstructor
+public class UserTransactionResponse {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long transactionId;
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long userId;
-    private String studentId;
-    private String fullName;
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long itemId;
-    private String barcode;
-    @JsonSerialize(using = ToStringSerializer.class)
     private Long publicationId;
     private String publicationTitle;
+    private String barcode;
     private String branch;
     private String shelf;
     private Instant pickedUpDeadline;
+    private Instant borrowedDate;
+    private LocalDate dueDate;
+    private Instant returnedDate;
     private TransactionStatus status;
+    private BigDecimal fineAmount;
 }
