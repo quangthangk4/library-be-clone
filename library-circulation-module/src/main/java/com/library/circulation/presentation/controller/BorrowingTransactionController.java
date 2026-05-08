@@ -7,10 +7,16 @@ import com.library.circulation.application.transaction.GetAllBorrowingTransactio
 import com.library.circulation.application.transaction.GetAllTransactionByItemUseCase;
 import com.library.circulation.application.transaction.GetMyTransactionsUseCase;
 import com.library.circulation.application.transaction.LookupForPickupUseCase;
+import com.library.circulation.application.transaction.ReportIssueUseCase;
+import com.library.circulation.application.transaction.ReturnBookUseCase;
 import com.library.circulation.dto.request.BorrowRequestCommand;
 import com.library.circulation.dto.request.DirectBorrowCommand;
+import com.library.circulation.dto.request.ReportIssueCommand;
+import com.library.circulation.dto.request.ReturnCommand;
 import com.library.circulation.dto.response.BorrowTransactionResponse;
 import com.library.circulation.dto.response.LookupTransactionResponse;
+import com.library.circulation.dto.response.ReportIssueResponse;
+import com.library.circulation.dto.response.ReturnResponse;
 import com.library.circulation.dto.response.TransactionListResponse;
 import com.library.circulation.dto.response.UserTransactionResponse;
 import com.library.shared.constant.RoleConstants;
@@ -46,6 +52,8 @@ public class BorrowingTransactionController {
   private final DirectBorrowUseCase directBorrowUseCase;
   private final ConfirmPickupUseCase confirmPickupUseCase;
   private final LookupForPickupUseCase lookupForPickupUseCase;
+  private final ReturnBookUseCase returnBookUseCase;
+  private final ReportIssueUseCase reportIssueUseCase;
   private final SecurityEvaluator security;
 
   @RequiresRole(RoleConstants.LIBRARIAN)
@@ -116,5 +124,24 @@ public class BorrowingTransactionController {
       @PathVariable("id") Long transactionId) {
     Long librarianId = security.getCurrentUserId();
     return ApiResponseApp.success(confirmPickupUseCase.execute(transactionId, librarianId));
+  }
+
+  @PostMapping("/return")
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Return a borrowed book by barcode (librarian)")
+  public ApiResponseApp<ReturnResponse> returnBook(
+      @Valid @RequestBody ReturnCommand command) {
+    Long librarianId = security.getCurrentUserId();
+    return ApiResponseApp.success(returnBookUseCase.execute(librarianId, command));
+  }
+
+  @PostMapping("/{id}/report-issue")
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Report damaged or lost book, optionally with overdue fine (librarian)")
+  public ApiResponseApp<ReportIssueResponse> reportIssue(
+      @PathVariable("id") Long transactionId,
+      @Valid @RequestBody ReportIssueCommand command) {
+    Long librarianId = security.getCurrentUserId();
+    return ApiResponseApp.success(reportIssueUseCase.execute(transactionId, librarianId, command));
   }
 }

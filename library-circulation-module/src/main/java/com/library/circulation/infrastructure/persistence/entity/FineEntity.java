@@ -32,7 +32,7 @@ import lombok.Setter;
 @Builder
 public class FineEntity extends BaseEntity {
 
-  @Column(name = "transaction_id", nullable = false, unique = true)
+  @Column(name = "transaction_id", nullable = false)
   private Long transactionId;
 
   @Column(nullable = false, precision = 15, scale = 0)

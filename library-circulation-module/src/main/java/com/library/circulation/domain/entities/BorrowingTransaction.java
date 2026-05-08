@@ -3,7 +3,9 @@ package com.library.circulation.domain.entities;
 import com.library.catalog.domain.valueobject.ItemId;
 import com.library.circulation.domain.enums.TransactionStatus;
 import com.library.circulation.domain.valueobject.TransactionId;
+import com.library.shared.exception.AppException;
 import com.library.shared.exception.DomainException;
+import com.library.shared.exception.ErrorCode;
 import com.library.user.domain.valueobject.UserId;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -97,6 +99,19 @@ public class BorrowingTransaction {
       throw new DomainException("Only WAITING_FOR_PICKUP transactions can be cancelled");
     }
     this.status = TransactionStatus.CANCELLED;
+  }
+
+  public void processReturn(UserId librarianId, Instant returnedAt) {
+    if (this.status != TransactionStatus.BORROWING && this.status != TransactionStatus.OVERDUE) {
+      throw new AppException(ErrorCode.TRANSACTION_NOT_RETURNABLE);
+    }
+    this.status = TransactionStatus.RETURNED;
+    this.returnedDate = returnedAt;
+    this.librarianIdReturn = librarianId;
+  }
+
+  public boolean isOverdue(LocalDate today) {
+    return dueDate != null && today.isAfter(dueDate);
   }
 
   // ── Domain events ──────────────────────────────────────────

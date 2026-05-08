@@ -18,9 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DueDateWarningScheduler {
 
-    private static final int WARNING_DAYS_BEFORE = 3;
-
-    // transactions due in exactly WARNING_DAYS_BEFORE days
     private static final String FIND_DUE_SOON_SQL = """
         SELECT t.id AS transaction_id, t.user_id,
                t.due_date,
@@ -37,29 +34,41 @@ public class DueDateWarningScheduler {
 
     @Scheduled(cron = "0 0 8 * * ?", zone = "Asia/Ho_Chi_Minh")
     @Transactional(readOnly = true)
-    public void warnDueDateApproaching() {
+    public void warn3DaysBefore() {
+        sendWarnings(3,
+            "Sách sắp đến hạn trả",
+            "Sách '%s' sẽ đến hạn trả vào ngày %s. Vui lòng trả đúng hạn.");
+    }
+
+    @Scheduled(cron = "0 0 8 * * ?", zone = "Asia/Ho_Chi_Minh")
+    @Transactional(readOnly = true)
+    public void warn1DayBefore() {
+        sendWarnings(1,
+            "Ngày mai là hạn trả sách!",
+            "Sách '%s' sẽ đến hạn trả vào ngày mai (%s). Đừng quên trả sách đúng hạn!");
+    }
+
+    private void sendWarnings(int daysLeft, String notifTitle, String notifBodyTemplate) {
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(
-            FIND_DUE_SOON_SQL, Map.of("days", WARNING_DAYS_BEFORE));
+            FIND_DUE_SOON_SQL, Map.of("days", daysLeft));
 
         if (rows.isEmpty()) return;
 
-        log.info("Sending due date warnings for {} transaction(s)", rows.size());
+        log.info("Sending due date warnings ({} day(s) left) for {} transaction(s)", daysLeft, rows.size());
 
         for (Map<String, Object> row : rows) {
-            Long userId  = ((Number) row.get("user_id")).longValue();
-            String title = (String) row.get("publication_title");
-            String dueDate = row.get("due_date").toString();
+            Long userId       = ((Number) row.get("user_id")).longValue();
+            String title      = (String) row.get("publication_title");
+            String dueDate    = row.get("due_date").toString();
             Long transactionId = ((Number) row.get("transaction_id")).longValue();
 
-            // In-app notification
             kafkaTemplate.send(KafkaTopics.NOTIFICATION_SEND, new NotificationMessage(
                 userId, "OVERDUE_WARNING",
-                "Sách sắp đến hạn trả",
-                String.format("Sách '%s' sẽ đến hạn trả vào ngày %s. Vui lòng trả đúng hạn.", title, dueDate),
+                notifTitle,
+                String.format(notifBodyTemplate, title, dueDate),
                 null, transactionId
             ));
 
-            // Email
             kafkaTemplate.send(KafkaTopics.LIBRARY_EMAIL, new LibraryEmailMessage(
                 userId,
                 LibraryEmailMessage.DUE_DATE_WARNING,
@@ -67,6 +76,6 @@ public class DueDateWarningScheduler {
             ));
         }
 
-        log.info("Due date warnings sent for {} transaction(s)", rows.size());
+        log.info("Due date warnings ({} day(s) left) sent for {} transaction(s)", daysLeft, rows.size());
     }
 }

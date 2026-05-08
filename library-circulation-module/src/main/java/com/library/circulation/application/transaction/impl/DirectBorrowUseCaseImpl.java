@@ -72,7 +72,7 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
 
         // 3. Cross-aggregate checks (same as web borrow)
         if (!"AVAILABLE".equals(item.status())) {
-            throw new AppException(ErrorCode.ITEM_NOT_AVAILABLE);
+            throw new AppException(ErrorCode.ITEM_NOT_BORROWABLE);
         }
 
         Long activeBorrows = jdbcTemplate.queryForObject(

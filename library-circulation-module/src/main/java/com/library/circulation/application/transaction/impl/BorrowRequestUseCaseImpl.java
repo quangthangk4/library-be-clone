@@ -63,7 +63,7 @@ public class BorrowRequestUseCaseImpl implements BorrowRequestUseCase {
 
     // Application: cross-aggregate checks
     if (!"AVAILABLE".equals(item.status())) {
-      throw new AppException(ErrorCode.ITEM_NOT_AVAILABLE);
+      throw new AppException(ErrorCode.ITEM_NOT_BORROWABLE);
     }
 
     // đếm xem mượn bao nhiều sách rồi

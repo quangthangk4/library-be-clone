@@ -65,7 +65,7 @@ public enum ErrorCode {
   ITEM_NOT_FOUND(2100, "Item not found", HttpStatus.NOT_FOUND),
   ITEM_ALREADY_EXISTS(2101, "Item already exists", HttpStatus.CONFLICT),
   BARCODE_ALREADY_EXISTS(2102, "Barcode already exists", HttpStatus.CONFLICT),
-  ITEM_NOT_AVAILABLE(2103, "Item is not available", HttpStatus.CONFLICT),
+  ITEM_NOT_BORROWABLE(2103, "Item is not available for borrowing", HttpStatus.CONFLICT),
 
   // Catalog - Author errors (2200-2299)
   AUTHOR_NOT_FOUND(2200, "Author not found", HttpStatus.NOT_FOUND),
@@ -99,6 +99,7 @@ public enum ErrorCode {
 
   // Circulation - Transaction errors (3000-3099)
   TRANSACTION_NOT_FOUND(3000, "Borrowing transaction not found", HttpStatus.NOT_FOUND),
+  TRANSACTION_NOT_RETURNABLE(3001, "Transaction cannot be returned in its current status", HttpStatus.CONFLICT),
   USER_BORROW_LIMIT_EXCEEDED(3002, "User has exceeded the maximum borrow limit",
       HttpStatus.CONFLICT),
   CANNOT_RENEW_TRANSACTION(3003,
