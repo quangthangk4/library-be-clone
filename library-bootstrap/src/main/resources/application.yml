@@ -1,4 +1,8 @@
 spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
   # DevTools Configuration for Multi-Module
   devtools:
     restart:

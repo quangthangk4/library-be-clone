@@ -7,6 +7,8 @@ import com.library.circulation.application.transaction.GetAllBorrowingTransactio
 import com.library.circulation.application.transaction.GetAllTransactionByItemUseCase;
 import com.library.circulation.application.transaction.GetMyTransactionsUseCase;
 import com.library.circulation.application.transaction.LookupForPickupUseCase;
+import com.library.circulation.application.transaction.GetStudentActiveTransactionsUseCase;
+import com.library.circulation.application.transaction.LookupActiveTransactionUseCase;
 import com.library.circulation.application.transaction.ReportIssueUseCase;
 import com.library.circulation.application.transaction.ReturnBookUseCase;
 import com.library.circulation.dto.request.BorrowRequestCommand;
@@ -15,6 +17,8 @@ import com.library.circulation.dto.request.ReportIssueCommand;
 import com.library.circulation.dto.request.ReturnCommand;
 import com.library.circulation.dto.response.BorrowTransactionResponse;
 import com.library.circulation.dto.response.LookupTransactionResponse;
+import com.library.circulation.dto.response.ActiveTransactionResponse;
+import com.library.circulation.dto.response.StudentActiveTransactionsResponse;
 import com.library.circulation.dto.response.ReportIssueResponse;
 import com.library.circulation.dto.response.ReturnResponse;
 import com.library.circulation.dto.response.TransactionListResponse;
@@ -52,6 +56,8 @@ public class BorrowingTransactionController {
   private final DirectBorrowUseCase directBorrowUseCase;
   private final ConfirmPickupUseCase confirmPickupUseCase;
   private final LookupForPickupUseCase lookupForPickupUseCase;
+  private final GetStudentActiveTransactionsUseCase getStudentActiveTransactionsUseCase;
+  private final LookupActiveTransactionUseCase lookupActiveTransactionUseCase;
   private final ReturnBookUseCase returnBookUseCase;
   private final ReportIssueUseCase reportIssueUseCase;
   private final SecurityEvaluator security;
@@ -124,6 +130,22 @@ public class BorrowingTransactionController {
       @PathVariable("id") Long transactionId) {
     Long librarianId = security.getCurrentUserId();
     return ApiResponseApp.success(confirmPickupUseCase.execute(transactionId, librarianId));
+  }
+
+  @GetMapping("/student-active")
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Get all active (BORROWING/OVERDUE) transactions of a student by studentId")
+  public ApiResponseApp<StudentActiveTransactionsResponse> getStudentActive(
+      @RequestParam(name = "studentId") String studentId) {
+    return ApiResponseApp.success(getStudentActiveTransactionsUseCase.execute(studentId));
+  }
+
+  @GetMapping("/active")
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  @Operation(summary = "Lookup active (BORROWING/OVERDUE) transaction by barcode with borrower info")
+  public ApiResponseApp<ActiveTransactionResponse> lookupActive(
+      @RequestParam(name = "barcode") String barcode) {
+    return ApiResponseApp.success(lookupActiveTransactionUseCase.execute(barcode));
   }
 
   @PostMapping("/return")

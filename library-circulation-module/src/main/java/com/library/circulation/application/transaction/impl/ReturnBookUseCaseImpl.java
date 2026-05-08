@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReturnBookUseCaseImpl implements ReturnBookUseCase {
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
-    private static final BigDecimal OVERDUE_FINE_PER_DAY = BigDecimal.valueOf(2_000);
+    private static final BigDecimal OVERDUE_FINE_PER_DAY = BigDecimal.valueOf(1_000);
 
     private static final String FIND_ACTIVE_TRANSACTION_SQL = """
         SELECT t.id
