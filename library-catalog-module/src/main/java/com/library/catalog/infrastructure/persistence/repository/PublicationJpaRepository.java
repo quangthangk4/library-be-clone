@@ -68,11 +68,11 @@ public interface PublicationJpaRepository extends JpaRepository<PublicationEntit
   @Query(
       value = """
           SELECT new com.library.catalog.dto.response.item.ItemsByPublicationIdResponse(
-              i.id, i.barcode, i.branch, i.shelf, i.status, i.condition, MAX(bt.dueDate))
+              i.id, i.barcode, i.branch, i.location, i.status, i.condition, MAX(bt.dueDate))
           FROM ItemEntity i
           LEFT JOIN BorrowingTransactionEntity bt ON bt.itemId = i.id AND bt.status = 'BORROWING'
           WHERE i.publicationId = :publicationId
-          GROUP BY i.id          , i.barcode, i.branch, i.shelf, i.status, i.condition
+          GROUP BY i.id          , i.barcode, i.branch, i.location, i.status, i.condition
           """,
       countQuery = """
           SELECT COUNT(i)

@@ -20,7 +20,7 @@ public class BorrowTransactionResponse {
     private Long publicationId;
     private String publicationTitle;
     private String branch;
-    private String shelf;
+    private String location;
     private Instant pickedUpDeadline;
     private LocalDate dueDate;
     private TransactionStatus status;

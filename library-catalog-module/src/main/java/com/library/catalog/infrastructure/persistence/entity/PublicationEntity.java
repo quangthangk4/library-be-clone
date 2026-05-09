@@ -51,6 +51,9 @@ public class PublicationEntity extends BaseEntity {
     private String size; // e.g., "20x15x3 cm"
     private Double weight; // in grams
 
+    @Column(name = "call_number", length = 100)
+    private String callNumber;
+
     private Long publisherId;
     public PublicationEntity() {}
 }

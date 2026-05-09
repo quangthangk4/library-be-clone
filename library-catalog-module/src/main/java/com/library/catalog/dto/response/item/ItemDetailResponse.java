@@ -16,7 +16,7 @@ public class ItemDetailResponse {
   private Long id;
   private String barcode;
   private String branch;
-  private String shelf;
+  private String location;
   private ItemStatus status;
   private ConditionItemEnum condition;
   private String publicationTitle;

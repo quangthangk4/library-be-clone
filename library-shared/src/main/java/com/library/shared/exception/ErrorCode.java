@@ -111,6 +111,9 @@ public enum ErrorCode {
   FINE_NOT_FOUND(3006, "Fine not found", HttpStatus.NOT_FOUND),
   USER_HAS_UNPAID_FINES(3007, "User has unpaid fines and cannot borrow", HttpStatus.FORBIDDEN),
   ACCOUNT_SUSPENDED(3008, "User account is suspended", HttpStatus.FORBIDDEN),
+  FINE_ALREADY_PAID(3009, "Fine is already paid", HttpStatus.CONFLICT),
+  RESERVATION_NOT_CANCELLABLE(3010, "Reservation cannot be cancelled in its current status", HttpStatus.CONFLICT),
+  RESERVATION_BOOK_AVAILABLE(3011, "Book is currently available, please borrow it directly", HttpStatus.CONFLICT),
 
 
   // Security Error (2600 - 2699)

@@ -20,7 +20,7 @@ public class LookupForPickupUseCaseImpl implements LookupForPickupUseCase {
     private static final String BY_TRANSACTION_ID_SQL = """
         SELECT t.id AS transaction_id, t.user_id, t.item_id, t.picked_up_deadline, t.status,
                u.student_id, u.full_name,
-               i.barcode, i.branch, i.shelf, i.publication_id,
+               i.barcode, i.branch, i.location, i.publication_id,
                p.title AS publication_title
         FROM borrowing_transactions t
         JOIN users u        ON u.id = t.user_id
@@ -33,7 +33,7 @@ public class LookupForPickupUseCaseImpl implements LookupForPickupUseCase {
     private static final String BY_STUDENT_AND_BARCODE_SQL = """
         SELECT t.id AS transaction_id, t.user_id, t.item_id, t.picked_up_deadline, t.status,
                u.student_id, u.full_name,
-               i.barcode, i.branch, i.shelf, i.publication_id,
+               i.barcode, i.branch, i.location, i.publication_id,
                p.title AS publication_title
         FROM borrowing_transactions t
         JOIN users u        ON u.id = t.user_id
@@ -80,7 +80,7 @@ public class LookupForPickupUseCaseImpl implements LookupForPickupUseCase {
             .publicationId(((Number) row.get("publication_id")).longValue())
             .publicationTitle((String) row.get("publication_title"))
             .branch((String) row.get("branch"))
-            .shelf((String) row.get("shelf"))
+            .location((String) row.get("location"))
             .pickedUpDeadline(row.get("picked_up_deadline") != null
                 ? ((java.sql.Timestamp) row.get("picked_up_deadline")).toInstant() : null)
             .status(TransactionStatus.valueOf((String) row.get("status")))

@@ -168,7 +168,11 @@ public class AuthServiceImpl implements AuthService {
       throw new AppException(ErrorCode.INVALID_EMAIL);
     }
 
-    String fullName = userInfo.get("name") != null ? userInfo.get("name").toString() : null;
+    String givenName  = userInfo.get("given_name")  != null ? userInfo.get("given_name").toString()  : "";
+    String familyName = userInfo.get("family_name") != null ? userInfo.get("family_name").toString() : "";
+    String fullName = (!familyName.isEmpty() && !givenName.isEmpty())
+        ? familyName + " " + givenName          // Thứ tự Việt Nam: Họ + Tên
+        : userInfo.get("name") != null ? userInfo.get("name").toString() : null;
     String avatarUrl = DEFAULT_AVATAR;
     if (loginType.equals("google")) {
       avatarUrl =

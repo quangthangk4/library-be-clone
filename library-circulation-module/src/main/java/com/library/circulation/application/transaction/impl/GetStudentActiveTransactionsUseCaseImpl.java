@@ -26,7 +26,7 @@ public class GetStudentActiveTransactionsUseCaseImpl implements GetStudentActive
     private static final String FIND_ACTIVE_SQL = """
         SELECT t.id AS transaction_id,
                p.title AS publication_title,
-               i.barcode, i.branch, i.shelf,
+               i.barcode, i.branch, i.location,
                t.borrowed_date, t.due_date, t.status
         FROM borrowing_transactions t
         JOIN items i        ON i.id = t.item_id
@@ -56,7 +56,7 @@ public class GetStudentActiveTransactionsUseCaseImpl implements GetStudentActive
             .publicationTitle((String) row.get("publication_title"))
             .barcode((String) row.get("barcode"))
             .branch((String) row.get("branch"))
-            .shelf((String) row.get("shelf"))
+            .location((String) row.get("location"))
             .borrowedDate(row.get("borrowed_date") != null
                 ? ((java.sql.Timestamp) row.get("borrowed_date")).toInstant() : null)
             .dueDate(row.get("due_date") != null

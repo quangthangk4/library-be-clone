@@ -17,6 +17,7 @@ public record UpdatePublicationRequest(
         Long publisherId,
         Long[] authorIds,
         Long[] categoryIds,
-        Long[] tagIds
+        Long[] tagIds,
+        String callNumber
 ) {
 }

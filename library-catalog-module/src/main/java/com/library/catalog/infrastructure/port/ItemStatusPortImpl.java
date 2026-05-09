@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class ItemStatusPortImpl implements ItemStatusPort {
 
     private static final String LOCK_SQL = """
-        SELECT i.id, i.status, i.publication_id, i.barcode, i.branch, i.shelf,
+        SELECT i.id, i.status, i.publication_id, i.barcode, i.branch, i.location,
                p.title AS publication_title
         FROM items i
         JOIN publications p ON p.id = i.publication_id
@@ -24,7 +24,7 @@ public class ItemStatusPortImpl implements ItemStatusPort {
         """;
 
     private static final String LOCK_BY_BARCODE_SQL = """
-        SELECT i.id, i.status, i.publication_id, i.barcode, i.branch, i.shelf,
+        SELECT i.id, i.status, i.publication_id, i.barcode, i.branch, i.location,
                p.title AS publication_title
         FROM items i
         JOIN publications p ON p.id = i.publication_id
@@ -51,7 +51,7 @@ public class ItemStatusPortImpl implements ItemStatusPort {
             (String) row.get("publication_title"),
             (String) row.get("barcode"),
             (String) row.get("branch"),
-            (String) row.get("shelf")
+            (String) row.get("location")
         );
     }
 
@@ -67,7 +67,7 @@ public class ItemStatusPortImpl implements ItemStatusPort {
             (String) row.get("publication_title"),
             (String) row.get("barcode"),
             (String) row.get("branch"),
-            (String) row.get("shelf")
+            (String) row.get("location")
         );
     }
 

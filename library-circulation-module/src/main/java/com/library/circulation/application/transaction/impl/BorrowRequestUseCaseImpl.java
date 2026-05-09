@@ -99,7 +99,7 @@ public class BorrowRequestUseCaseImpl implements BorrowRequestUseCase {
     transactionJpaRepository.save(entity);
 
     // Application: publish in-app notification
-    String location = buildLocation(item.branch(), item.shelf());
+    String location = buildLocation(item.branch(), item.location());
     kafkaTemplate.send(KafkaTopics.NOTIFICATION_SEND, new NotificationMessage(
         userId, "BORROW_SUCCESS",
         "Yêu cầu mượn sách đã được tạo",
@@ -149,22 +149,22 @@ public class BorrowRequestUseCaseImpl implements BorrowRequestUseCase {
         .publicationId(item.publicationId())
         .publicationTitle(item.publicationTitle())
         .branch(item.branch())
-        .shelf(item.shelf())
+        .location(item.location())
         .pickedUpDeadline(entity.getPickedUpDeadline())
         .dueDate(entity.getDueDate())
         .status(entity.getStatus())
         .build();
   }
 
-  private String buildLocation(String branch, String shelf) {
-    if (branch != null && shelf != null) {
-      return branch + " - " + shelf;
+  private String buildLocation(String branch, String location) {
+    if (branch != null && location != null) {
+      return branch + " - " + location;
     }
     if (branch != null) {
       return branch;
     }
-    if (shelf != null) {
-      return shelf;
+    if (location != null) {
+      return location;
     }
     return "thư viện";
   }

@@ -43,7 +43,7 @@ public class CreateItemUseCaseImpl implements CreateItemUseCase {
         entity.setPublicationId(request.getPublicationId());
         entity.setBarcode(request.getBarcode());
         entity.setBranch(request.getBranch());
-        entity.setShelf(request.getShelf());
+        entity.setLocation(request.getLocation());
         entity.setCondition(request.getCondition());
         entity.setStatus(ItemStatus.AVAILABLE);
 

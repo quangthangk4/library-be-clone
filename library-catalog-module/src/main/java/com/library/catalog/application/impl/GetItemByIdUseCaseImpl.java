@@ -30,7 +30,7 @@ public class GetItemByIdUseCaseImpl implements GetItemByIdUseCase {
         .id(item.getId())
         .barcode(item.getBarcode())
         .branch(item.getBranch())
-        .shelf(item.getShelf())
+        .location(item.getLocation())
         .status(item.getStatus())
         .condition(item.getCondition())
         .publicationTitle(publication.getPublication().getTitle())

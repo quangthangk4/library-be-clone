@@ -70,8 +70,24 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
         // 2. Lock item by barcode
         ItemSnapshot item = itemStatusPort.lockAndGetByBarcode(command.barcode());
 
-        // 3. Cross-aggregate checks (same as web borrow)
-        if (!"AVAILABLE".equals(item.status())) {
+        // 3. Cross-aggregate checks
+        boolean reservedForThisUser = false;
+        Long completedReservationId = null;
+        if ("RESERVED".equals(item.status())) {
+            // Allow only if this user has a READY_FOR_PICKUP reservation for this item
+            List<Map<String, Object>> resRows = jdbcTemplate.queryForList("""
+                SELECT r.id FROM reservations r
+                WHERE r.user_id = :userId
+                  AND r.publication_id = :publicationId
+                  AND r.status = 'READY_FOR_PICKUP'
+                  AND r.assigned_item_id = :itemId
+                LIMIT 1
+                """,
+                Map.of("userId", userId, "publicationId", item.publicationId(), "itemId", item.id()));
+            if (resRows.isEmpty()) throw new AppException(ErrorCode.ITEM_NOT_BORROWABLE);
+            reservedForThisUser = true;
+            completedReservationId = ((Number) resRows.get(0).get("id")).longValue();
+        } else if (!"AVAILABLE".equals(item.status())) {
             throw new AppException(ErrorCode.ITEM_NOT_BORROWABLE);
         }
 
@@ -87,7 +103,8 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
             throw new AppException(ErrorCode.USER_HAS_UNPAID_FINES);
         }
 
-        if (transactionJpaRepository.existsByUserIdAndPublicationId(userId, item.publicationId())) {
+        if (!reservedForThisUser
+            && transactionJpaRepository.existsByUserIdAndPublicationId(userId, item.publicationId())) {
             throw new AppException(ErrorCode.RESERVATION_ALREADY_EXISTS);
         }
 
@@ -98,6 +115,13 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
 
         // 5. Infrastructure: update item + persist
         itemStatusPort.updateStatus(item.id(), "BORROWED");
+        // Mark reservation COMPLETED if this was a reserved pickup
+        if (reservedForThisUser && completedReservationId != null) {
+            jdbcTemplate.update("""
+                UPDATE reservations SET status = 'COMPLETED', updated_at = NOW()
+                WHERE id = :id AND status = 'READY_FOR_PICKUP'
+                """, Map.of("id", completedReservationId));
+        }
         BorrowingTransactionEntity entity = toEntity(transaction);
         transactionJpaRepository.save(entity);
 
@@ -121,7 +145,7 @@ public class DirectBorrowUseCaseImpl implements DirectBorrowUseCase {
             .publicationId(item.publicationId())
             .publicationTitle(item.publicationTitle())
             .branch(item.branch())
-            .shelf(item.shelf())
+            .location(item.location())
             .dueDate(dueDate)
             .status(entity.getStatus())
             .build();

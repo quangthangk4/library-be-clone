@@ -21,7 +21,7 @@ public class LookupActiveTransactionUseCaseImpl implements LookupActiveTransacti
         SELECT t.id AS transaction_id, t.user_id,
                t.borrowed_date, t.due_date, t.status,
                u.student_id, u.full_name,
-               i.barcode, i.branch, i.shelf,
+               i.barcode, i.branch, i.location,
                p.title AS publication_title
         FROM borrowing_transactions t
         JOIN users u        ON u.id = t.user_id
@@ -51,7 +51,7 @@ public class LookupActiveTransactionUseCaseImpl implements LookupActiveTransacti
             .publicationTitle((String) row.get("publication_title"))
             .barcode((String) row.get("barcode"))
             .branch((String) row.get("branch"))
-            .shelf((String) row.get("shelf"))
+            .location((String) row.get("location"))
             .borrowedDate(row.get("borrowed_date") != null
                 ? ((java.sql.Timestamp) row.get("borrowed_date")).toInstant() : null)
             .dueDate(row.get("due_date") != null

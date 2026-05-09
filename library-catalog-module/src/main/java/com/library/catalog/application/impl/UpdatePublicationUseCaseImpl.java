@@ -34,6 +34,7 @@ public class UpdatePublicationUseCaseImpl implements UpdatePublicationUseCase {
         entity.setCoverImageUrl(request.coverImageUrl());
         entity.setSize(request.size());
         entity.setWeight(request.weight());
+        entity.setCallNumber(request.callNumber());
         entity.setAiTargetAudience(request.aiTargetAudience());
         entity.setPublisherId(request.publisherId());
 

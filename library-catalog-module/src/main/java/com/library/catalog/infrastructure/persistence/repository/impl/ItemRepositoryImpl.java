@@ -31,7 +31,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
         if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
             where.append("AND (LOWER(i.barcode) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
                  .append("OR LOWER(i.branch) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
-                 .append("OR LOWER(i.shelf) LIKE LOWER(CONCAT('%', :keyword, '%'))) ");
+                 .append("OR LOWER(i.location) LIKE LOWER(CONCAT('%', :keyword, '%'))) ");
             params.put("keyword", request.getKeyword());
         }
 
@@ -47,7 +47,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
         String joins = "FROM items i JOIN publications p ON i.publication_id = p.id ";
 
-        String dataSQL = "SELECT i.id, i.barcode, i.branch, i.shelf, i.status, i.condition, p.title "
+        String dataSQL = "SELECT i.id, i.barcode, i.branch, i.location, i.status, i.condition, p.title "
                 + joins + where;
 
         String countSQL = "SELECT COUNT(*) " + joins + where;
@@ -62,7 +62,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 String column = switch (property) {
                     case "barcode" -> "i.barcode";
                     case "branch" -> "i.branch";
-                    case "shelf" -> "i.shelf";
+                    case "location" -> "i.location";
                     case "status" -> "i.status";
                     case "condition" -> "i.condition";
                     case "publicationTitle" -> "p.title";
@@ -102,7 +102,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .id(((Number) row[0]).longValue())
                 .barcode((String) row[1])
                 .branch((String) row[2])
-                .shelf((String) row[3])
+                .location((String) row[3])
                 .status(ItemStatus.valueOf((String) row[4]))
                 .condition(row[5] != null ? ConditionItemEnum.valueOf((String) row[5]) : null)
                 .publicationTitle((String) row[6])

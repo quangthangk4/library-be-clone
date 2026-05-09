@@ -24,7 +24,7 @@ public class StudentActiveTransactionsResponse {
         private String publicationTitle;
         private String barcode;
         private String branch;
-        private String shelf;
+        private String location;
         private Instant borrowedDate;
         private LocalDate dueDate;
         private TransactionStatus status;

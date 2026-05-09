@@ -10,6 +10,6 @@ public class CreateItemRequest {
     private Long publicationId;
     private String barcode;
     private String branch;
-    private String shelf;
+    private String location;
     private ConditionItemEnum condition;
 }

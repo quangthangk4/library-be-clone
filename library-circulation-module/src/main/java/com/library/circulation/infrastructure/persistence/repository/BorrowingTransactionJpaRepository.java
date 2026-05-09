@@ -45,6 +45,7 @@ public interface BorrowingTransactionJpaRepository extends
           JOIN ItemEntity i ON t.itemId = i.id
           WHERE t.userId = :userId
             AND i.publicationId = :publicationId
+            AND t.status IN ('WAITING_FOR_PICKUP', 'BORROWING', 'OVERDUE')
       """)
   boolean existsByUserIdAndPublicationId(
       @Param("userId") Long userId,
@@ -53,7 +54,7 @@ public interface BorrowingTransactionJpaRepository extends
 
   @Query(value = """
           SELECT new com.library.circulation.dto.response.UserTransactionResponse(
-              t.id, p.id, p.title, i.barcode, i.branch, i.shelf,
+              t.id, p.id, p.title, i.barcode, i.branch, i.location,
               t.pickedUpDeadline, t.borrowedDate, t.dueDate, t.returnedDate, t.status, f.fineAmount
           )
           FROM BorrowingTransactionEntity t

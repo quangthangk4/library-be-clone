@@ -18,6 +18,7 @@ public record CreatePublicationRequest (
     Long publisherId,
     Long[] authorIds,
     Long[] categoryIds,
-    Long[] tagIds
+    Long[] tagIds,
+    String callNumber
 ){
 }

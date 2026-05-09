@@ -52,4 +52,11 @@ public class ReservationEntity extends BaseEntity {
 
   @Column(name = "hold_expiration_time")
   private Instant holdExpirationTime;
+
+  @Column(name = "preferred_branch", nullable = false, length = 50)
+  @Builder.Default
+  private String preferredBranch = "ANY";
+
+  @Column(name = "assigned_item_id")
+  private Long assignedItemId;
 }

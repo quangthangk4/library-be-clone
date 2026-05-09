@@ -35,6 +35,7 @@ public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
         entity.setEdition(request.edition());
         entity.setSize(request.size());
         entity.setWeight(request.weight());
+        entity.setCallNumber(request.callNumber());
         entity.setPublisherId(request.publisherId());
 
         publicationJpaRepository.saveAndFlush(entity);

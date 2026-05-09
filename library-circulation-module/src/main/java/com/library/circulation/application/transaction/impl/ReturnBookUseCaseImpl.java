@@ -17,6 +17,7 @@ import com.library.shared.kafka.event.LibraryEmailMessage;
 import com.library.shared.kafka.event.NotificationMessage;
 import com.library.shared.port.ItemSnapshot;
 import com.library.shared.port.ItemStatusPort;
+import com.library.circulation.infrastructure.service.ReservationAssignmentService;
 import com.library.shared.util.TsIdGenerator;
 import com.library.user.domain.enums.ViolationType;
 import com.library.user.domain.valueobject.UserId;
@@ -56,6 +57,7 @@ public class ReturnBookUseCaseImpl implements ReturnBookUseCase {
     private final FineJpaRepository fineJpaRepository;
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final ReservationAssignmentService reservationAssignmentService;
 
     @Override
     @Transactional
@@ -101,7 +103,10 @@ public class ReturnBookUseCaseImpl implements ReturnBookUseCase {
                 transactionId, daysLate, overdueFineAmount);
         }
 
-        // 7. Notify + email
+        // 7. Check if any reservation is waiting for this book
+        reservationAssignmentService.tryAssign(item.id(), item.publicationId(), item.branch());
+
+        // 8. Notify + email
         LocalDate returnedDate = today;
         kafkaTemplate.send(KafkaTopics.NOTIFICATION_SEND, new NotificationMessage(
             entity.getUserId(),

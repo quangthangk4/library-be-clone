@@ -18,28 +18,28 @@ public class ItemsByPublicationIdResponse {
   private Long id;
   private String barcode;
   private String branch;
-  private String shelf;
+  private String location;
   private ItemStatus status;
   private ConditionItemEnum condition;
   private LocalDate dueDate;
 
-  public ItemsByPublicationIdResponse(Long id, String barcode, String branch, String shelf,
+  public ItemsByPublicationIdResponse(Long id, String barcode, String branch, String location,
       ItemStatus status, ConditionItemEnum condition, LocalDate dueDate) {
     this.id = id;
     this.barcode = barcode;
     this.branch = branch;
-    this.shelf = shelf;
+    this.location = location;
     this.status = status;
     this.condition = condition;
     this.dueDate = dueDate;
   }
 
-  public ItemsByPublicationIdResponse(Long id, String barcode, String branch, String shelf,
+  public ItemsByPublicationIdResponse(Long id, String barcode, String branch, String location,
       ItemStatus status, ConditionItemEnum condition) {
     this.id = id;
     this.barcode = barcode;
     this.branch = branch;
-    this.shelf = shelf;
+    this.location = location;
     this.status = status;
     this.condition = condition;
     this.dueDate = null;

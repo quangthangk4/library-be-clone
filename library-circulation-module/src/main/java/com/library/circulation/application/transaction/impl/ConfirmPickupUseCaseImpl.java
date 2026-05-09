@@ -81,7 +81,7 @@ public class ConfirmPickupUseCaseImpl implements ConfirmPickupUseCase {
             .publicationId(item.publicationId())
             .publicationTitle(item.publicationTitle())
             .branch(item.branch())
-            .shelf(item.shelf())
+            .location(item.location())
             .dueDate(entity.getDueDate())
             .status(entity.getStatus())
             .build();

@@ -7,5 +7,5 @@ public record ItemSnapshot(
     String publicationTitle,
     String barcode,
     String branch,
-    String shelf
+    String location
 ) {}
