@@ -18,10 +18,17 @@ public class GetAllBorrowingTransactionUseCaseImpl implements GetAllBorrowingTra
     private final BorrowingTransactionJpaRepository jpaRepository;
 
     @Override
-    public PageResponse<TransactionListResponse> execute(int page, int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable pageable = PageRequest.of(page,size, sort);
-        Page<TransactionListResponse> transactions = jpaRepository.getAllTransactionWithPagination(pageable);
+    public PageResponse<TransactionListResponse> execute(int page, int size, String keyword, String sortBy, String sortDir) {
+        String sortField = switch (sortBy == null ? "" : sortBy) {
+            case "borrowedDate"  -> "borrowedDate";
+            case "returnedDate"  -> "returnedDate";
+            case "dueDate"       -> "dueDate";
+            default              -> "createdAt";
+        };
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        String kw = (keyword == null || keyword.isBlank()) ? "" : keyword.trim();
+        Page<TransactionListResponse> transactions = jpaRepository.searchTransactions(kw, pageable);
         return PageResponse.from(transactions);
     }
 }

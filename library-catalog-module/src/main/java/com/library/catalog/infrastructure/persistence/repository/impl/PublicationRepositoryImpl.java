@@ -63,15 +63,21 @@ public class PublicationRepositoryImpl implements PublicationRepositoryCustom {
         LEFT JOIN publication_authors pa    ON pa.publication_id = p.id
         LEFT JOIN authors a                 ON a.id = pa.author_id
         LEFT JOIN publication_categories pc ON pc.publication_id = p.id
+        LEFT JOIN categories c              ON c.id = pc.category_id
+        LEFT JOIN publishers pub            ON pub.id = p.publisher_id
         LEFT JOIN items i                   ON i.publication_id  = p.id
         """;
 
     String dataSQL = "SELECT p.id, p.title, p.subtitle, p.cover_image_url, "
         + "p.publication_year, p.created_at, "
         + "STRING_AGG(DISTINCT a.name, ',') AS author_names, "
-        + "COUNT(DISTINCT i.id) AS total_items "
+        + "COUNT(DISTINCT i.id) AS total_items, "
+        + "p.isbn, "
+        + "pub.name AS publisher_name, "
+        + "STRING_AGG(DISTINCT c.name, ',') AS category_names, "
+        + "COUNT(DISTINCT i.id) FILTER (WHERE i.status = 'AVAILABLE') AS available_items "
         + joins + where
-        + "GROUP BY p.id, p.title, p.subtitle, p.cover_image_url, p.publication_year, p.created_at";
+        + "GROUP BY p.id, p.title, p.subtitle, p.cover_image_url, p.publication_year, p.created_at, p.isbn, pub.name";
 
     String countSQL = "SELECT COUNT(*) FROM (SELECT p.id " + joins + where + "GROUP BY p.id) sub";
 
@@ -280,6 +286,10 @@ public class PublicationRepositoryImpl implements PublicationRepositoryCustom {
             ? Arrays.asList(((String) row[6]).split(","))
             : List.of())
         .totalItems(toLong(row[7]))
+        .isbn((String) row[8])
+        .publisherName((String) row[9])
+        .categoryNames((String) row[10])
+        .availableItems(toLong(row[11]))
         .build();
   }
 

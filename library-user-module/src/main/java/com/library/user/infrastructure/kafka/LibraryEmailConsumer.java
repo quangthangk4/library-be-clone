@@ -60,6 +60,12 @@ public class LibraryEmailConsumer {
                     data.get("fineAmount"),
                     data.get("publicationTitle")
                 );
+                case LibraryEmailMessage.BOOK_AVAILABLE -> emailService.sendEmailWithArgs(
+                    to, EmailTemplates.BOOK_AVAILABLE,
+                    fullName,
+                    data.get("publicationTitle"),
+                    data.get("deadline")
+                );
                 default -> log.warn("Unknown email type: {}", message.emailType());
             }
 

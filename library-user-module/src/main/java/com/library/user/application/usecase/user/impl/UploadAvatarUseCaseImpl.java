@@ -8,7 +8,7 @@ import com.library.user.application.usecase.user.UploadAvatarUseCase;
 import com.library.user.domain.entities.User;
 import com.library.user.domain.repository.UserRepository;
 import com.library.user.domain.valueobject.UserId;
-import com.library.user.infrastructure.s3.S3StorageService;
+import com.library.shared.port.StoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadAvatarUseCaseImpl implements UploadAvatarUseCase {
 
     private final UserRepository userRepository;
-    private final S3StorageService s3StorageService;
+    private final StoragePort storagePort;
     private final UserMapper userMapper;
 
     @Override
@@ -30,7 +30,7 @@ public class UploadAvatarUseCaseImpl implements UploadAvatarUseCase {
         User user = userRepository.findById(UserId.of(userId))
             .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        String avatarUrl = s3StorageService.upload(file, "avatars/" + userId);
+        String avatarUrl = storagePort.upload(file, "avatars/" + userId);
 
         user.updateProfile(user.getProfile().withProfilePictureUrl(avatarUrl));
         User saved = userRepository.save(user);

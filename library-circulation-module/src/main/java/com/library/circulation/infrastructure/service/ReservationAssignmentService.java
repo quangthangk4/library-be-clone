@@ -3,7 +3,11 @@ package com.library.circulation.infrastructure.service;
 import com.library.shared.kafka.KafkaTopics;
 import com.library.shared.kafka.event.NotificationMessage;
 import com.library.shared.port.ItemStatusPort;
+import com.library.shared.kafka.event.LibraryEmailMessage;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +27,9 @@ public class ReservationAssignmentService {
     static final long HOLD_HOURS = 48;
 
     private static final String FIND_PENDING_SQL = """
-        SELECT r.id, r.user_id
+        SELECT r.id, r.user_id, p.title AS publication_title
         FROM reservations r
+        JOIN publications p ON p.id = r.publication_id
         WHERE r.publication_id = :publicationId
           AND r.status = 'PENDING'
           AND (r.preferred_branch = :branch OR r.preferred_branch = 'ANY')
@@ -32,6 +37,9 @@ public class ReservationAssignmentService {
         LIMIT 1
         FOR UPDATE OF r SKIP LOCKED
         """;
+
+    private static final DateTimeFormatter VN_FORMATTER =
+        DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy").withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
 
     private static final String ASSIGN_SQL = """
         UPDATE reservations
@@ -58,13 +66,15 @@ public class ReservationAssignmentService {
 
         if (rows.isEmpty()) return false;
 
-        Long reservationId = ((Number) rows.get(0).get("id")).longValue();
-        Long userId        = ((Number) rows.get(0).get("user_id")).longValue();
-        Instant holdExpTime = Instant.now().plus(HOLD_HOURS, ChronoUnit.HOURS);
+        Long reservationId   = ((Number) rows.get(0).get("id")).longValue();
+        Long userId          = ((Number) rows.get(0).get("user_id")).longValue();
+        String pubTitle      = (String) rows.get(0).get("publication_title");
+        Instant holdExpTime  = Instant.now().plus(HOLD_HOURS, ChronoUnit.HOURS);
+        String deadline      = VN_FORMATTER.format(holdExpTime);
 
         jdbcTemplate.update(ASSIGN_SQL, Map.of(
             "itemId", itemId,
-            "holdExpTime", holdExpTime,
+            "holdExpTime", Timestamp.from(holdExpTime),
             "reservationId", reservationId));
 
         itemStatusPort.updateStatus(itemId, "RESERVED");
@@ -72,8 +82,14 @@ public class ReservationAssignmentService {
         kafkaTemplate.send(KafkaTopics.NOTIFICATION_SEND, new NotificationMessage(
             userId, "BOOK_AVAILABLE",
             "Sách đặt trước đã sẵn sàng",
-            String.format("Sách đặt trước của bạn đã có tại thư viện. Hãy đến nhận trong vòng %d giờ.", HOLD_HOURS),
+            String.format("Sách \"%s\" đã có tại thư viện. Hãy đến nhận trước %s.", pubTitle, deadline),
             null, reservationId
+        ));
+
+        kafkaTemplate.send(KafkaTopics.LIBRARY_EMAIL, new LibraryEmailMessage(
+            userId,
+            LibraryEmailMessage.BOOK_AVAILABLE,
+            Map.of("publicationTitle", pubTitle, "deadline", deadline)
         ));
 
         log.info("Reservation assigned: reservationId={}, itemId={}, userId={}", reservationId, itemId, userId);

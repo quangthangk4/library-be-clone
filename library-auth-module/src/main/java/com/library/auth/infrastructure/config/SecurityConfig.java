@@ -30,13 +30,13 @@ public class SecurityConfig {
 
   public static final String[] PUBLIC_ENDPOINTS = {
       "/api/v1/publications/newest",
+      "/api/v1/publications/search",
       "/api/v1/publications/{id}",
       "/api/v1/publications/{id}/items",
       "/api/v1/publications/most-borrowed",
       "/api/v1/authors/**",
       "/api/v1/publications/{id}/ratings",
       "/api/v1/publications/{publicationId}/ratings/summary",
-
   };
 
   public static final String[] SWAGGER_ENDPOINTS = {

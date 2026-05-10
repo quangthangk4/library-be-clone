@@ -55,7 +55,8 @@ public enum ErrorCode {
   INVALID_INPUT(1501, "Invalid input", HttpStatus.BAD_REQUEST),
 
   // Catalog - Publication errors (2000-2099)
-  PUBLICATION_NOT_FOUND(2000, "Publication not found", HttpStatus.NOT_FOUND),
+  PUBLICATION_NOT_FOUND(2001, "Publication not found", HttpStatus.NOT_FOUND),
+
   PUBLICATION_ALREADY_EXISTS(2001, "Publication already exists", HttpStatus.CONFLICT),
   ISBN_ALREADY_EXISTS(2002, "ISBN already exists", HttpStatus.CONFLICT),
   CANNOT_DELETE_PUBLICATION_HAS_ITEMS(2003, "Cannot delete publication has items",
@@ -114,6 +115,9 @@ public enum ErrorCode {
   FINE_ALREADY_PAID(3009, "Fine is already paid", HttpStatus.CONFLICT),
   RESERVATION_NOT_CANCELLABLE(3010, "Reservation cannot be cancelled in its current status", HttpStatus.CONFLICT),
   RESERVATION_BOOK_AVAILABLE(3011, "Book is currently available, please borrow it directly", HttpStatus.CONFLICT),
+  RESERVATION_BRANCH_NO_ITEMS(3012, "No items of this publication found in the selected branch", HttpStatus.BAD_REQUEST),
+  RESERVATION_LIMIT_EXCEEDED(3013, "User has exceeded the maximum reservation limit", HttpStatus.CONFLICT),
+  RESERVATION_NOT_READY(3014, "Reservation is not in READY_FOR_PICKUP status", HttpStatus.BAD_REQUEST),
 
 
   // Security Error (2600 - 2699)

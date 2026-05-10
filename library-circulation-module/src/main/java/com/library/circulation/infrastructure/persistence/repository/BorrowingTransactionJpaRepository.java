@@ -24,6 +24,26 @@ public interface BorrowingTransactionJpaRepository extends
       countQuery = "SELECT count(t) FROM BorrowingTransactionEntity t")
   Page<TransactionListResponse> getAllTransactionWithPagination(Pageable pageable);
 
+  @Query(value = """
+          SELECT new com.library.circulation.dto.response.TransactionListResponse(
+              t.id, u.id, u.fullName, u.studentId, f.fineAmount, t.borrowedDate, t.dueDate, t.returnedDate, t.status
+          )
+          FROM BorrowingTransactionEntity t
+          LEFT JOIN UserEntity u ON t.userId = u.id
+          LEFT JOIN FineEntity f ON t.id = f.transactionId
+          WHERE :keyword = ''
+             OR LOWER(u.fullName)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+             OR LOWER(u.studentId) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      """,
+      countQuery = """
+          SELECT count(t) FROM BorrowingTransactionEntity t
+          LEFT JOIN UserEntity u ON t.userId = u.id
+          WHERE :keyword = ''
+             OR LOWER(u.fullName)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+             OR LOWER(u.studentId) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      """)
+  Page<TransactionListResponse> searchTransactions(@Param("keyword") String keyword, Pageable pageable);
+
 
   @Query(value = """
           SELECT new com.library.circulation.dto.response.TransactionListResponse(

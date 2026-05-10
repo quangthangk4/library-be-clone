@@ -19,7 +19,7 @@ public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
 
     @Override
     @Transactional
-    public void execute(CreatePublicationRequest request) {
+    public Long execute(CreatePublicationRequest request) {
         // 1. Create and Save Publication Entity
         PublicationEntity entity = new PublicationEntity();
         entity.setId(TsIdGenerator.next());
@@ -44,6 +44,8 @@ public class CreatePublicationUseCaseImpl implements CreatePublicationUseCase {
         insertAuthors(entity.getId(), request.authorIds());
         insertCategories(entity.getId(), request.categoryIds());
         insertTags(entity.getId(), request.tagIds());
+
+        return entity.getId();
     }
 
     private void insertAuthors(Long publicationId, Long[] authorIds) {

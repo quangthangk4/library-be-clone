@@ -4,5 +4,5 @@ import com.library.circulation.dto.response.TransactionListResponse;
 import com.library.shared.dto.PageResponse;
 
 public interface GetAllBorrowingTransactionUseCase {
-    PageResponse<TransactionListResponse> execute(int page, int size);
+    PageResponse<TransactionListResponse> execute(int page, int size, String keyword, String sortBy, String sortDir);
 }

@@ -19,5 +19,9 @@ public class LibrarianPublicationListResponse {
   private List<String> authorNames;
   private Integer publicationYear;
   private Long totalItems;
+  private Long availableItems;
+  private String isbn;
+  private String publisherName;
+  private String categoryNames;
   private Instant createdAt;
 }

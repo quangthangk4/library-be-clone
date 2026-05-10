@@ -1,16 +1,24 @@
 package com.library.catalog.presentation.controller;
 
 import com.library.catalog.application.CreatePublicationUseCase;
+import com.library.catalog.application.GetDocumentUploadUrlUseCase;
 import com.library.catalog.application.GetListPublicationForLibrarianUseCase;
+import com.library.catalog.application.SearchPublicationsUseCase;
 import com.library.catalog.application.GetMostBorrowedPublicationsUseCase;
 import com.library.catalog.application.GetNewestPublicationsUseCase;
 import com.library.catalog.application.GetPublicationByIdByUseCase;
+import com.library.catalog.application.SaveDocumentUrlUseCase;
 import com.library.catalog.application.UpdatePublicationUseCase;
+import com.library.catalog.application.UploadPublicationCoverUseCase;
 import com.library.catalog.application.publication.GetAllItemsByPublicationId;
 import com.library.catalog.dto.request.publication.CreatePublicationRequest;
+import com.library.catalog.dto.request.publication.PublicSearchRequest;
 import com.library.catalog.dto.request.publication.PublicationSearchRequest;
+import com.library.catalog.dto.request.publication.SaveDocumentUrlRequest;
 import com.library.catalog.dto.request.publication.UpdatePublicationRequest;
 import com.library.catalog.dto.response.item.ItemsByPublicationIdResponse;
+import com.library.catalog.dto.response.publication.DocumentUploadUrlResponse;
+import com.library.catalog.dto.response.publication.PublicSearchResult;
 import com.library.catalog.dto.response.publication.LibrarianPublicationListResponse;
 import com.library.catalog.dto.response.publication.MostBorrowedPublicationsResponse;
 import com.library.catalog.dto.response.publication.NewestPublicationsResponse;
@@ -23,6 +31,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,6 +41,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,14 +58,44 @@ public class PublicationController {
   private final GetNewestPublicationsUseCase getNewestPublicationsUseCase;
   private final GetMostBorrowedPublicationsUseCase getMostBorrowedPublicationsUseCase;
   private final GetAllItemsByPublicationId getAllItemsByPublicationId;
+  private final SearchPublicationsUseCase searchPublicationsUseCase;
+  private final UploadPublicationCoverUseCase uploadPublicationCoverUseCase;
+  private final GetDocumentUploadUrlUseCase getDocumentUploadUrlUseCase;
+  private final SaveDocumentUrlUseCase saveDocumentUrlUseCase;
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   @RequiresRole(RoleConstants.LIBRARIAN)
-  public ApiResponseApp<Void> createPublication(
+  public ApiResponseApp<String> createPublication(
       @RequestBody @Valid CreatePublicationRequest request) {
     log.info("Create publication with request: {}", request);
-    createPublicationUseCase.execute(request);
-    return ApiResponseApp.success("create publication success");
+    Long id = createPublicationUseCase.execute(request);
+    return ApiResponseApp.created(String.valueOf(id));
+  }
+
+  @PostMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  public ApiResponseApp<String> uploadCover(
+      @PathVariable("id") Long id,
+      @RequestParam("file") MultipartFile file) {
+    return ApiResponseApp.success("Upload cover success",
+        uploadPublicationCoverUseCase.execute(id, file));
+  }
+
+  @GetMapping("/{id}/document-upload-url")
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  public ApiResponseApp<DocumentUploadUrlResponse> getDocumentUploadUrl(
+      @PathVariable("id") Long id,
+      @RequestParam(name = "filename") String filename) {
+    return ApiResponseApp.success(getDocumentUploadUrlUseCase.execute(id, filename));
+  }
+
+  @PutMapping("/{id}/document-url")
+  @RequiresRole(RoleConstants.LIBRARIAN)
+  public ApiResponseApp<String> saveDocumentUrl(
+      @PathVariable("id") Long id,
+      @RequestBody @Valid SaveDocumentUrlRequest request) {
+    return ApiResponseApp.success(saveDocumentUrlUseCase.execute(id, request.s3Key()));
   }
 
 
@@ -69,28 +109,13 @@ public class PublicationController {
     return ApiResponseApp.success("update success");
   }
 
-  // not finish
-  @PutMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @RequiresRole(RoleConstants.LIBRARIAN)
-  public ApiResponseApp<String> updatePublicationCover(
-      @PathVariable Long id,
-      @RequestParam("file") MultipartFile file) {
-    log.info("Update publication cover with id: {}, file: {}", id, file);
-    return ApiResponseApp.success("update publication cover success",
-        "https://scontent.fhan3-4.fna.fbcdn.net/v/t39.30808-1/307986850_1310565733103522_5247040603385687805_n.jpg?stp=c0.0.1536.1536a_dst-jpg_s200x200_tt6&_nc_cat=104&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeF-9mXKwwe1p3pcx3NYuWxWfKaGmN7xaId8poaY3vFoh2_dLaWdbKGs1YDndn3ei_UVZk6RoTSgGQ0PZaoC1TjK&_nc_ohc=AZOdnzAgaGcQ7kNvwEG6vFg&_nc_oc=AdoSpfjW8_67ijQoXJuastV9GFFl6PBY0sPrcHKA7xZslL1hAnURzBni1e2hGfOboGU&_nc_zt=24&_nc_ht=scontent.fhan3-4.fna&_nc_gid=YNF7ER-mNFrFd0_AbuD7cw&_nc_ss=7a3a8&oh=00_Af0srYOJMsJinSzbtNoElIiVNXSGmHhK6b2ZElApp8zFWg&oe=69DE7B68");
-  }
 
-  // not finish
-  @PutMapping(value = "/{id}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @RequiresRole(RoleConstants.LIBRARIAN)
-  public ApiResponseApp<String> updatePublicationFile(
-      @PathVariable("id") Long id,
-      @RequestParam("file") MultipartFile file) {
-    log.info("Update publication file with id: {}, file: {}", id, file);
-    String url = "https://corecppil.github.io/Meetups/2020-05-26_CoreCpp_Worldwide!/The_SOLID_Principles.pdf";
-    return ApiResponseApp.success("update publication file success", url);
+  // public endpoint
+  @GetMapping("/search")
+  public ApiResponseApp<PageResponse<PublicSearchResult>> searchPublications(
+      @ModelAttribute PublicSearchRequest request) {
+    return ApiResponseApp.success(searchPublicationsUseCase.execute(request));
   }
-
 
   @GetMapping("/{id}")
   public ApiResponseApp<PublicationDetailResponse> getPublicationById(

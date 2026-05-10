@@ -58,10 +58,21 @@
 
         <!-- JSON -->
         <jackson.version>2.16.0</jackson.version>
+
+        <!-- AWS SDK -->
+        <aws-sdk.version>2.42.40</aws-sdk.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- AWS SDK -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- Spring Boot BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

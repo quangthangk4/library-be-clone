@@ -83,6 +83,12 @@
       <artifactId>spring-kafka</artifactId>
     </dependency>
 
+    <!-- AWS S3 -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+    </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

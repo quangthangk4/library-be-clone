@@ -1,29 +1,32 @@
-package com.library.user.infrastructure.s3;
+package com.library.shared.infrastructure.storage;
 
 import com.library.shared.exception.AppException;
 import com.library.shared.exception.ErrorCode;
+import com.library.shared.port.StoragePort;
 import java.io.IOException;
-import java.util.Set;
+import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Slf4j
 @Service
+@Primary
 @RequiredArgsConstructor
-public class S3StorageService {
-
-  private static final long MAX_SIZE_BYTES = 5L * 1024 * 1024; // 5 MB
-  private static final Set<String> ALLOWED_CONTENT_TYPES =
-      Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+public class S3StorageService implements StoragePort {
 
   private final S3Client s3Client;
+  private final S3Presigner s3Presigner;
 
   @Value("${spring.aws.s3.bucket}")
   private String bucket;
@@ -31,11 +34,11 @@ public class S3StorageService {
   @Value("${spring.aws.region}")
   private String region;
 
-  /**
-   * Validate, upload to S3, and return the public URL. Key: {folder}/{UUID}{.ext}
-   */
+  @Override
   public String upload(MultipartFile file, String folder) {
-    validate(file);
+    if (file == null || file.isEmpty()) {
+      throw new AppException(ErrorCode.INVALID_REQUEST);
+    }
 
     String key = folder + "/" + generateKey(file.getOriginalFilename());
 
@@ -59,21 +62,27 @@ public class S3StorageService {
     return url;
   }
 
-  private void validate(MultipartFile file) {
-    if (file == null || file.isEmpty()) {
-      throw new AppException(ErrorCode.INVALID_REQUEST);
-    }
-    if (file.getSize() > MAX_SIZE_BYTES) {
-      throw new AppException(ErrorCode.FILE_TOO_LARGE);
-    }
-    String contentType = file.getContentType();
-    if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-      throw new AppException(ErrorCode.INVALID_FILE_TYPE);
-    }
+  @Override
+  public String generatePresignedPutUrl(String s3Key, long ttlSeconds) {
+    PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+        .signatureDuration(Duration.ofSeconds(ttlSeconds))
+        .putObjectRequest(PutObjectRequest.builder()
+            .bucket(bucket)
+            .key(s3Key)
+            .build())
+        .build();
+
+    PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(presignRequest);
+    log.info("Generated presigned PUT URL for key={}, ttl={}s", s3Key, ttlSeconds);
+    return presigned.url().toString();
   }
 
-  // e.g. "my photo.PNG" → "my_photo_<uuid>.png"
-  private String generateKey(String originalFilename) {
+  @Override
+  public String buildPublicUrl(String s3Key) {
+    return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, s3Key);
+  }
+
+  public static String generateKey(String originalFilename) {
     String ext = "";
     String base = "file";
     if (originalFilename != null && originalFilename.contains(".")) {

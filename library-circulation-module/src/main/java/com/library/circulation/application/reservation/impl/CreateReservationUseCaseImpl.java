@@ -33,11 +33,30 @@ public class CreateReservationUseCaseImpl implements CreateReservationUseCase {
           AND status IN ('PENDING', 'READY_FOR_PICKUP')
         """;
 
+    private static final String CHECK_ACTIVE_RESERVATIONS_COUNT_SQL = """
+        SELECT COUNT(*) FROM reservations
+        WHERE user_id = :userId
+          AND status IN ('PENDING', 'READY_FOR_PICKUP')
+        """;
+
+    private static final String CHECK_UNPAID_FINES_SQL = """
+        SELECT COUNT(*) FROM fines f
+        JOIN borrowing_transactions bt ON f.transaction_id = bt.id
+        WHERE bt.user_id = :userId
+          AND f.payment_status = 'UNPAID'
+        """;
+
     private static final String CHECK_AVAILABLE_ITEM_SQL = """
         SELECT COUNT(*) FROM items
         WHERE publication_id = :publicationId
           AND status = 'AVAILABLE'
           AND (:branch = 'ANY' OR branch = :branch)
+        """;
+
+    private static final String CHECK_BRANCH_HAS_ITEMS_SQL = """
+        SELECT COUNT(*) FROM items
+        WHERE publication_id = :publicationId
+          AND branch = :branch
         """;
 
     private static final String NEXT_QUEUE_POSITION_SQL = """
@@ -58,11 +77,34 @@ public class CreateReservationUseCaseImpl implements CreateReservationUseCase {
         String branch = command.preferredBranch() != null && !command.preferredBranch().isBlank()
             ? command.preferredBranch().trim() : "ANY";
 
+        // Check for unpaid fines
+        Long unpaidFines = jdbcTemplate.queryForObject(CHECK_UNPAID_FINES_SQL,
+            Map.of("userId", userId), Long.class);
+        if (unpaidFines != null && unpaidFines > 0) {
+            throw new AppException(ErrorCode.USER_HAS_UNPAID_FINES);
+        }
+
+        // Check active reservations count (max 2)
+        Long activeCount = jdbcTemplate.queryForObject(CHECK_ACTIVE_RESERVATIONS_COUNT_SQL,
+            Map.of("userId", userId), Long.class);
+        if (activeCount != null && activeCount >= 2) {
+            throw new AppException(ErrorCode.RESERVATION_LIMIT_EXCEEDED);
+        }
+
         // No active reservation for this publication
         Long existing = jdbcTemplate.queryForObject(CHECK_EXISTING_SQL,
             Map.of("userId", userId, "publicationId", publicationId), Long.class);
         if (existing != null && existing > 0) {
             throw new AppException(ErrorCode.RESERVATION_ALREADY_EXISTS);
+        }
+
+        // Check if branch has any items at all (if not ANY)
+        if (!"ANY".equals(branch)) {
+            Long branchItemCount = jdbcTemplate.queryForObject(CHECK_BRANCH_HAS_ITEMS_SQL,
+                Map.of("publicationId", publicationId, "branch", branch), Long.class);
+            if (branchItemCount == null || branchItemCount == 0) {
+                throw new AppException(ErrorCode.RESERVATION_BRANCH_NO_ITEMS);
+            }
         }
 
         // Block if item is available — user should borrow directly

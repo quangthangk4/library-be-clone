@@ -184,6 +184,24 @@ public enum EmailTemplates {
           """
   ),
 
+  // args: fullName, publicationTitle, deadline
+  BOOK_AVAILABLE(
+      "[Thư viện HCMUT] Sách đặt trước đã sẵn sàng",
+      """
+          <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:600px;margin:0 auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+              <h2 style="color:#007bff;">📖 Sách đặt trước đã sẵn sàng để lấy</h2>
+              <p>Xin chào <b>%s</b>,</p>
+              <p>Sách <b>"%s"</b> bạn đã đặt trước hiện đã có sẵn tại thư viện.</p>
+              <p>Vui lòng đến lấy sách trước:</p>
+              <p style="font-size:18px;font-weight:bold;color:#d32f2f;">⏰ %s</p>
+              <p style="color:#888;font-size:13px;">Quá thời hạn trên, sách sẽ được chuyển cho người đặt trước tiếp theo.</p>
+              <p style="color:#888;font-size:13px;">Trân trọng, Thư viện HCMUT</p>
+          </div>
+          </body></html>
+          """
+  ),
+
   // args: fullName, fineAmount, publicationTitle
   FINE_PAID(
       "[Thư viện HCMUT] Xác nhận thanh toán phí phạt",
