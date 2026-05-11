@@ -153,28 +153,28 @@ INSERT INTO users (id, created_at, updated_at, full_name, email, hashed_password
                    date_of_birth, phone_number, faculty, student_id,
                    address, provider, provider_id, profile_picture_url, last_login_at) VALUES
     (1, NOW(), NOW(), 'Nguyễn Quản Trị', 'admin@hcmut.edu.vn',
-     '$2a$10$xJwL5v5zS1Y5m8K3Q2N4fOeP1234567890abcdefghijklmnopqrstu',
+     '$2a$10$B0AIAFUtwqSvnO46IogPfeaUR/SRYXGgQcezUasUWpbBMM9R/DCB6',
      'ACTIVE', FALSE, 100, '1990-01-15', '0901000001', NULL, NULL,
      'TP. Hồ Chí Minh', NULL, NULL, NULL, NULL),
 
     (2, NOW(), NOW(), 'Trần Thủ Thư', 'librarian1@hcmut.edu.vn',
-     '$2a$10$xJwL5v5zS1Y5m8K3Q2N4fOeP1234567890abcdefghijklmnopqrstu',
+     '$2a$10$B0AIAFUtwqSvnO46IogPfeaUR/SRYXGgQcezUasUWpbBMM9R/DCB6',
      'ACTIVE', FALSE, 100, '1988-06-20', '0901000002', NULL, NULL,
      'Bình Dương', NULL, NULL, NULL, NULL),
 
     (3, NOW(), NOW(), 'Lê Thị Thủ Thư', 'librarian2@hcmut.edu.vn',
-     '$2a$10$xJwL5v5zS1Y5m8K3Q2N4fOeP1234567890abcdefghijklmnopqrstu',
+     '$2a$10$B0AIAFUtwqSvnO46IogPfeaUR/SRYXGgQcezUasUWpbBMM9R/DCB6',
      'ACTIVE', FALSE, 100, '1992-03-10', '0901000003', NULL, NULL,
      'TP. Hồ Chí Minh', NULL, NULL, NULL, NULL),
 
     (4, NOW(), NOW(), 'Phạm Văn Sinh Viên', 'phamvan.2151234@hcmut.edu.vn',
-     '$2a$10$xJwL5v5zS1Y5m8K3Q2N4fOeP1234567890abcdefghijklmnopqrstu',
+     '$2a$10$B0AIAFUtwqSvnO46IogPfeaUR/SRYXGgQcezUasUWpbBMM9R/DCB6',
      'ACTIVE', TRUE, 95, '2003-08-25', '0901000004',
      'KHOA_KHOA_HOC_VA_KY_THUAT_MAY_TINH', '2151234',
      'Thủ Đức, TP. Hồ Chí Minh', NULL, NULL, NULL, NULL),
 
     (5, NOW(), NOW(), 'Nguyễn Thị Học Viên', 'nguyenthi.2152345@hcmut.edu.vn',
-     '$2a$10$xJwL5v5zS1Y5m8K3Q2N4fOeP1234567890abcdefghijklmnopqrstu',
+     '$2a$10$B0AIAFUtwqSvnO46IogPfeaUR/SRYXGgQcezUasUWpbBMM9R/DCB6',
      'ACTIVE', TRUE, 100, '2003-11-30', '0901000005',
      'KHOA_DIEN_DIEN_TU', '2152345',
      'Bình Thạnh, TP. Hồ Chí Minh', NULL, NULL, NULL, NULL);

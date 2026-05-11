@@ -25,7 +25,7 @@ public class GetMyFinesUseCaseImpl implements GetMyFinesUseCase {
         FROM fines f
         JOIN borrowing_transactions t ON t.id = f.transaction_id
         WHERE t.user_id = :userId
-          AND (:status IS NULL OR f.payment_status = :status)
+          AND (CAST(:status AS TEXT) IS NULL OR f.payment_status = :status)
         """;
 
     private static final String LIST_SQL = """
@@ -37,7 +37,7 @@ public class GetMyFinesUseCaseImpl implements GetMyFinesUseCase {
         JOIN items i        ON i.id = t.item_id
         JOIN publications p ON p.id = i.publication_id
         WHERE t.user_id = :userId
-          AND (:status IS NULL OR f.payment_status = :status)
+          AND (CAST(:status AS TEXT) IS NULL OR f.payment_status = :status)
         ORDER BY f.created_at DESC
         LIMIT :size OFFSET :offset
         """;
