@@ -21,7 +21,7 @@ services:
       retries: 10
 
   kafka:
-    image: bitnami/kafka:4.0.0
+    image: soldevelo/kafka:4.0.0
     container_name: kafka
 
     environment:
